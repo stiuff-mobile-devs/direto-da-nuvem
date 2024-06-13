@@ -1,4 +1,25 @@
+import 'package:ddnuvem/controllers/user_controller.dart';
+import 'package:ddnuvem/services/local_storage/booleans.dart';
+import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
+import 'package:ddnuvem/services/sign_in_service.dart';
+import 'package:ddnuvem/views/dashboard_page.dart';
+import 'package:ddnuvem/views/intro_page.dart';
+import 'package:ddnuvem/views/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+class RedirectionData {
+  bool firstTime;
+  bool loggedIn;
+  bool isAdmin;
+  bool isDeviceRegistered;
+
+  RedirectionData(
+      {this.firstTime = false,
+      this.loggedIn = false,
+      this.isAdmin = false,
+      this.isDeviceRegistered = false});
+}
 
 //TODO:
 //   | Logado | Cadastrado | Admin |
@@ -17,8 +38,74 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
+  late LocalStorageService localStorageService;
+  late SignInService signInService;
+
+  getDependencies() {
+    localStorageService =
+        Provider.of<LocalStorageService>(context, listen: false);
+    signInService = Provider.of<SignInService>(context, listen: false);
+  }
+
+  Future<RedirectionData> getRedirectionData() async {
+    bool firstTime =
+        await localStorageService.readBool(LocalStorageBooleans.firstTime) ??
+            true;
+
+    RedirectionData redirectionData = RedirectionData(firstTime: firstTime);
+
+    signInService.signInWithGoogle();
+
+    return redirectionData;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDependencies();
+  }
+
+  ChangeNotifier createUserController(BuildContext context) {
+    final u = UserController(context.read(), context.read());
+    u.getUserPrivileges();
+    return u;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return FutureBuilder(
+        future: getRedirectionData(),
+        builder: (context, snapshot) {
+          if (snapshot.data == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return ChangeNotifierProvider(
+            create: (context) {
+              final u = UserController(context.read(), context.read());
+              u.getUserPrivileges();
+              return u;
+            },
+            child: Consumer<UserController>(
+              builder: (context, value, child) {
+                snapshot.data!.loggedIn = value.isLoggedIn;
+                return handleRedirection(snapshot.data!);
+              },
+            ),
+          );
+        });
+  }
+
+  Widget loading() {
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  Widget handleRedirection(RedirectionData redirectionData) {
+    if (redirectionData.firstTime) {
+      return const IntroPage();
+    }
+    if (!redirectionData.loggedIn) {
+      return const LoginPage();
+    }
+    return const DashboardPage();
   }
 }
