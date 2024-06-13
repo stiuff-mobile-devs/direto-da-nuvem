@@ -21,8 +21,10 @@ class GoogleSignInHandler {
       try {
         await auth.signOut();
         await googleSignIn.signOut();
-        Navigator.pushNamedAndRemoveUntil(
-            context, RoutePaths.login, (route) => false);
+        if (context.mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+              context, RoutePaths.login, (route) => false);
+        }
         debugPrint('Deslogado');
       } catch (e) {
         debugPrint("ERRO deslogando:\n$e");
@@ -45,8 +47,9 @@ class GoogleSignInHandler {
       userCredential = await auth.signInWithCredential(credential);
       await diretoDaNuvemAPI.userResource
           .create(models.User.fromFirebaseUser(auth.currentUser!));
-      Navigator.pushReplacementNamed(
-          context, RoutePaths.dashboard);
+      if (context.mounted) {
+        Navigator.pushReplacementNamed(context, RoutePaths.dashboard);
+      }
     }
   }
 
