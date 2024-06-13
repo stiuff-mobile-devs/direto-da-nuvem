@@ -1,6 +1,5 @@
 import 'package:ddnuvem/routes/route_paths.dart';
 import 'package:ddnuvem/routes/routes.dart';
-import 'package:ddnuvem/views/dashboard_page.dart';
 import 'package:ddnuvem/views/login_page.dart';
 import 'package:flutter/material.dart';
 
@@ -11,11 +10,9 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Direto da Nuvem",
-      home: const LoginPage(),
-      routes: {
-        "/login": (context) => const LoginPage(),
-        "/dashboard": (context) => const DashboardPage()
-      },
+      initialRoute: RoutePaths.splash,
+      routes: Routes.routes,
+      navigatorKey: Routes.navigatorKey,
     );
   }
 }
