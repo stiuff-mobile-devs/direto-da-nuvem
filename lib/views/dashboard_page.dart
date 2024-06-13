@@ -33,6 +33,7 @@ class _DashboardPageState extends State<DashboardPage> {
               padding: EdgeInsets.all(25.0),
               child: Text("Conectado"),
             ),
+            Text("idInstaller: ${userController.isInstaller}"),
             const SizedBox(height: 25),
             SizedBox(
               height: 40,

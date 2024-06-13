@@ -19,6 +19,28 @@ enum UserPrivileges {
   }
 }
 
+class UserPrivilege {
+  bool isAdmin;
+  bool isSuperAdmin;
+  bool isInstaller;
+
+  UserPrivilege({
+    required this.isAdmin,
+    required this.isSuperAdmin,
+    required this.isInstaller,
+  });
+
+  factory UserPrivilege.fromMap(
+    Map<String, dynamic> map
+  ) {
+    return UserPrivilege(
+      isAdmin: map['admin'] ?? false, 
+      isSuperAdmin: map['super_admin'] ?? false, 
+      isInstaller: map['installer'] ?? false
+    );
+  }
+}
+
 class User {
   String id;
   String email;

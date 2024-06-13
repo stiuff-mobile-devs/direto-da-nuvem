@@ -65,6 +65,12 @@ class _SplashPageState extends State<SplashPage> {
     getDependencies();
   }
 
+  ChangeNotifier createUserController(BuildContext context) {
+    final u = UserController(context.read(), context.read());
+    u.getUserPrivileges();
+    return u;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -74,7 +80,11 @@ class _SplashPageState extends State<SplashPage> {
             return const Center(child: CircularProgressIndicator());
           }
           return ChangeNotifierProvider(
-            create: (context) => UserController(context.read()),
+            create: (context) {
+              final u = UserController(context.read(), context.read());
+              u.getUserPrivileges();
+              return u;
+            },
             child: Consumer<UserController>(
               builder: (context, value, child) {
                 snapshot.data!.loggedIn = value.isLoggedIn;
