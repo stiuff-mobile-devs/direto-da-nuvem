@@ -14,4 +14,15 @@ class Device {
     required this.createdAt,
     required this.updatedAt,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      "id": id,
+      "locale": locale,
+      "description": description,
+      "group_id": groupId,
+      "created_at": createdAt,
+      "updated_at": updatedAt
+    };
+  }
 }

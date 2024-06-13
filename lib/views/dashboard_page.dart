@@ -13,7 +13,7 @@ class _DashboardPageState extends State<DashboardPage> {
   late UserController userController;
 
   getDependencies() {
-    userController = Provider.of<UserController>(context, listen: false);
+    userController = Provider.of<UserController>(context, listen: true);
   }
 
   @override
