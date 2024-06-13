@@ -1,6 +1,5 @@
 import 'package:ddnuvem/routes/route_paths.dart';
 import 'package:ddnuvem/routes/routes.dart';
-import 'package:ddnuvem/views/login_page.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatelessWidget {
