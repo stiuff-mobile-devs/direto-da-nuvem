@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "234270230593",
+    "project_id": "direto-da-nuvem",
+    "storage_bucket": "direto-da-nuvem.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:234270230593:android:5dea234e67bb4fd0ea9ec0",
+        "android_client_info": {
+          "package_name": "com.example.ddnuvem"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "234270230593-26h3iui3g1ogjuaburrfta87n4ad08ak.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJJ9H1tfBcEbGgN7fJg06tvCk3XY-oQHo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "234270230593-26h3iui3g1ogjuaburrfta87n4ad08ak.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

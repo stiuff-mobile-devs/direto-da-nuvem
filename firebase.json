@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"direto-da-nuvem","appId":"1:234270230593:android:5dea234e67bb4fd0ea9ec0","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"direto-da-nuvem","configurations":{"android":"1:234270230593:android:5dea234e67bb4fd0ea9ec0","web":"1:234270230593:web:517b01ba1914171eea9ec0"}}}}}}
