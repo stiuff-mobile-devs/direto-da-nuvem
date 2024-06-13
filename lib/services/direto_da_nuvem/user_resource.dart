@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/user.dart';
 
 class UserResource {
-  static String collectionName = "users";
+  static String collection = "users";
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<bool> create(User user) async {
     DocumentReference documentReference =
-        _firestore.doc("${UserResource.collectionName}/${user.id}");
+        _firestore.doc("${UserResource.collection}/${user.id}");
     DocumentSnapshot documentSnapshot = await documentReference.get();
     if (documentSnapshot.exists) {
       return false;
@@ -23,7 +23,7 @@ class UserResource {
 
   Future<UserPrivilege> getUserPrivileges(String uid) async {
     var doc = await _firestore
-        .doc('${UserResource.collectionName}/$uid/privileges/privileges')
+        .doc('${UserResource.collection}/$uid/privileges/privileges')
         .get();
 
     if (!doc.exists) {

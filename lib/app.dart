@@ -22,7 +22,7 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Direto da Nuvem",
-      initialRoute: RoutePaths.splash,
+      initialRoute: RoutePaths.redirection,
       routes: Routes.routes,
       navigatorKey: Routes.navigatorKey,
     );
