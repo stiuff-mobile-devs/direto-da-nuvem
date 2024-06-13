@@ -1,6 +1,6 @@
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/google_sign_in.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -10,12 +10,15 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  late GoogleSignInHandler _googleSignInHandler;
+  late UserController userController;
+
+  getDependencies() {
+    userController = Provider.of<UserController>(context, listen: false);
+  }
 
   @override
   void initState() {
-    _googleSignInHandler =
-        Provider.of<GoogleSignInHandler>(context, listen: false);
+    getDependencies();
     super.initState();
   }
 
@@ -34,7 +37,7 @@ class _DashboardPageState extends State<DashboardPage> {
             SizedBox(
               height: 40,
               child: ElevatedButton(
-                onPressed: _googleSignInHandler.signInWithGoogle,
+                onPressed: userController.logout,
                 child: const Text("Sair"),
               ),
             ),
