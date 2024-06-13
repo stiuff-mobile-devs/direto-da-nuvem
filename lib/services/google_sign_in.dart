@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ddnuvem/routes/route_paths.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -37,7 +38,7 @@ class GoogleSignInHandler {
       debugPrint('googleUser: $googleUser');
       debugPrint('googleAuth: $googleAuth');
       userCredential = await auth.signInWithCredential(credential);
-      Navigator.pushNamedAndRemoveUntil(context, '/map', (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (route) => false);
     }
   }
 

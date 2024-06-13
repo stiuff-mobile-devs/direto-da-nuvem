@@ -1,3 +1,4 @@
+import 'package:ddnuvem/routes/route_paths.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sign_in_button/sign_in_button.dart';
@@ -41,32 +42,10 @@ class _LoginPageState extends State<LoginPage> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.data == true) {
-            // TODO: criar dashboard page
-            // WidgetsBinding.instance.addPostFrameCallback((_) {
-            //   Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (route) => false);
-            // });
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(25.0),
-                    child: Text("Conectado"),
-                  ),
-                  const SizedBox(height: 25),
-                  SizedBox(
-                    height: 40,
-                    child: SignInButton(
-                      Buttons.googleDark,
-                      text: "Entrar com o Google",
-                      onPressed: _googleSignInHandler.signInWithGoogle,
-                    ),
-                  ),
-                  const SizedBox(height: 25),
-                  Text("v $packageVersion"),
-                ],
-              ),
-            );
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (route) => false);
+            });
+            return Container();
           } else {
             return Center(
               child: Column(
