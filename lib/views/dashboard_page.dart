@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/google_sign_in.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -13,7 +14,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   void initState() {
-    _googleSignInHandler = GoogleSignInHandler(context);
+    _googleSignInHandler =
+        Provider.of<GoogleSignInHandler>(context, listen: false);
     super.initState();
   }
 

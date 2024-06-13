@@ -1,6 +1,6 @@
 import 'package:ddnuvem/routes/route_paths.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     getPackageVersion();
-    _googleSignInHandler = GoogleSignInHandler(context);
+    _googleSignInHandler = Provider.of<GoogleSignInHandler>(context,listen: false);
     super.initState();
   }
 
@@ -43,7 +43,8 @@ class _LoginPageState extends State<LoginPage> {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.data == true) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (route) => false);
+              Navigator.pushNamedAndRemoveUntil(
+                  context, RoutePaths.dashboard, (route) => false);
             });
             return Container();
           } else {

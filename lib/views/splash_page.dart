@@ -1,3 +1,4 @@
+import 'package:ddnuvem/views/login_page.dart';
 import 'package:flutter/material.dart';
 
 //TODO:
@@ -17,8 +18,36 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
+  Future<bool> tryLogin() async {
+    return false;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return FutureBuilder<bool>(
+        future: tryLogin(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              return handleRedirection();
+            case ConnectionState.waiting:
+              return loading();
+            default:
+              return const Placeholder();
+          }
+        });
+  }
+
+  Widget loading() {
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  Widget handleRedirection() {
+    return const LoginPage();
   }
 }
