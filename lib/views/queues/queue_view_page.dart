@@ -108,7 +108,6 @@ class _QueueViewPageState extends State<QueueViewPage> {
         child: IntrinsicWidth(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min, // Para a Column não ocupar todo o espaço vertical
             children: [
               SizedBox(
                 width: 150,

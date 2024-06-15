@@ -30,6 +30,7 @@ class UserController extends ChangeNotifier {
 
   login() async {
     await _signInService.signInWithGoogle();
+    await getUserPrivileges();
     isLoggedIn = true;
     notifyListeners();
   }
