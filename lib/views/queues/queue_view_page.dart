@@ -1,6 +1,9 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class QueueViewPage extends StatefulWidget {
   const QueueViewPage({super.key});
@@ -12,6 +15,7 @@ class QueueViewPage extends StatefulWidget {
 class _QueueViewPageState extends State<QueueViewPage> {
   final db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
+  late UserController userController;
 
   bool playing = true;
   bool isLoading = true;
@@ -21,6 +25,12 @@ class _QueueViewPageState extends State<QueueViewPage> {
   initState() {
     super.initState();
     getUniqueQueue();
+    getDependencies();
+  }
+
+  getDependencies() {
+    userController =
+        Provider.of<UserController>(context, listen: false);
   }
 
   Future<void>getUniqueQueue() async {
@@ -47,7 +57,6 @@ class _QueueViewPageState extends State<QueueViewPage> {
       }, onError: (e) {
         debugPrint("Error completing: $e");
       });
-      debugPrint("Queue: $queue");
       this.queue = queue;
 
       setState(() {
@@ -71,25 +80,58 @@ class _QueueViewPageState extends State<QueueViewPage> {
                 playing = false;
               });
             },
-            child: PageView(
-              children: queue.map((image) {
-                return Image.memory(
-                  image["image"],
-                  fit: BoxFit.cover,
-                  width: double.infinity,
+            child: CarouselSlider(
+              options: CarouselOptions(
+                height: MediaQuery.of(context).size.height,
+                viewportFraction: 1.0,
+                autoPlay: true,
+                autoPlayInterval: const Duration(seconds: 5),
+                enlargeCenterPage: true,
+              ),
+              items: queue.map((image) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                      child: Image.memory(
+                        image["image"],
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  },
                 );
               }).toList(),
             ),
           )
           : Center(
-            child: ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  playing = true;
-                });
-              },
-              child: const Text("Play")),
-          )
+        child: IntrinsicWidth(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min, // Para a Column não ocupar todo o espaço vertical
+            children: [
+              SizedBox(
+                width: 150,
+                child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      playing = true;
+                    });
+                  },
+                  child: const Text("Tocar Fila"),
+                ),
+              ),
+              SizedBox(
+                width: 150,
+                child: ElevatedButton(
+                  onPressed: userController.logout,
+                  child: const Text("Sair"),
+                ),
+              ),
+            ],
+          ),
+        ),
+      )
     );
   }
 }

@@ -63,11 +63,12 @@ class _RedirectionPageState extends State<RedirectionPage> {
     RedirectionData redirectionData =
         RedirectionData(firstTime: firstTime, isDeviceRegistered: registered);
 
-    if (await signInService.trySignIn()) {
-      userController.isLoggedIn = true;
-      await userController.getUserPrivileges();
+    if (!userController.isLoggedIn) {
+      if (await signInService.trySignIn()) {
+        userController.isLoggedIn = true;
+        await userController.getUserPrivileges();
+      }
     }
-
     return redirectionData;
   }
 
