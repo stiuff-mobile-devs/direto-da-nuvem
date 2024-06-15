@@ -25,7 +25,8 @@ class RedirectionData {
       this.loggedIn = false,
       this.isInstaller = false,
       this.isDeviceRegistered = false,
-      this.isAdmin = false});
+      this.isAdmin = false})
+  ;
 }
 
 class RedirectionPage extends StatefulWidget {
@@ -41,8 +42,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
   late SignInService signInService;
 
   getDependencies() {
-    localStorageService =
-        Provider.of<LocalStorageService>(context, listen: false);
+    localStorageService = Provider.of<LocalStorageService>(context, listen: false);
     signInService = Provider.of<SignInService>(context, listen: false);
     diretoDaNuvemAPI = Provider.of<DiretoDaNuvemAPI>(context, listen: false);
   }
@@ -120,13 +120,13 @@ class _RedirectionPageState extends State<RedirectionPage> {
     if (!redirectionData.loggedIn) {
       return const LoginPage();
     }
-    if (!redirectionData.isDeviceRegistered) {
-      if (redirectionData.isInstaller) {
-        return const RegisterDevicePage();
-      } else {
-        return const UnregisteredDeviceErrorPage();
-      }
-    }
+    // if (!redirectionData.isDeviceRegistered) {
+    //   if (redirectionData.isInstaller) {
+    //     return const RegisterDevicePage();
+    //   } else {
+    //     return const UnregisteredDeviceErrorPage();
+    //   }
+    // }
     if (redirectionData.isAdmin) {
       return const DashboardPage();
     }
