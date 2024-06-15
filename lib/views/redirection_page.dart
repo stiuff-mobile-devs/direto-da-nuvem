@@ -65,7 +65,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
 
     if (await signInService.trySignIn()) {
       userController.isLoggedIn = true;
-      userController.getUserPrivileges();
+      await userController.getUserPrivileges();
     }
 
     return redirectionData;
