@@ -69,6 +69,18 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  Widget _buildThumbnail(Map<String, dynamic> image) {
+    return Container(
+      width: 100,
+      height: 100,
+      margin: const EdgeInsets.symmetric(horizontal: 5.0),
+      child: Image.memory(
+        image["image"],
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,6 +124,12 @@ class _DashboardPageState extends State<DashboardPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: queue.map((image) => _buildThumbnail(image)).toList(),
+                    ),
+                  ),
                   const Spacer(),
                   Row(
                     children: [
