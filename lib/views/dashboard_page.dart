@@ -71,14 +71,43 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildThumbnail(Map<String, dynamic> image) {
     return Container(
-      width: 100,
-      height: 100,
+      key: ValueKey(image["id"]), // Important for ReorderableListView
+      width: 150,
+      height: 150,
       margin: const EdgeInsets.symmetric(horizontal: 5.0),
       child: Image.memory(
         image["image"],
         fit: BoxFit.cover,
       ),
     );
+  }
+
+  void _onReorder(int oldIndex, int newIndex) {
+    setState(() {
+      if (oldIndex < newIndex) {
+        newIndex -= 1;
+      }
+      final Map<String, dynamic> item = queue.removeAt(oldIndex);
+      queue.insert(newIndex, item);
+    });
+  }
+
+  Future<void> _saveNewOrderToFirebase() async {
+    try {
+      for (int i = 0; i < queue.length; i++) {
+        await db.collection("unique_queue").doc(queue[i]["id"]).update({
+          "position": i,
+        });
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Fila salva!')),
+      );
+    } catch (e) {
+      debugPrint('Error saving new order: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao salvar a nova ordem.')),
+      );
+    }
   }
 
   @override
@@ -120,50 +149,52 @@ class _DashboardPageState extends State<DashboardPage> {
         )
         : SafeArea(
           child: Center(
-            child: IntrinsicWidth(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: ReorderableListView(
                     scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: queue.map((image) => _buildThumbnail(image)).toList(),
+                    onReorder: _onReorder,
+                    children: queue.map((image) => _buildThumbnail(image)).toList(),
+                  ),
+                ),
+                const SizedBox(height: 24,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 120,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _saveNewOrderToFirebase();
+                        },
+                        child: const Text("Salvar"),
+                      ),
                     ),
-                  ),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 120,
-                        child: ElevatedButton(
-                          onPressed: userController.logout,
-                          child: const Text("Sair"),
-                        ),
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: 120,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            playing = true;
+                          });
+                        },
+                        child: const Text("Tocar Fila"),
                       ),
-                      const SizedBox(width: 12),
-                      SizedBox(
-                        width: 120,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              playing = true;
-                            });
-                          },
-                          child: const Text("Tocar Fila"),
-                        ),
+                    ),
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: 120,
+                      child: ElevatedButton(
+                        onPressed: userController.logout,
+                        child: const Text("Sair"),
                       ),
-                      const SizedBox(width: 12),
-                      SizedBox(
-                        width: 120,
-                        child: ElevatedButton(
-                          onPressed: userController.logout,
-                          child: const Text("Sair"),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         )
