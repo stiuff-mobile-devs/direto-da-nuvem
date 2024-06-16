@@ -1,4 +1,5 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_button/sign_in_button.dart';
@@ -41,9 +42,13 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(25.0),
-              child: Text("Direto da Nuvem"),
+            Padding(
+              padding: const EdgeInsets.all(25.0),
+              child: SvgPicture.asset(
+                height: 120,
+                'assets/DiretoDaNuvem-JustLogo.svg',
+                semanticsLabel: 'Logo Direto da Nuvem'
+              ),
             ),
             const SizedBox(height: 25),
             SizedBox(
@@ -60,47 +65,5 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
-
-    // return Scaffold(
-    //   body: FutureBuilder<bool>(
-    //     future: _googleSignInHandler.checkUserLoggedIn(),
-    //     builder: (context, snapshot) {
-    //       if (snapshot.connectionState == ConnectionState.waiting) {
-    //         return const Center(child: CircularProgressIndicator());
-    //       } else if (snapshot.hasError) {
-    //         return Center(child: Text('Error: ${snapshot.error}'));
-    //       } else if (snapshot.data == true) {
-    //         WidgetsBinding.instance.addPostFrameCallback((_) {
-    //           Navigator.pushNamedAndRemoveUntil(
-    //               context, RoutePaths.dashboard, (route) => false);
-    //         });
-    //         return Container();
-    //       } else {
-    //         return Center(
-    //           child: Column(
-    //             mainAxisAlignment: MainAxisAlignment.center,
-    //             children: [
-    //               const Padding(
-    //                 padding: EdgeInsets.all(25.0),
-    //                 child: Text("Desconectado"),
-    //               ),
-    //               const SizedBox(height: 25),
-    //               SizedBox(
-    //                 height: 40,
-    //                 child: SignInButton(
-    //                   Buttons.googleDark,
-    //                   text: "Entrar com o Google",
-    //                   onPressed: userController.signInWithGoogle,
-    //                 ),
-    //               ),
-    //               const SizedBox(height: 25),
-    //               Text("v $packageVersion"),
-    //             ],
-    //           ),
-    //         );
-    //       }
-    //     },
-    //   ),
-    // );
   }
 }
