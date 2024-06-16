@@ -21,6 +21,9 @@ class _DashboardPageState extends State<DashboardPage> {
   bool isLoading = true;
   List<Map<String, dynamic>> queue = [];
 
+  String? selectedImageId;
+  Map<String, bool> showX = {};
+
   @override
   initState() {
     super.initState();
@@ -70,15 +73,39 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildThumbnail(Map<String, dynamic> image) {
-    return Container(
-      key: ValueKey(image["id"]), // Important for ReorderableListView
-      width: 150,
-      height: 150,
-      margin: const EdgeInsets.symmetric(horizontal: 5.0),
-      child: Image.memory(
-        image["image"],
-        fit: BoxFit.cover,
-      ),
+    return Stack(
+      key: ValueKey(image["id"]),
+      alignment: Alignment.topRight,
+      children: [
+        Container(
+          width: 150,
+          height: 150,
+          margin: const EdgeInsets.symmetric(horizontal: 5.0),
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                if (selectedImageId == image["id"]) {
+                  selectedImageId = null;
+                  showX[image["id"]] = false;
+                } else {
+                  showX[selectedImageId ?? ''] = false;
+                  selectedImageId = image["id"];
+                  showX[image["id"]] = true;
+                }
+              });
+            },
+            child: Image.memory(
+              image["image"],
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        if (showX.containsKey(image["id"]) && showX[image["id"]]! && selectedImageId == image["id"])
+          IconButton(
+            icon: const Icon(Icons.close, color: Colors.red),
+            onPressed: () => _deleteImage(image["id"]),
+          ),
+      ],
     );
   }
 
@@ -109,6 +136,48 @@ class _DashboardPageState extends State<DashboardPage> {
         const SnackBar(content: Text('Erro ao salvar a nova ordem.')),
       );
     }
+  }
+
+  Future<void> _deleteImage(String imageId) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirmar Exclusão"),
+          content: const Text("Tem certeza que deseja excluir esta imagem?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                try {
+                  await db.collection("unique_queue").doc(imageId).delete();
+                  setState(() {
+                    queue.removeWhere((image) => image["id"] == imageId);
+                  });
+                  await storage.ref().child(imageId).delete();
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Imagem removida!')),
+                  );
+                } catch (e) {
+                  debugPrint('Error deleting image: $e');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Erro ao remover a imagem.')),
+                  );
+                }
+              },
+              child: const Text("Excluir"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -149,12 +218,13 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         )
         : SafeArea(
-          child: Center(
+          child: Container(
+            color: Colors.blueGrey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  height: 180,
+                  height: 100,
                   child: ReorderableListView(
                     scrollDirection: Axis.horizontal,
                     onReorder: _onReorder,
@@ -167,18 +237,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // SizedBox(
-                      //   width: 120,
-                      //   child: ElevatedButton(
-                      //     onPressed: () {
-                      //       _saveNewOrderToFirebase();
-                      //     },
-                      //     child: const Text("Salvar"),
-                      //   ),
-                      // ),
                       const SizedBox(width: 12),
                       SizedBox(
-                        width: 120,
+                        width: 140,
                         child: ElevatedButton(
                           onPressed: () {
                             setState(() {
@@ -188,9 +249,19 @@ class _DashboardPageState extends State<DashboardPage> {
                           child: const Text("Tocar Fila"),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       SizedBox(
-                        width: 120,
+                        width: 140,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            print("NOVA IMAGEM");
+                          },
+                          child: const Text("Nova Imagem"),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 140,
                         child: ElevatedButton(
                           onPressed: userController.logout,
                           child: const Text("Sair"),
