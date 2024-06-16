@@ -87,7 +87,7 @@ class _QueueViewPageState extends State<QueueViewPage> {
                 height: MediaQuery.of(context).size.height,
                 viewportFraction: 1.0,
                 autoPlay: true,
-                autoPlayInterval: const Duration(seconds: 5),
+                autoPlayInterval: const Duration(seconds: 7),
                 enlargeCenterPage: true,
               ),
               items: queue.map((image) {
@@ -120,6 +120,18 @@ class _QueueViewPageState extends State<QueueViewPage> {
                     });
                   },
                   child: const Text("Tocar Fila"),
+                ),
+              ),
+              SizedBox(
+                width: 150,
+                child: ElevatedButton(
+                  onPressed: () {
+                    getUniqueQueue();
+                    setState(() {
+                      playing = true;
+                    });
+                  },
+                  child: const Text("Atualizar"),
                 ),
               ),
               SizedBox(
