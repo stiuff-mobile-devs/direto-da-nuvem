@@ -90,6 +90,7 @@ class _DashboardPageState extends State<DashboardPage> {
       final Map<String, dynamic> item = queue.removeAt(oldIndex);
       queue.insert(newIndex, item);
     });
+    _saveNewOrderToFirebase();
   }
 
   Future<void> _saveNewOrderToFirebase() async {
@@ -100,7 +101,7 @@ class _DashboardPageState extends State<DashboardPage> {
         });
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Fila salva!')),
+        const SnackBar(content: Text('Nova ordem salva!')),
       );
     } catch (e) {
       debugPrint('Error saving new order: $e');
@@ -128,7 +129,7 @@ class _DashboardPageState extends State<DashboardPage> {
               height: MediaQuery.of(context).size.height,
               viewportFraction: 1.0,
               autoPlay: true,
-              autoPlayInterval: const Duration(seconds: 5),
+              autoPlayInterval: const Duration(seconds: 7),
               enlargeCenterPage: true,
             ),
             items: queue.map((image) {
@@ -152,7 +153,8 @@ class _DashboardPageState extends State<DashboardPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
+                SizedBox(
+                  height: 180,
                   child: ReorderableListView(
                     scrollDirection: Axis.horizontal,
                     onReorder: _onReorder,
@@ -160,39 +162,42 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
                 const SizedBox(height: 24,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 120,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _saveNewOrderToFirebase();
-                        },
-                        child: const Text("Salvar"),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // SizedBox(
+                      //   width: 120,
+                      //   child: ElevatedButton(
+                      //     onPressed: () {
+                      //       _saveNewOrderToFirebase();
+                      //     },
+                      //     child: const Text("Salvar"),
+                      //   ),
+                      // ),
+                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: 120,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              playing = true;
+                            });
+                          },
+                          child: const Text("Tocar Fila"),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    SizedBox(
-                      width: 120,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            playing = true;
-                          });
-                        },
-                        child: const Text("Tocar Fila"),
+                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: 120,
+                        child: ElevatedButton(
+                          onPressed: userController.logout,
+                          child: const Text("Sair"),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    SizedBox(
-                      width: 120,
-                      child: ElevatedButton(
-                        onPressed: userController.logout,
-                        child: const Text("Sair"),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
