@@ -60,9 +60,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBJJ9H1tfBcEbGgN7fJg06tvCk3XY-oQHo',
-    appId: '1:234270230593:android:5dea234e67bb4fd0ea9ec0',
+    appId: '1:234270230593:android:f00b2c46b2a7656fea9ec0',
     messagingSenderId: '234270230593',
     projectId: 'direto-da-nuvem',
     storageBucket: 'direto-da-nuvem.appspot.com',
   );
+
 }
