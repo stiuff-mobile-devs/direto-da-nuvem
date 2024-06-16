@@ -59,6 +59,8 @@ class _QueueViewPageState extends State<QueueViewPage> {
       });
       this.queue = queue;
 
+      queue.sort((a, b) => (a["position"] as int).compareTo(b["position"] as int));
+
       setState(() {
         isLoading = false;
       });

@@ -59,6 +59,8 @@ class _DashboardPageState extends State<DashboardPage> {
       });
       this.queue = queue;
 
+      queue.sort((a, b) => (a["position"] as int).compareTo(b["position"] as int));
+
       setState(() {
         isLoading = false;
       });
@@ -70,11 +72,11 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.black,
-        body: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : playing
-            ? GestureDetector(
+    backgroundColor: Colors.black,
+    body: isLoading
+      ? const Center(child: CircularProgressIndicator())
+      : playing
+        ? GestureDetector(
           onTap: () {
             setState(() {
               playing = false;
@@ -104,30 +106,46 @@ class _DashboardPageState extends State<DashboardPage> {
             }).toList(),
           ),
         )
-            : Center(
-          child: IntrinsicWidth(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 150,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        playing = true;
-                      });
-                    },
-                    child: const Text("Tocar Fila"),
+        : SafeArea(
+          child: Center(
+            child: IntrinsicWidth(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 120,
+                        child: ElevatedButton(
+                          onPressed: userController.logout,
+                          child: const Text("Sair"),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: 120,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              playing = true;
+                            });
+                          },
+                          child: const Text("Tocar Fila"),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: 120,
+                        child: ElevatedButton(
+                          onPressed: userController.logout,
+                          child: const Text("Sair"),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(
-                  width: 150,
-                  child: ElevatedButton(
-                    onPressed: userController.logout,
-                    child: const Text("Sair"),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         )
