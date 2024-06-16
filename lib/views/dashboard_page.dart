@@ -1,8 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -74,7 +77,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildThumbnail(Map<String, dynamic> image) {
     return Stack(
-      key: ValueKey(image["id"]),
+      key: Key(image["id"]),
       alignment: Alignment.topRight,
       children: [
         Container(
@@ -180,6 +183,42 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  Future<void> _pickAndSaveImage() async {
+    final ImagePicker picker = ImagePicker();
+    try {
+      // Pick an image
+      final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      String imageId = DateTime.now().millisecondsSinceEpoch.toString();
+
+      if (pickedFile != null) {
+        final Uint8List imageBytes = await pickedFile.readAsBytes();
+
+        final storageRef = FirebaseStorage.instance.ref().child(imageId);
+
+        await storageRef.putData(imageBytes);
+
+        int nextPosition = queue.length;
+
+        await db.collection('unique_queue').doc(imageId).set({
+          'id': imageId,
+          'name': pickedFile.name,
+          'position': nextPosition,
+        });
+
+        await getUniqueQueue();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Imagem salva!')),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error picking and saving image: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao salvar a imagem.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -253,9 +292,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       SizedBox(
                         width: 140,
                         child: ElevatedButton(
-                          onPressed: () {
-                            print("NOVA IMAGEM");
-                          },
+                          onPressed: _pickAndSaveImage,
                           child: const Text("Nova Imagem"),
                         ),
                       ),
