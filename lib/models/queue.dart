@@ -16,4 +16,15 @@ class Queue {
     required this.createdBy,
     required this.images,
   });
+
+  factory Queue.fromMap(Map<String, dynamic> data) {
+    return Queue(
+        id: data["id"],
+        groupId: data["group_id"],
+        duration: data["duration"],
+        animation: data["animation"],
+        createdAt: data["created_at"],
+        createdBy: data["created_by"],
+        images: data["images"]);
+  }
 }

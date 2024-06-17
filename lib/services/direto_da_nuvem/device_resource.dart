@@ -5,7 +5,7 @@ class DeviceResource {
   static const String collection = "devices";
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future create(Device device) async {
+  Future<bool> create(Device device) async {
     DocumentReference documentReference =
         _firestore.doc("${DeviceResource.collection}/${device.id}");
     DocumentSnapshot documentSnapshot = await documentReference.get();
@@ -21,6 +21,16 @@ class DeviceResource {
         _firestore.doc("${DeviceResource.collection}/$id");
     DocumentSnapshot documentSnapshot = await documentReference.get();
     return documentSnapshot.exists;
+  }
+
+  Future<Device?> get(String id) async {
+    final documentSnapshot =
+        await _firestore.doc("${DeviceResource.collection}/$id").get();
+    
+    if (!documentSnapshot.exists) {
+      return null;
+    }
+    return Device.fromMap(documentSnapshot.data()!);
   }
 
   List<Device> listAll() {
