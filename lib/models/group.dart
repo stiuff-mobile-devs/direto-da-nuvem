@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Group {
   String? id;
   String name;
@@ -22,8 +24,8 @@ class Group {
         name: data["name"],
         description: data["description"],
         currentQueue: data["current_queue"],
-        createdAt: data["created_at"],
-        updatedAt: data["updated_at"],
+        createdAt: (data["created_at"] as Timestamp).toDate(),
+        updatedAt: (data["updated_at"] as Timestamp).toDate(),
         admins: data["admins"]);
   }
 
