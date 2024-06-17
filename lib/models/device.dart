@@ -15,6 +15,16 @@ class Device {
     required this.updatedAt,
   });
 
+  factory Device.fromMap(Map<String, dynamic> map) {
+    return Device(
+        id: map["id"],
+        locale: map["locale"],
+        description: map["description"],
+        groupId: map["group_id"],
+        createdAt: map["created_at"],
+        updatedAt: map["updated_at"]);
+  }
+
   Map<String, dynamic> toMap() {
     return {
       "id": id,
