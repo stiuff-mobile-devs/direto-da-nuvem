@@ -12,6 +12,7 @@ class GroupResource {
 
     for (var doc in l.docs) {
       Group group = Group.fromMap(doc.data());
+      group.id = doc.id;
       groups.add(group);
     }
     return groups;

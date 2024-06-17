@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Device {
   String id;
   String locale;
@@ -21,8 +23,8 @@ class Device {
         locale: map["locale"],
         description: map["description"],
         groupId: map["group_id"],
-        createdAt: map["created_at"],
-        updatedAt: map["updated_at"]);
+        createdAt: (map["created_at"] as Timestamp).toDate(),
+        updatedAt: (map["updated_at"] as Timestamp).toDate());
   }
 
   Map<String, dynamic> toMap() {

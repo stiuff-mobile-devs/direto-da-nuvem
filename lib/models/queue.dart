@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Queue {
   String id;
   String groupId;
@@ -23,7 +25,7 @@ class Queue {
         groupId: data["group_id"],
         duration: data["duration"],
         animation: data["animation"],
-        createdAt: data["created_at"],
+        createdAt: (data["created_at"] as Timestamp).toDate(),
         createdBy: data["created_by"],
         images: data["images"]);
   }
