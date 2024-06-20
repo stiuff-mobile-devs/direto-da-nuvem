@@ -66,10 +66,10 @@ class _GroupCreatePageState extends State<GroupCreatePage> {
                 hintText: 'Admins',
               ),
                 onSaved: (String? value) {
-                  admins = value;
+                  admins = value as List<String>?;
                 }
             ),
-            DropdownButton(items: List.from(Firestore.collection(groups).where('name' isEqualTo: name).get()), onChanged: onChanged),
+            DropdownButton(items: List.from(Firestore.collection('queues').where('name' isEqualTo: name).get()), onChanged: currentQueue = this.queues),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: ElevatedButton(
@@ -78,7 +78,7 @@ class _GroupCreatePageState extends State<GroupCreatePage> {
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Salvando...')));
                     _formKey.currentState!.save();
-                    await postGroup(name!, description!, id!, currentQueue!, createdAt!, updatedAt!, admins!, currentQueue!);
+                    await postGroup(name!, description!, id!, currentQueue!, createdAt!, updatedAt!, admins!,);
                     Navigator.pop(context, true);
                   }
                 },
@@ -92,7 +92,7 @@ class _GroupCreatePageState extends State<GroupCreatePage> {
 
 
   }
-  postGroup(String name, String id, String description, String currentQueue, DateTime createdAt, DateTime updatedAt, List<String> admins, String currentQueue) async {
+  postGroup(String name, String id, String description, String currentQueue, DateTime createdAt, DateTime updatedAt, List<String> admins,) async {
     String id = DateTime.now().millisecondsSinceEpoch.toString();
     DateTime createdAt = DateTime.now(); //needs to only work for the first timme executed per group
     DateTime updatedAt = DateTime.now();
