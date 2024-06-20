@@ -1,13 +1,16 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Queue {
   String id;
   String groupId;
-  double duration;
+  int duration;
   String animation;
   DateTime createdAt;
   String createdBy;
   List<String> images;
+  List<Uint8List>? imagesData;
 
   Queue({
     required this.id,
@@ -27,6 +30,6 @@ class Queue {
         animation: data["animation"],
         createdAt: (data["created_at"] as Timestamp).toDate(),
         createdBy: data["created_by"],
-        images: data["images"]);
+        images: (data["images"] as List).map((e) => "$e").toList());
   }
 }

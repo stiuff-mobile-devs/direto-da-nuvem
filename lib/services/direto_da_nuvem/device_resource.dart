@@ -16,11 +16,14 @@ class DeviceResource {
     return true;
   }
 
-  Future<bool> checkIfRegistered(String id) async {
-    DocumentReference documentReference =
+  Future<Device?> checkIfRegistered(String id) async {
+    DocumentReference<Map<String, dynamic>> documentReference =
         _firestore.doc("${DeviceResource.collection}/$id");
-    DocumentSnapshot documentSnapshot = await documentReference.get();
-    return documentSnapshot.exists;
+    DocumentSnapshot<Map<String,dynamic>> documentSnapshot = await documentReference.get();
+    if (!documentSnapshot.exists) {
+      return null;
+    }
+    return Device.fromMap(documentSnapshot.data()!);
   }
 
   Future<Device?> get(String id) async {
