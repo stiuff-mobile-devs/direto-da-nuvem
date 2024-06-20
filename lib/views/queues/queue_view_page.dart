@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
@@ -18,7 +17,6 @@ class QueueViewPage extends StatefulWidget {
 }
 
 class _QueueViewPageState extends State<QueueViewPage> {
-  final db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
   late UserController userController;
   late DiretoDaNuvemAPI diretoDaNuvemAPI;
@@ -54,44 +52,6 @@ class _QueueViewPageState extends State<QueueViewPage> {
     userController = Provider.of<UserController>(context, listen: false);
     diretoDaNuvemAPI = Provider.of<DiretoDaNuvemAPI>(context, listen: false);
     deviceController = Provider.of<DeviceController>(context, listen: false);
-  }
-
-  Future<void> getUniqueQueue() async {
-    try {
-      setState(() {
-        isLoading = true;
-      });
-
-      List<Map<String, dynamic>> queue = [];
-      await db.collection("unique_queue").get().then((querySnapshot) async {
-        final docs = querySnapshot.docs;
-        for (var index = 0; index < docs.length; index++) {
-          final docSnapshot = docs[index];
-
-          Map<String, dynamic> image = {};
-
-          image["id"] = docSnapshot.data()["id"];
-          image["name"] = docSnapshot.data()["name"];
-          image["position"] = docSnapshot.data()["position"];
-          image["image"] =
-              await storage.ref().child(docSnapshot.data()["id"]).getData();
-
-          queue.add(image);
-        }
-      }, onError: (e) {
-        debugPrint("Error completing: $e");
-      });
-      this.uniqueQueue = queue;
-
-      queue.sort(
-          (a, b) => (a["position"] as int).compareTo(b["position"] as int));
-
-      setState(() {
-        isLoading = false;
-      });
-    } catch (e) {
-      debugPrint('ERRO db.collection("movies").get(): $e');
-    }
   }
 
   @override
