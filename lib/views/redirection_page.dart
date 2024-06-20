@@ -1,3 +1,4 @@
+import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/local_storage/booleans.dart';
@@ -9,7 +10,6 @@ import 'package:ddnuvem/views/devices/unregistered_device_error_page.dart';
 import 'package:ddnuvem/views/intro_page.dart';
 import 'package:ddnuvem/views/login_page.dart';
 import 'package:ddnuvem/views/queues/queue_view_page.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -25,8 +25,7 @@ class RedirectionData {
       this.loggedIn = false,
       this.isInstaller = false,
       this.isDeviceRegistered = false,
-      this.isAdmin = false})
-  ;
+      this.isAdmin = false});
 }
 
 class RedirectionPage extends StatefulWidget {
@@ -40,40 +39,31 @@ class _RedirectionPageState extends State<RedirectionPage> {
   late LocalStorageService localStorageService;
   late DiretoDaNuvemAPI diretoDaNuvemAPI;
   late SignInService signInService;
+  Future<bool>? isFirstTime;
+
+  int i = 0;
 
   getDependencies() {
-    localStorageService = Provider.of<LocalStorageService>(context, listen: false);
+    localStorageService =
+        Provider.of<LocalStorageService>(context, listen: false);
     signInService = Provider.of<SignInService>(context, listen: false);
     diretoDaNuvemAPI = Provider.of<DiretoDaNuvemAPI>(context, listen: false);
   }
 
-  Future<RedirectionData> getRedirectionData(
-      UserController userController) async {
-    
+  Future<bool> getIsFirstTime() async {
     bool firstTime =
         await localStorageService.readBool(LocalStorageBooleans.firstTime) ??
             true;
-
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    var info = await deviceInfo.androidInfo;
-
-    bool registered =
-        await diretoDaNuvemAPI.deviceResource.checkIfRegistered(info.id);
-
-    RedirectionData redirectionData =
-        RedirectionData(firstTime: firstTime, isDeviceRegistered: registered);
-
-    if (userController.isLoggedIn) {
-      await userController.getUserPrivileges();
-    }
-
-    return redirectionData;
+    return firstTime;
   }
 
   @override
   void initState() {
     super.initState();
     getDependencies();
+    setState(() {
+      isFirstTime = getIsFirstTime();
+    });
   }
 
   ChangeNotifier createUserController(BuildContext context) {
@@ -84,27 +74,46 @@ class _RedirectionPageState extends State<RedirectionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => UserController(context.read(), context.read()),
-      child: Consumer<UserController>(
-        builder: (context, value, child) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<UserController>(create: (context) {
+          final u = UserController(context.read(), context.read());
+          if (u.isLoggedIn) {
+            u.getUserPrivileges();
+          }
+          return u;
+        }),
+        ChangeNotifierProvider<DeviceController>(create: (context) {
+          final d = DeviceController(context.read());
+          d.init();
+          return d;
+        })
+      ],
+      child: Consumer2<UserController, DeviceController>(
+        builder: (context, userController, deviceController, child) {
+          RedirectionData redirectionData = RedirectionData();
+          redirectionData.isAdmin = userController.isAdmin;
+          redirectionData.loggedIn = userController.isLoggedIn;
+          redirectionData.isInstaller = userController.isInstaller;
+          redirectionData.isDeviceRegistered = deviceController.isRegistered;
           return FutureBuilder(
-            future: getRedirectionData(value),
-            builder: (c, snapshot) {
-              if (snapshot.data == null) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              snapshot.data!.isInstaller = value.isInstaller;
-              snapshot.data!.loggedIn = value.isLoggedIn;
-              snapshot.data!.isAdmin = value.isAdmin || value.isSuperAdmin;
-              return handleRedirection(snapshot.data!);
-            },
+            future: isFirstTime,
+            builder: (c, s) => redirectionBuilder(c, s, redirectionData),
           );
         },
       ),
     );
+  }
+
+  Widget redirectionBuilder(BuildContext c, AsyncSnapshot<bool> snapshot,
+      RedirectionData redirectionData) {
+    if (snapshot.data == null) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    redirectionData.firstTime = snapshot.data ?? true;
+    return handleRedirection(redirectionData);
   }
 
   Widget loading() {

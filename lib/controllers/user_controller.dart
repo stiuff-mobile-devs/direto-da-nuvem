@@ -17,6 +17,7 @@ class UserController extends ChangeNotifier {
   bool isSuperAdmin = false;
   bool isInstaller = false;
   late bool isLoggedIn;
+  String? uid;
 
   getUserPrivileges() async {
     UserPrivilege privilege = await _diretoDaNuvemAPI.userResource
@@ -25,6 +26,7 @@ class UserController extends ChangeNotifier {
     isAdmin = privilege.isAdmin;
     isSuperAdmin = privilege.isSuperAdmin;
     isInstaller = privilege.isInstaller;
+    uid = _firebaseAuth.currentUser!.uid;
     notifyListeners();
   }
 
@@ -32,11 +34,13 @@ class UserController extends ChangeNotifier {
     await _signInService.signInWithGoogle();
     await getUserPrivileges();
     isLoggedIn = true;
+    uid = _firebaseAuth.currentUser!.uid;
     notifyListeners();
   }
 
   logout() async {
     await _signInService.signOut();
+    uid = null;
     isLoggedIn = false;
     notifyListeners();
   }
