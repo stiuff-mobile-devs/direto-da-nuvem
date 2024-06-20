@@ -119,6 +119,11 @@ class _QueueViewPageState extends State<QueueViewPage> {
                       playing = true;
                     });
                   },
+                  style: ElevatedButton.styleFrom(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
+                  ),
                   child: const Text("Tocar Fila"),
                 ),
               ),
@@ -131,6 +136,11 @@ class _QueueViewPageState extends State<QueueViewPage> {
                       playing = true;
                     });
                   },
+                  style: ElevatedButton.styleFrom(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
+                  ),
                   child: const Text("Atualizar"),
                 ),
               ),
@@ -138,6 +148,11 @@ class _QueueViewPageState extends State<QueueViewPage> {
                 width: 150,
                 child: ElevatedButton(
                   onPressed: userController.logout,
+                  style: ElevatedButton.styleFrom(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
+                  ),
                   child: const Text("Sair"),
                 ),
               ),

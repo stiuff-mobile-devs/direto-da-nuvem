@@ -95,6 +95,7 @@ class _IntroPageState extends State<IntroPage> {
                       ),
                       Expanded( // Wrap the Column with Expanded
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const SizedBox(width: 25),
                             const Text(
