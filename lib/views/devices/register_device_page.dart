@@ -1,3 +1,5 @@
+import 'package:ddnuvem/controllers/device_controller.dart';
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
@@ -15,6 +17,8 @@ class RegisterDevicePage extends StatefulWidget {
 class _RegisterDevicePageState extends State<RegisterDevicePage> {
   final _formKey = GlobalKey<FormState>();
   late DiretoDaNuvemAPI _diretoDaNuvemAPI;
+  late DeviceController _deviceController;
+  late UserController _userController;
 
   List<Group> groups = [];
   String? deviceId;
@@ -24,6 +28,8 @@ class _RegisterDevicePageState extends State<RegisterDevicePage> {
 
   getDependencies() {
     _diretoDaNuvemAPI = Provider.of<DiretoDaNuvemAPI>(context, listen: false);
+    _userController = Provider.of<UserController>(context, listen: false);
+    _deviceController = Provider.of<DeviceController>(context, listen: false);
   }
 
   listGroups() async {
@@ -44,17 +50,14 @@ class _RegisterDevicePageState extends State<RegisterDevicePage> {
   registerDevice() async {
     Device device = Device(
       id: deviceId!,
+      registeredBy: _userController.uid!,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       description: description!,
       groupId: groupId!,
       locale: locale!,
     );
-    bool created = await _diretoDaNuvemAPI.deviceResource.create(device);
-
-    if (created) {
-      debugPrint("dispositivo $deviceId criado com sucesso!");
-    }
+    _deviceController.register(device);
   }
 
   @override
