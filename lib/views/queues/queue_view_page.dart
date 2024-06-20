@@ -4,7 +4,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
-import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +18,6 @@ class QueueViewPage extends StatefulWidget {
 class _QueueViewPageState extends State<QueueViewPage> {
   final storage = FirebaseStorage.instance;
   late UserController userController;
-  late DiretoDaNuvemAPI diretoDaNuvemAPI;
   late DeviceController deviceController;
 
   bool playing = true;
@@ -50,7 +48,6 @@ class _QueueViewPageState extends State<QueueViewPage> {
 
   getDependencies() {
     userController = Provider.of<UserController>(context, listen: false);
-    diretoDaNuvemAPI = Provider.of<DiretoDaNuvemAPI>(context, listen: false);
     deviceController = Provider.of<DeviceController>(context, listen: false);
   }
 
