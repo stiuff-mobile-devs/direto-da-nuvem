@@ -285,6 +285,11 @@ class _DashboardPageState extends State<DashboardPage> {
                               playing = true;
                             });
                           },
+                          style: ElevatedButton.styleFrom(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                          ),
                           child: const Text("Tocar Fila"),
                         ),
                       ),
@@ -293,6 +298,11 @@ class _DashboardPageState extends State<DashboardPage> {
                         width: 140,
                         child: ElevatedButton(
                           onPressed: _pickAndSaveImage,
+                          style: ElevatedButton.styleFrom(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                          ),
                           child: const Text("Nova Imagem"),
                         ),
                       ),
@@ -301,6 +311,11 @@ class _DashboardPageState extends State<DashboardPage> {
                         width: 140,
                         child: ElevatedButton(
                           onPressed: userController.logout,
+                          style: ElevatedButton.styleFrom(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                          ),
                           child: const Text("Sair"),
                         ),
                       ),

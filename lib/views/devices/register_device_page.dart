@@ -76,12 +76,18 @@ class _RegisterDevicePageState extends State<RegisterDevicePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Form(
+          padding: const EdgeInsets.all(8.0),
+          child: Form(
           key: _formKey,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                "Cadastro de novo dispositivo",
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+              const SizedBox(height:12,),
               TextFormField(
                 validator: validate,
                 onChanged: (value) {
@@ -100,7 +106,9 @@ class _RegisterDevicePageState extends State<RegisterDevicePage> {
                 },
                 decoration: const InputDecoration(hintText: "Localização"),
               ),
+              const SizedBox(height:12,),
               choseGroup(),
+              const SizedBox(height: 12,),
               submitButton(),
             ],
           )),
@@ -115,6 +123,11 @@ class _RegisterDevicePageState extends State<RegisterDevicePage> {
           }
           registerDevice();
         },
+        style: ElevatedButton.styleFrom(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+        ),
         child: const Text("Registrar"));
   }
 
@@ -126,6 +139,7 @@ class _RegisterDevicePageState extends State<RegisterDevicePage> {
     ).toList();
 
     return DropdownMenu<String>(
+      width: 250,
       dropdownMenuEntries: entries,
       onSelected: (String? id) {
         setState(() {
