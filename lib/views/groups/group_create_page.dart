@@ -72,8 +72,8 @@ class _GroupCreatePageState extends State<GroupCreatePage> {
                   admins = value as List<String>?;
                 }
             ),
-            DropdownButton(items: List.from(
-
+            DropdownButton(
+                items: List.from(
                 FirebaseFirestore.collection('queues').where('name' isEqualTo: name).get()), onChanged: currentQueue = this.queues),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -81,13 +81,21 @@ class _GroupCreatePageState extends State<GroupCreatePage> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Salvando...')));
+                        const SnackBar(content: Text('Criando Grupo')));
                     _formKey.currentState!.save();
-                    await postGroup(name!, description!, id!, currentQueue!, createdAt!, updatedAt!, admins!,);
+                    await postGroup(
+                      name!,
+                      description!,
+                      id!,
+                      currentQueue!,
+                      createdAt!,
+                      updatedAt!,
+                      admins!,
+                    );
                     Navigator.pop(context, true);
                   }
                 },
-                child: const Text('Salvar'),
+                child: const Text('Criar Grupo'),
               ),
             ),
           ],
