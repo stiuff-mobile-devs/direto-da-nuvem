@@ -19,14 +19,23 @@ class _GroupCreatePageState extends State<GroupCreatePage> {
   final storage = FirebaseStorage.instance;
   late DiretoDaNuvemAPI _diretoDaNuvemAPI;
 
+
   getDependencies() {
     _diretoDaNuvemAPI = Provider.of<DiretoDaNuvemAPI>(context, listen:false);
   }
 
+  late dynamic queues;
+
+  listQueues() async {
+     queues = await _diretoDaNuvemAPI.queueResource.listAll();
+    setState(() {});
+  }
   @override
-  void initState() {
+  void initState() async {
     getDependencies();
     super.initState();
+
+
   }
 
   String? id;
