@@ -6,6 +6,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/queue.dart';
+
 class GroupCreatePage extends StatefulWidget {
   const GroupCreatePage({super.key});
 
@@ -18,24 +20,31 @@ class _GroupCreatePageState extends State<GroupCreatePage> {
   final db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
   late DiretoDaNuvemAPI _diretoDaNuvemAPI;
+  String selectedQueueId = "";
+  List<Queue> queues = [];
+  List<String> queueIds = [];
 
 
   getDependencies() {
     _diretoDaNuvemAPI = Provider.of<DiretoDaNuvemAPI>(context, listen:false);
+    listQueues();
   }
-
-   List queues = [];
 
   listQueues() async {
-     queues = await _diretoDaNuvemAPI.queueResource.listAll();
+    queues = await _diretoDaNuvemAPI.queueResource.listAll();
+    queueIds = getQueueIds(queues);
+    selectedQueueId = queueIds[0];
     setState(() {});
   }
+
+  List<String> getQueueIds(List<Queue> queues) {
+    return queues.map((queue) => queue.id).toList();
+  }
+
   @override
   void initState()  {
     getDependencies();
-    listQueues();
     super.initState();
-
   }
 
   String? id;
@@ -81,9 +90,24 @@ class _GroupCreatePageState extends State<GroupCreatePage> {
                   admins = value as List<String>?;
                 }
             ),
-            DropdownButton(
-                items: List.from(
-               queues.toList()), onChanged : () {currentQueue? = this.queues?}  ),
+
+            DropdownButton<String>(
+              value: selectedQueueId,
+              hint: Text('Select Queue ID'), // Placeholder text
+              items: queueIds.map<DropdownMenuItem<String>>((String id) {
+                return DropdownMenuItem<String>(
+                  value: id,
+                  child: Text(id),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedQueueId = value!;
+                });
+                print("Selected Queue ID: $value"); // Print the selected ID
+              },
+            ),
+
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: ElevatedButton(
