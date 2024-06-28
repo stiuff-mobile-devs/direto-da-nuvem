@@ -3,10 +3,13 @@ import 'dart:typed_data';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
+import 'package:ddnuvem/routes/route_paths.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+
+import 'groups/group_create_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -317,6 +320,15 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                           ),
                           child: const Text("Sair"),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 140,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, RoutePaths.group);
+                          },
+                          child: const Text("Criar"),
                         ),
                       ),
                     ],

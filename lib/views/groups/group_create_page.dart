@@ -24,17 +24,17 @@ class _GroupCreatePageState extends State<GroupCreatePage> {
     _diretoDaNuvemAPI = Provider.of<DiretoDaNuvemAPI>(context, listen:false);
   }
 
-  late dynamic queues;
+   List queues = [];
 
   listQueues() async {
      queues = await _diretoDaNuvemAPI.queueResource.listAll();
     setState(() {});
   }
   @override
-  void initState() async {
+  void initState()  {
     getDependencies();
+    listQueues();
     super.initState();
-
 
   }
 
@@ -83,7 +83,7 @@ class _GroupCreatePageState extends State<GroupCreatePage> {
             ),
             DropdownButton(
                 items: List.from(
-                FirebaseFirestore.collection('queues').where('name' isEqualTo: name).get()), onChanged: currentQueue = this.queues),
+               queues.toList()), onChanged : () {currentQueue? = this.queues?}  ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: ElevatedButton(

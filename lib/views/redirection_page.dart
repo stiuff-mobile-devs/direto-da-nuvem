@@ -128,14 +128,14 @@ class _RedirectionPageState extends State<RedirectionPage> {
     if (!redirectionData.loggedIn) {
       return const LoginPage();
     }
-    if (!redirectionData.isDeviceRegistered) {
-      if (redirectionData.isInstaller) {
-        return const RegisterDevicePage();
-      } else {
-        return const UnregisteredDeviceErrorPage();
-      }
-    }
-    if (redirectionData.isAdmin) {
+    // if (!redirectionData.isDeviceRegistered) {
+    //   if (redirectionData.isInstaller) {
+    //     return const RegisterDevicePage();
+    //   } else {
+    //     return const UnregisteredDeviceErrorPage();
+    //   }
+    // }
+    if (true) {
       return const DashboardPage();
     }
     return const QueueViewPage();

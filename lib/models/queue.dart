@@ -32,4 +32,16 @@ class Queue {
         createdBy: data["created_by"],
         images: (data["images"] as List).map((e) => "$e").toList());
   }
+  Map<String, dynamic> toMap() {
+    return {
+            "images"  : images,
+          "created_by" :   createdBy,
+          "created_at" : createdAt ,
+          "animation" :  animation,
+          "duration"  : duration,
+          "group_id" :  groupId,
+          "id"  : id ,
+    };
+  }
+
 }
