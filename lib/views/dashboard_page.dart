@@ -1,8 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
+import 'package:ddnuvem/models/image_ui.dart';
+import 'package:ddnuvem/routes/route_paths.dart';
+import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,13 +19,15 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  final db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
+  late DeviceController deviceController;
   late UserController userController;
+  late DiretoDaNuvemAPI diretoDaNuvemAPI;
 
   bool playing = false;
   bool isLoading = true;
-  List<Map<String, dynamic>> queue = [];
+
+  List<ImageUI> images = [];
 
   String? selectedImageId;
   Map<String, bool> showX = {};
@@ -30,54 +35,34 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   initState() {
     super.initState();
-    getUniqueQueue();
     getDependencies();
+    getCurrentQueue();
   }
 
   getDependencies() {
-    userController =
-        Provider.of<UserController>(context, listen: false);
+    userController = Provider.of<UserController>(context, listen: false);
+    deviceController = Provider.of<DeviceController>(context, listen: false);
+    diretoDaNuvemAPI = Provider.of<DiretoDaNuvemAPI>(context, listen: false);
   }
 
-  Future<void>getUniqueQueue() async {
-    try{
-      setState(() {
-        isLoading = true;
-      });
-
-      List<Map<String, dynamic>> queue = [];
-      await db.collection("unique_queue").get().then((querySnapshot) async {
-        final docs = querySnapshot.docs;
-        for (var index = 0; index < docs.length; index++) {
-          final docSnapshot = docs[index];
-
-          Map<String, dynamic> image = {};
-
-          image["id"] = docSnapshot.data()["id"];
-          image["name"] = docSnapshot.data()["name"];
-          image["position"] = docSnapshot.data()["position"];
-          image["image"] = await storage.ref().child(docSnapshot.data()["id"]).getData();
-
-          queue.add(image);
-        }
-      }, onError: (e) {
-        debugPrint("Error completing: $e");
-      });
-      this.queue = queue;
-
-      queue.sort((a, b) => (a["position"] as int).compareTo(b["position"] as int));
-
-      setState(() {
-        isLoading = false;
-      });
-    } catch(e) {
-      debugPrint('ERRO db.collection("movies").get(): $e');
+  getCurrentQueue() async {
+    setState(() {
+      images = [];
+      isLoading = true;
+    });
+    await deviceController.fetchGroupAndQueue();
+    for (var imagePath in deviceController.currentQueue!.images) {
+      var a = await storage.ref().child(imagePath).getData();
+      images.add(ImageUI(path: imagePath, data: a!));
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
-  Widget _buildThumbnail(Map<String, dynamic> image) {
+  Widget _buildThumbnail(ImageUI image) {
     return Stack(
-      key: Key(image["id"]),
+      key: Key(image.path),
       alignment: Alignment.topRight,
       children: [
         Container(
@@ -87,26 +72,28 @@ class _DashboardPageState extends State<DashboardPage> {
           child: GestureDetector(
             onTap: () {
               setState(() {
-                if (selectedImageId == image["id"]) {
+                if (selectedImageId == image.path) {
                   selectedImageId = null;
-                  showX[image["id"]] = false;
+                  showX[image.path] = false;
                 } else {
                   showX[selectedImageId ?? ''] = false;
-                  selectedImageId = image["id"];
-                  showX[image["id"]] = true;
+                  selectedImageId = image.path;
+                  showX[image.path] = true;
                 }
               });
             },
             child: Image.memory(
-              image["image"],
+              image.data,
               fit: BoxFit.cover,
             ),
           ),
         ),
-        if (showX.containsKey(image["id"]) && showX[image["id"]]! && selectedImageId == image["id"])
+        if (showX.containsKey(image.path) &&
+            showX[image.path]! &&
+            selectedImageId == image.path)
           IconButton(
             icon: const Icon(Icons.close, color: Colors.red),
-            onPressed: () => _deleteImage(image["id"]),
+            onPressed: () => _deleteImage(image.path),
           ),
       ],
     );
@@ -117,31 +104,26 @@ class _DashboardPageState extends State<DashboardPage> {
       if (oldIndex < newIndex) {
         newIndex -= 1;
       }
-      final Map<String, dynamic> item = queue.removeAt(oldIndex);
-      queue.insert(newIndex, item);
+      final ImageUI item = images.removeAt(oldIndex);
+      images.insert(newIndex, item);
     });
     _saveNewOrderToFirebase();
   }
 
   Future<void> _saveNewOrderToFirebase() async {
-    try {
-      for (int i = 0; i < queue.length; i++) {
-        await db.collection("unique_queue").doc(queue[i]["id"]).update({
-          "position": i,
-        });
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nova ordem salva!')),
-      );
-    } catch (e) {
-      debugPrint('Error saving new order: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao salvar a nova ordem.')),
-      );
-    }
+    await diretoDaNuvemAPI.queueResource.updateImageList(
+        deviceController.currentQueue!.id, images.map((e) => e.path).toList());
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Nova ordem salva!')));
   }
 
-  Future<void> _deleteImage(String imageId) async {
+  Future<void> _deleteImage(String imagePath) async {
+    setState(
+      () {
+        images.removeWhere((element) => element.path == imagePath);
+      },
+    );
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -158,22 +140,14 @@ class _DashboardPageState extends State<DashboardPage> {
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop();
-                try {
-                  await db.collection("unique_queue").doc(imageId).delete();
-                  setState(() {
-                    queue.removeWhere((image) => image["id"] == imageId);
-                  });
-                  await storage.ref().child(imageId).delete();
+                diretoDaNuvemAPI.queueResource.updateImageList(
+                    deviceController.currentQueue!.id,
+                    images.map((e) => e.path).toList());
+                // await storage.ref().child(imagePath).delete();
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Imagem removida!')),
-                  );
-                } catch (e) {
-                  debugPrint('Error deleting image: $e');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Erro ao remover a imagem.')),
-                  );
-                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Imagem removida!')),
+                );
               },
               child: const Text("Excluir"),
             ),
@@ -185,147 +159,156 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> _pickAndSaveImage() async {
     final ImagePicker picker = ImagePicker();
-    try {
-      // Pick an image
-      final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
-      String imageId = DateTime.now().millisecondsSinceEpoch.toString();
+    // Pick an image
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.gallery);
 
-      if (pickedFile != null) {
-        final Uint8List imageBytes = await pickedFile.readAsBytes();
-
-        final storageRef = FirebaseStorage.instance.ref().child(imageId);
-
-        await storageRef.putData(imageBytes);
-
-        int nextPosition = queue.length;
-
-        await db.collection('unique_queue').doc(imageId).set({
-          'id': imageId,
-          'name': pickedFile.name,
-          'position': nextPosition,
-        });
-
-        await getUniqueQueue();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Imagem salva!')),
-        );
-      }
-    } catch (e) {
-      debugPrint('Error picking and saving image: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao salvar a imagem.')),
-      );
+    if (pickedFile == null) {
+      return;
     }
+
+    final Uint8List imageBytes = await pickedFile.readAsBytes();
+
+    final storageRef = FirebaseStorage.instance.ref().child(pickedFile.name);
+    await storageRef.putData(imageBytes);
+
+    diretoDaNuvemAPI.queueResource.updateImageList(
+      deviceController.currentQueue!.id,
+      [...images.map((e) => e.path), pickedFile.name]
+    );
+
+    await getCurrentQueue();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Imagem salva!')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    backgroundColor: Colors.black,
-    body: isLoading
-      ? const Center(child: CircularProgressIndicator())
-      : playing
-        ? GestureDetector(
-          onTap: () {
-            setState(() {
-              playing = false;
-            });
-          },
-          child: CarouselSlider(
-            options: CarouselOptions(
-              height: MediaQuery.of(context).size.height,
-              viewportFraction: 1.0,
-              autoPlay: true,
-              autoPlayInterval: const Duration(seconds: 7),
-              enlargeCenterPage: true,
+        backgroundColor: Colors.black,
+        body: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : playing
+                ? showQueue(context)
+                : showMenu(context));
+  }
+
+  SafeArea showMenu(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        color: Colors.blueGrey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 100,
+              child: ReorderableListView(
+                scrollDirection: Axis.horizontal,
+                onReorder: _onReorder,
+                children: images.map(_buildThumbnail).toList(),
+              ),
             ),
-            items: queue.map((image) {
-              return Builder(
-                builder: (BuildContext context) {
-                  return Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                    child: Image.memory(
-                      image["image"],
-                      fit: BoxFit.cover,
+            const SizedBox(
+              height: 24,
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 140,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          playing = true;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
+                        ),
+                      ),
+                      child: const Text("Tocar Fila"),
                     ),
-                  );
-                },
-              );
-            }).toList(),
-          ),
-        )
-        : SafeArea(
-          child: Container(
-            color: Colors.blueGrey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 100,
-                  child: ReorderableListView(
-                    scrollDirection: Axis.horizontal,
-                    onReorder: _onReorder,
-                    children: queue.map((image) => _buildThumbnail(image)).toList(),
                   ),
-                ),
-                const SizedBox(height: 24,),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(width: 12),
-                      SizedBox(
-                        width: 140,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              playing = true;
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ),
-                          ),
-                          child: const Text("Tocar Fila"),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 140,
+                    child: ElevatedButton(
+                      onPressed: _pickAndSaveImage,
+                      style: ElevatedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        width: 140,
-                        child: ElevatedButton(
-                          onPressed: _pickAndSaveImage,
-                          style: ElevatedButton.styleFrom(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ),
-                          ),
-                          child: const Text("Nova Imagem"),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        width: 140,
-                        child: ElevatedButton(
-                          onPressed: userController.logout,
-                          style: ElevatedButton.styleFrom(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ),
-                          ),
-                          child: const Text("Sair"),
-                        ),
-                      ),
-                    ],
+                      child: const Text("Nova Imagem"),
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 140,
+                    child: ElevatedButton(
+                      onPressed: userController.logout,
+                      style: ElevatedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
+                        ),
+                      ),
+                      child: const Text("Sair"),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 140,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, RoutePaths.group);
+                      },
+                      child: const Text("Criar"),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        )
+          ],
+        ),
+      ),
+    );
+  }
+
+  GestureDetector showQueue(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          playing = false;
+        });
+      },
+      child: CarouselSlider(
+        options: CarouselOptions(
+          height: MediaQuery.of(context).size.height,
+          viewportFraction: 1.0,
+          autoPlay: true,
+          autoPlayInterval: const Duration(seconds: 7),
+          enlargeCenterPage: true,
+        ),
+        items: images.map((image) {
+          return Builder(
+            builder: (BuildContext context) {
+              return Container(
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: Image.memory(
+                  image.data,
+                  fit: BoxFit.cover,
+                ),
+              );
+            },
+          );
+        }).toList(),
+      ),
     );
   }
 }

@@ -120,7 +120,6 @@ class _RedirectionPageState extends State<RedirectionPage> {
     return const Center(child: CircularProgressIndicator());
   }
 
-  //TODO: Fix Blink
   Widget handleRedirection(RedirectionData redirectionData) {
     if (redirectionData.firstTime) {
       return const IntroPage();
