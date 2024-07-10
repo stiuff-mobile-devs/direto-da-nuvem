@@ -120,7 +120,6 @@ class _RedirectionPageState extends State<RedirectionPage> {
     return const Center(child: CircularProgressIndicator());
   }
 
-  //TODO: Fix Blink
   Widget handleRedirection(RedirectionData redirectionData) {
     if (redirectionData.firstTime) {
       return const IntroPage();
@@ -128,14 +127,14 @@ class _RedirectionPageState extends State<RedirectionPage> {
     if (!redirectionData.loggedIn) {
       return const LoginPage();
     }
-    // if (!redirectionData.isDeviceRegistered) {
-    //   if (redirectionData.isInstaller) {
-    //     return const RegisterDevicePage();
-    //   } else {
-    //     return const UnregisteredDeviceErrorPage();
-    //   }
-    // }
-    if (true) {
+    if (!redirectionData.isDeviceRegistered) {
+      if (redirectionData.isInstaller) {
+        return const RegisterDevicePage();
+      } else {
+        return const UnregisteredDeviceErrorPage();
+      }
+    }
+    if (redirectionData.isAdmin) {
       return const DashboardPage();
     }
     return const QueueViewPage();

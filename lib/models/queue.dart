@@ -7,7 +7,7 @@ class Queue {
   String groupId;
   int duration;
   String animation;
-  Timestamp createdAt;
+  DateTime createdAt;
   String createdBy;
   List<String> images;
   List<Uint8List>? imagesData;
