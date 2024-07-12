@@ -261,15 +261,15 @@ class _DashboardPageState extends State<DashboardPage> {
                       child: const Text("Sair"),
                     ),
                   ),
-                  SizedBox(
-                    width: 140,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, RoutePaths.group);
-                      },
-                      child: const Text("Criar"),
-                    ),
-                  ),
+                  // SizedBox(
+                  //   width: 140,
+                  //   child: ElevatedButton(
+                  //     onPressed: () {
+                  //       Navigator.pushNamed(context, RoutePaths.group);
+                  //     },
+                  //     child: const Text("Criar"),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
