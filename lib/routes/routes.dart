@@ -16,6 +16,7 @@ class Routes {
     RoutePaths.intro: (p0) => const IntroPage(),
     RoutePaths.queue: (p0) => const QueueViewPage(),
     RoutePaths.group: (p0) => const GroupCreatePage(),
+
   };
 
   static GlobalKey<NavigatorState>? navigatorKey = GlobalKey<NavigatorState>();
