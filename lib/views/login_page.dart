@@ -57,6 +57,7 @@ class _LoginPageState extends State<LoginPage> {
                 Buttons.googleDark,
                 text: "Entrar com o Google",
                 onPressed: userController.login,
+
               ),
             ),
             const SizedBox(height: 25),

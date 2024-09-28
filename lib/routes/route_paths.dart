@@ -5,4 +5,5 @@ class RoutePaths {
   static const String intro = '/intro';
   static const String queue = '/queue';
   static const String group  = '/group';
+  static const String register = '/register';
 }
