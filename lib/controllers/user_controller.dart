@@ -37,9 +37,9 @@ class UserController extends ChangeNotifier {
     isLoggedIn = true;
     uid = _firebaseAuth.currentUser!.uid;
     notifyListeners();
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const RedirectionPage()),
+    Navigator.pushAndRemoveUntil(
+      context,MaterialPageRoute(builder: (context) => const RedirectionPage()),
+      (Route<dynamic> route) => false,
     );
   }
 
