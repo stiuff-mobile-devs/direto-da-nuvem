@@ -4,6 +4,7 @@ import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -47,10 +48,19 @@ class _RegisterDevicePageState extends State<RegisterDevicePage> {
     });
   }
 
-  registerDevice() async {
+  Future<void> registerDevice() async {
+    final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+    await getId(); // Ensure deviceId is fetched before proceeding
+
+    if (deviceId == null || description == null || groupId == null || locale == null) {
+      // Handle the case where any of these are null, maybe show an error message
+      print("Error: One or more required fields are null");
+      return;
+    }
+
     Device device = Device(
       id: deviceId!,
-      registeredBy: _userController.uid!,
+      registeredBy: _firebaseAuth.currentUser!.uid,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       description: description!,
