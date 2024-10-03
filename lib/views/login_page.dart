@@ -56,7 +56,9 @@ class _LoginPageState extends State<LoginPage> {
               child: SignInButton(
                 Buttons.googleDark,
                 text: "Entrar com o Google",
-                onPressed: userController.login,
+                onPressed: () {
+                  userController.login(context);
+                },
               ),
             ),
             const SizedBox(height: 25),

@@ -1,6 +1,7 @@
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
+import 'package:ddnuvem/views/redirection_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -30,12 +31,16 @@ class UserController extends ChangeNotifier {
     notifyListeners();
   }
 
-  login() async {
+  login(BuildContext context) async {
     await _signInService.signInWithGoogle();
     await getUserPrivileges();
     isLoggedIn = true;
     uid = _firebaseAuth.currentUser!.uid;
     notifyListeners();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RedirectionPage()),
+    );
   }
 
   logout() async {

@@ -68,7 +68,9 @@ class _IntroPageState extends State<IntroPage> {
                         SignInButton(
                           Buttons.googleDark,
                           text: "Entrar com o Google",
-                          onPressed: userController.login,
+                          onPressed: () {
+                            userController.login(context);
+                          },
                         ),
                       ],
                     ),
@@ -107,7 +109,9 @@ class _IntroPageState extends State<IntroPage> {
                             SignInButton(
                               Buttons.googleDark,
                               text: "Entrar com o Google",
-                              onPressed: userController.login,
+                              onPressed: () {
+                                userController.login(context);
+                              },
                             ),
                           ],
                         ),
