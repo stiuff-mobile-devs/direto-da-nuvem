@@ -67,7 +67,7 @@ class _RegisterDevicePageState extends State<RegisterDevicePage> {
       groupId: groupId!,
       locale: locale!,
     );
-    _deviceController.register(device);
+    _deviceController.register(device, context);
   }
 
   @override
