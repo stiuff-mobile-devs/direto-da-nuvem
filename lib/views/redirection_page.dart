@@ -22,10 +22,10 @@ class RedirectionData {
 
   RedirectionData(
       {this.firstTime = false,
-      this.loggedIn = false,
-      this.isInstaller = false,
-      this.isDeviceRegistered = false,
-      this.isAdmin = false});
+        this.loggedIn = false,
+        this.isInstaller = false,
+        this.isDeviceRegistered = false,
+        this.isAdmin = false});
 }
 
 class RedirectionPage extends StatefulWidget {
@@ -66,42 +66,21 @@ class _RedirectionPageState extends State<RedirectionPage> {
     });
   }
 
-  ChangeNotifier createUserController(BuildContext context) {
-    final u = UserController(context.read(), context.read());
-    u.getUserPrivileges();
-    return u;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<UserController>(create: (context) {
-          final u = UserController(context.read(), context.read());
-          if (u.isLoggedIn) {
-            u.getUserPrivileges();
-          }
-          return u;
-        }),
-        ChangeNotifierProvider<DeviceController>(create: (context) {
-          final d = DeviceController(context.read());
-          d.init();
-          return d;
-        })
-      ],
-      child: Consumer2<UserController, DeviceController>(
-        builder: (context, userController, deviceController, child) {
-          RedirectionData redirectionData = RedirectionData();
-          redirectionData.isAdmin = userController.isAdmin;
-          redirectionData.loggedIn = userController.isLoggedIn;
-          redirectionData.isInstaller = userController.isInstaller;
-          redirectionData.isDeviceRegistered = deviceController.isRegistered;
-          return FutureBuilder(
-            future: isFirstTime,
-            builder: (c, s) => redirectionBuilder(c, s, redirectionData),
-          );
-        },
-      ),
+    // Remove the MultiProvider block here
+    return Consumer2<UserController, DeviceController>(
+      builder: (context, userController, deviceController, child) {
+        RedirectionData redirectionData = RedirectionData();
+        redirectionData.isAdmin = userController.isAdmin;
+        redirectionData.loggedIn = userController.isLoggedIn;
+        redirectionData.isInstaller = userController.isInstaller;
+        redirectionData.isDeviceRegistered = deviceController.isRegistered;
+        return FutureBuilder(
+          future: isFirstTime,
+          builder: (c, s) => redirectionBuilder(c, s, redirectionData),
+        );
+      },
     );
   }
 

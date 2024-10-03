@@ -2,6 +2,7 @@ import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
+import 'package:ddnuvem/views/redirection_page.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 
@@ -28,13 +29,17 @@ class DeviceController extends ChangeNotifier {
     notifyListeners();
   }
 
-  register(Device device) async {
+  register(Device device, BuildContext context) async {
     bool created = await _diretoDaNuvemAPI.deviceResource.create(device);
     isRegistered = created;
     if (isRegistered) {
       this.device = device;
     }
     notifyListeners();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RedirectionPage()),
+    );
   }
 
   fetchGroupAndQueue() async {
