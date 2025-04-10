@@ -26,6 +26,15 @@ class QueueCreateUpdatePage extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.save),
               onPressed: () {
+                var controller =
+                    context.read<QueueEditController>();
+                if (!controller
+                    .formKey
+                    .currentState!
+                    .validate()) {
+                  return;
+                }
+                controller.queue.name = controller.nameController.text;
                 onSave(context.read<QueueEditController>().queue);
               },
             ),
@@ -50,18 +59,45 @@ class QueueCreateUpdatePage extends StatelessWidget {
           tooltip: "Adicionar Imagem",
           child: const Icon(Icons.add),
         ),
-        body: Consumer<QueueEditController>(builder: (context, controller, _) {
-          return ReorderableListView(
-            padding: const EdgeInsets.all(16),
-            onReorder: controller.reorderQueue,
-            children: controller.queue.images.map((image) {
-              return ImageListTile(
-                image: image,
-                key: Key(image.path),
-              );
-            }).toList(),
-          );
-        }),
+        body: Consumer<QueueEditController>(
+          builder: (context, controller, _) {
+            return Column(
+              children: [
+                Form(
+                  key: controller.formKey,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: TextFormField(
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Campo obrigatório';
+                        }
+                        return null;
+                      },
+                      controller: controller.nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Nome da Fila',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ReorderableListView(
+                    padding: const EdgeInsets.all(16),
+                    onReorder: controller.reorderQueue,
+                    children: controller.queue.images.map((image) {
+                      return ImageListTile(
+                        image: image,
+                        key: Key(image.path),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

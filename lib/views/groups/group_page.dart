@@ -43,9 +43,9 @@ class GroupPage extends StatelessWidget {
         title: Consumer<GroupController>(builder: (context, controller, _) {
           return Text(controller.selectedGroup!.name);
         }),
-        actions: [
+        actions: const [
           IconButton(
-            onPressed: () {},
+            onPressed: null,
             icon: const Icon(Icons.edit),
           ),
         ],
@@ -60,13 +60,32 @@ class GroupPage extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child:
             Consumer<QueueController>(builder: (context, queueController, _) {
-          return ListView(
-            children: queueController.queues
+          return ListView(children: [
+            Text(
+              "Fila atual",
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            Consumer<GroupController>(builder: (context, controller, _) {
+              if (queueController.queues.isEmpty) {
+                return const Text("Nenhuma fila encontrada");
+              }
+              return QueueCard(
+                queue: queueController.queues.firstWhere((element) {
+                  return controller.selectedGroup!.currentQueue == element.id;
+                }),
+              );
+            }),
+            const SizedBox(height: 8),
+            Text(
+              "Outras filas",
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            ...queueController.queues
                 .where((element) =>
                     element.groupId == groupController.selectedGroup!.id)
-                .map((e) => QueueCard(queue: e))
-                .toList(),
-          );
+                .map((e) => QueueCard(queue: e)),
+          ]);
         }),
       ),
     );

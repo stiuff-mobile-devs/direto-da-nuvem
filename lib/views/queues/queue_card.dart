@@ -12,24 +12,28 @@ class QueueCard extends StatelessWidget {
   pushUpdateQueuePage(BuildContext context) {
     QueueController queueController = context.read();
     queueController.selectQueue(queue);
-    Navigator.of(context).push(MaterialPageRoute(
+    Navigator.of(context).push(
+      MaterialPageRoute(
         builder: (_) => QueueCreateUpdatePage(
-            queue: queue,
-            onSave: (queue) {
-              context
-                  .read<QueueController>()
-                  .updateQueue(
-                    queue,
-                  )
-                  .then((message) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(message),
-                  ),
-                );
-              });
-              Navigator.pop(context);
-            })));
+          queue: queue,
+          onSave: (queue) {
+            context
+                .read<QueueController>()
+                .updateQueue(
+                  queue,
+                )
+                .then((message) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(message),
+                ),
+              );
+            });
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -69,10 +73,11 @@ class QueueCard extends StatelessWidget {
               ],
             ),
             IconButton(
-                onPressed: () {
-                  pushUpdateQueuePage(context);
-                },
-                icon: const Icon(Icons.edit)),
+              onPressed: () {
+                pushUpdateQueuePage(context);
+              },
+              icon: const Icon(Icons.edit),
+            ),
           ],
         ),
       ),

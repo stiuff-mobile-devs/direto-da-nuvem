@@ -3,7 +3,9 @@ import 'dart:typed_data';
 import 'package:ddnuvem/models/image_ui.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 
 class QueueEditController extends ChangeNotifier {
@@ -14,8 +16,11 @@ class QueueEditController extends ChangeNotifier {
   bool hasChanged = false;
   final ImagePicker _picker = ImagePicker();
   bool disposed = false;
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  TextEditingController nameController = TextEditingController();
 
   QueueEditController({required this.diretoDaNuvemAPI, required this.queue}) {
+    nameController.text = queue.name;
     fetchImages();
   }
 
