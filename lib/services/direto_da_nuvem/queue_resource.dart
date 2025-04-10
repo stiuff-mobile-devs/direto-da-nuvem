@@ -12,6 +12,7 @@ class QueueResource {
 
     for (var doc in l.docs) {
       Queue queue = Queue.fromMap(doc.data());
+      queue.id = doc.id;
       queues.add(queue);
     }
     return queues;
@@ -22,17 +23,16 @@ class QueueResource {
     if (!doc.exists) {
       return null;
     }
-    return Queue.fromMap(doc.data()!);
+    return Queue.fromMap(doc.data()!)..id = doc.id;
   }
 
   Future create(Queue queue) async {
-    await _firestore.collection(collection).add(queue.toMap());
+    var doc = await _firestore.collection(collection).add(queue.toMap());
+    queue.id = doc.id;
   }
 
   Future updateImageList(String queueId, List<String> images) async {
     var doc = _firestore.collection(collection).doc(queueId);
-    await doc.update({
-      "images": images
-    });
+    await doc.update({"images": images});
   }
 }

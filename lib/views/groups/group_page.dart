@@ -1,11 +1,39 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
+import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/views/queues/queue_card.dart';
+import 'package:ddnuvem/views/queues/queue_create_update_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class GroupPage extends StatelessWidget {
   const GroupPage({super.key});
+
+  pushCreatePage(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => QueueCreateUpdatePage(
+          queue: Queue.empty(),
+          onSave: (queue) {
+            queue.groupId = context.read<GroupController>().selectedGroup!.id!;
+            context
+                .read<QueueController>()
+                .saveQueue(
+                  queue,
+                )
+                .then((message) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(message),
+                ),
+              );
+            });
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +51,7 @@ class GroupPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () => pushCreatePage(context),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
         child: const Icon(Icons.add),

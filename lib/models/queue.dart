@@ -50,6 +50,19 @@ class Queue {
         images: [...other.images]);
   }
 
+  factory Queue.empty() {
+    return Queue(
+      id: "",
+      name: "",
+      groupId: "",
+      duration: 0,
+      animation: "",
+      createdAt: DateTime.now(),
+      createdBy: "",
+      images: [],
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       "images": images.map((e) => e.path).toList(),

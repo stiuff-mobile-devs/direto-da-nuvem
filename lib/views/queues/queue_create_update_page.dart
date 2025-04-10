@@ -1,4 +1,3 @@
-import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/views/queues/image_list_tile.dart';
 import 'package:ddnuvem/views/queues/queue_edit_controller.dart';
@@ -6,15 +5,19 @@ import 'package:ddnuvem/views/queues/queue_view_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class QueueEditPage extends StatelessWidget {
-  const QueueEditPage({super.key});
+class QueueCreateUpdatePage extends StatelessWidget {
+  const QueueCreateUpdatePage(
+      {super.key, required this.queue, required this.onSave});
+  final Queue queue;
+
+  final void Function(Queue queue) onSave;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => QueueEditController(
         diretoDaNuvemAPI: context.read(),
-        queue: Queue.copy(context.read<QueueController>().selectedQueue!),
+        queue: queue,
       ),
       builder: (context, child) => Scaffold(
         appBar: AppBar(
@@ -23,16 +26,7 @@ class QueueEditPage extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.save),
               onPressed: () {
-                context.read<QueueController>().updateQueue(
-                  context.read<QueueEditController>().queue,
-                ).then((message) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(message),
-                    ),
-                  );
-                });
-                Navigator.pop(context);
+                onSave(context.read<QueueEditController>().queue);
               },
             ),
             IconButton(

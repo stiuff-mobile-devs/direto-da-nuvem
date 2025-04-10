@@ -15,7 +15,8 @@ class ImageListTile extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: SizedBox(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: double.infinity, maxHeight: 300),
             child: image.loading
                 ? const CircularProgressIndicator()
                 : Image.memory(
