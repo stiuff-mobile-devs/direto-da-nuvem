@@ -83,7 +83,7 @@ class _DashboardPageState extends State<DashboardPage> {
               });
             },
             child: Image.memory(
-              image.data,
+              image.data!,
               fit: BoxFit.cover,
             ),
           ),
@@ -173,9 +173,8 @@ class _DashboardPageState extends State<DashboardPage> {
     await storageRef.putData(imageBytes);
 
     diretoDaNuvemAPI.queueResource.updateImageList(
-      deviceController.currentQueue!.id,
-      [...images.map((e) => e.path), pickedFile.name]
-    );
+        deviceController.currentQueue!.id,
+        [...images.map((e) => e.path), pickedFile.name]);
 
     await getCurrentQueue();
 
@@ -248,6 +247,13 @@ class _DashboardPageState extends State<DashboardPage> {
                       child: const Text("Nova Imagem"),
                     ),
                   ),
+                  SizedBox(
+                    width: 140,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, RoutePaths.groupCreate);
+                        }, child: const Text("Criar grupo")),
+                  ),
                   const SizedBox(width: 8),
                   SizedBox(
                     width: 140,
@@ -261,15 +267,6 @@ class _DashboardPageState extends State<DashboardPage> {
                       child: const Text("Sair"),
                     ),
                   ),
-                  // SizedBox(
-                  //   width: 140,
-                  //   child: ElevatedButton(
-                  //     onPressed: () {
-                  //       Navigator.pushNamed(context, RoutePaths.group);
-                  //     },
-                  //     child: const Text("Criar"),
-                  //   ),
-                  // ),
                 ],
               ),
             ),
@@ -301,7 +298,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 width: MediaQuery.of(context).size.width,
                 margin: const EdgeInsets.symmetric(horizontal: 5.0),
                 child: Image.memory(
-                  image.data,
+                  image.data!,
                   fit: BoxFit.cover,
                 ),
               );

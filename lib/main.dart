@@ -1,5 +1,7 @@
 import 'package:ddnuvem/app.dart';
 import 'package:ddnuvem/controllers/device_controller.dart';
+import 'package:ddnuvem/controllers/group_controller.dart';
+import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
@@ -19,25 +21,22 @@ Future<void> main() async {
     androidProvider: AndroidProvider.debug,
   );
 
-  runApp(MultiProvider(
-      providers: [
-        Provider<DiretoDaNuvemAPI>(
-          create: (context) => DiretoDaNuvemAPI(),
-        ),
-        Provider<LocalStorageService>(
-            create: (context) => LocalStorageService()),
-        Provider<SignInService>(
-          create: (context) =>
-              SignInService(context, context.read<DiretoDaNuvemAPI>()),
-        ),
-        ChangeNotifierProvider<UserController>(create: (context) {
-          return UserController(context.read(), context.read());
-        }),
-        ChangeNotifierProvider<DeviceController>(create: (context) {
-          final d = DeviceController(context.read());
-          d.init(); // Initialize here
-          return d;
-        }),
-      ],
-      child: const App()));
+  runApp(MultiProvider(providers: [
+    Provider<DiretoDaNuvemAPI>(
+      create: (context) => DiretoDaNuvemAPI(),
+    ),
+    Provider<LocalStorageService>(create: (context) => LocalStorageService()),
+    Provider<SignInService>(
+      create: (context) => SignInService(context, context.read()),
+    ),
+    ChangeNotifierProvider<UserController>(create: (context) {
+      return UserController(context.read(), context.read());
+    }),
+    ChangeNotifierProvider<QueueController>(
+        create: (context) => QueueController(context.read())..init()),
+    ChangeNotifierProvider(
+        create: (context) => GroupController(context.read())..init()),
+    ChangeNotifierProvider<DeviceController>(
+        create: (context) => DeviceController(context.read())..init()),
+  ], child: const App()));
 }

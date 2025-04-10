@@ -28,5 +28,8 @@ class GroupResource {
 
   Future create(Group group) async {
     var doc = await _firestore.collection(collection).add(group.toMap());
+    await _firestore.collection(collection).doc(doc.id).collection("admins").doc("admins").set({
+      "admins": group.admins,
+    });
   }
 }

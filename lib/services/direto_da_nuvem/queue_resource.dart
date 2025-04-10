@@ -26,7 +26,7 @@ class QueueResource {
   }
 
   Future create(Queue queue) async {
-    var doc = await _firestore.collection(collection).add(queue.toMap());
+    await _firestore.collection(collection).add(queue.toMap());
   }
 
   Future updateImageList(String queueId, List<String> images) async {

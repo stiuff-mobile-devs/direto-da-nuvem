@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Queue {
   String id;
   String groupId;
+  String name;
   int duration;
   String animation;
   DateTime createdAt;
@@ -14,6 +15,7 @@ class Queue {
 
   Queue({
     required this.id,
+    required this.name,
     required this.groupId,
     required this.duration,
     required this.animation,
@@ -25,6 +27,7 @@ class Queue {
   factory Queue.fromMap(Map<String, dynamic> data) {
     return Queue(
         id: data["id"],
+        name: data["name"],
         groupId: data["group_id"],
         duration: data["duration"],
         animation: data["animation"],
@@ -34,14 +37,14 @@ class Queue {
   }
   Map<String, dynamic> toMap() {
     return {
-            "images"  : images,
-          "created_by" :   createdBy,
-          "created_at" : createdAt ,
-          "animation" :  animation,
-          "duration"  : duration,
-          "group_id" :  groupId,
-          "id"  : id ,
+      "images": images,
+      "name": name,
+      "created_by": createdBy,
+      "created_at": createdAt,
+      "animation": animation,
+      "duration": duration,
+      "group_id": groupId,
+      "id": id,
     };
   }
-
 }

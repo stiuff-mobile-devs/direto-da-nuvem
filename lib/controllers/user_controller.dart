@@ -11,13 +11,21 @@ class UserController extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
   UserController(this._signInService, this._diretoDaNuvemAPI) {
+    loadingInitialState = true;
     isLoggedIn = _signInService.checkUserLoggedIn();
+    if (isLoggedIn) {
+      getUserPrivileges();
+    } else {
+      isLoggedIn = false;
+      uid = null;
+    }
   }
 
   bool isAdmin = false;
   bool isSuperAdmin = false;
   bool isInstaller = false;
   late bool isLoggedIn;
+  bool loadingInitialState = true;
   String? uid;
 
   getUserPrivileges() async {
@@ -28,6 +36,7 @@ class UserController extends ChangeNotifier {
     isSuperAdmin = privilege.isSuperAdmin;
     isInstaller = privilege.isInstaller;
     uid = _firebaseAuth.currentUser!.uid;
+    loadingInitialState = false;
     notifyListeners();
   }
 
@@ -38,7 +47,8 @@ class UserController extends ChangeNotifier {
     uid = _firebaseAuth.currentUser!.uid;
     notifyListeners();
     Navigator.pushAndRemoveUntil(
-      context,MaterialPageRoute(builder: (context) => const RedirectionPage()),
+      context,
+      MaterialPageRoute(builder: (context) => const RedirectionPage()),
       (Route<dynamic> route) => false,
     );
   }

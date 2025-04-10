@@ -1,5 +1,4 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
-import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
@@ -19,7 +18,6 @@ class _RegisterDevicePageState extends State<RegisterDevicePage> {
   final _formKey = GlobalKey<FormState>();
   late DiretoDaNuvemAPI _diretoDaNuvemAPI;
   late DeviceController _deviceController;
-  late UserController _userController;
 
   List<Group> groups = [];
   String? deviceId;
@@ -29,7 +27,6 @@ class _RegisterDevicePageState extends State<RegisterDevicePage> {
 
   getDependencies() {
     _diretoDaNuvemAPI = Provider.of<DiretoDaNuvemAPI>(context, listen: false);
-    _userController = Provider.of<UserController>(context, listen: false);
     _deviceController = Provider.of<DeviceController>(context, listen: false);
   }
 
@@ -49,18 +46,18 @@ class _RegisterDevicePageState extends State<RegisterDevicePage> {
   }
 
   Future<void> registerDevice() async {
-    final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     await getId(); // Ensure deviceId is fetched before proceeding
 
     if (deviceId == null || description == null || groupId == null || locale == null) {
       // Handle the case where any of these are null, maybe show an error message
-      print("Error: One or more required fields are null");
+      debugPrint("Error: One or more required fields are null");
       return;
     }
 
     Device device = Device(
       id: deviceId!,
-      registeredBy: _firebaseAuth.currentUser!.uid,
+      registeredBy: firebaseAuth.currentUser!.uid,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       description: description!,

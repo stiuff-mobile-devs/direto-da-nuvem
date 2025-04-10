@@ -19,7 +19,8 @@ class DeviceResource {
   Future<Device?> checkIfRegistered(String id) async {
     DocumentReference<Map<String, dynamic>> documentReference =
         _firestore.doc("${DeviceResource.collection}/$id");
-    DocumentSnapshot<Map<String,dynamic>> documentSnapshot = await documentReference.get();
+    DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+        await documentReference.get();
     if (!documentSnapshot.exists) {
       return null;
     }
@@ -29,15 +30,17 @@ class DeviceResource {
   Future<Device?> get(String id) async {
     final documentSnapshot =
         await _firestore.doc("${DeviceResource.collection}/$id").get();
-    
+
     if (!documentSnapshot.exists) {
       return null;
     }
     return Device.fromMap(documentSnapshot.data()!);
   }
 
-  List<Device> listAll() {
-    return [];
+  Future<List<Device>> listAll() async {
+    final documents =
+        await _firestore.collection(DeviceResource.collection).get();
+    return documents.docs.map((e) => Device.fromMap(e.data())).toList();
   }
 
   List<Device> listInGroup(String groupId) {

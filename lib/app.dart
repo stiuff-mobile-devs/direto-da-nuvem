@@ -1,5 +1,5 @@
-import 'package:ddnuvem/routes/route_paths.dart';
 import 'package:ddnuvem/routes/routes.dart';
+import 'package:ddnuvem/views/redirection_page.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatefulWidget {
@@ -22,7 +22,7 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Direto da Nuvem",
-      initialRoute: RoutePaths.redirection,
+      home: const RedirectionPage(),
       routes: Routes.routes,
       navigatorKey: Routes.navigatorKey,
     );

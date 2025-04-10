@@ -4,7 +4,7 @@ import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/local_storage/booleans.dart';
 import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
-import 'package:ddnuvem/views/dashboard_page.dart';
+import 'package:ddnuvem/views/admin/admin_page.dart';
 import 'package:ddnuvem/views/devices/register_device_page.dart';
 import 'package:ddnuvem/views/devices/unregistered_device_error_page.dart';
 import 'package:ddnuvem/views/intro_page.dart';
@@ -19,13 +19,15 @@ class RedirectionData {
   bool isInstaller;
   bool isDeviceRegistered;
   bool isAdmin;
+  bool isLoading;
 
   RedirectionData(
       {this.firstTime = false,
         this.loggedIn = false,
         this.isInstaller = false,
         this.isDeviceRegistered = false,
-        this.isAdmin = false});
+        this.isAdmin = false,
+        this.isLoading = true});
 }
 
 class RedirectionPage extends StatefulWidget {
@@ -76,6 +78,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
         redirectionData.loggedIn = userController.isLoggedIn;
         redirectionData.isInstaller = userController.isInstaller;
         redirectionData.isDeviceRegistered = deviceController.isRegistered;
+        redirectionData.isLoading = deviceController.loadingInitialState || userController.loadingInitialState;
         return FutureBuilder(
           future: isFirstTime,
           builder: (c, s) => redirectionBuilder(c, s, redirectionData),
@@ -86,9 +89,12 @@ class _RedirectionPageState extends State<RedirectionPage> {
 
   Widget redirectionBuilder(BuildContext c, AsyncSnapshot<bool> snapshot,
       RedirectionData redirectionData) {
-    if (snapshot.data == null) {
-      return const Center(
-        child: CircularProgressIndicator(),
+    if (snapshot.data == null || redirectionData.isLoading) {
+      return Container(
+        color: Theme.of(context).colorScheme.background,
+        child: const Center(
+          child: CircularProgressIndicator.adaptive(),
+        ),
       );
     }
     redirectionData.firstTime = snapshot.data ?? true;
@@ -114,7 +120,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
       }
     }
     if (redirectionData.isAdmin) {
-      return const DashboardPage();
+      return const AdminPage();
     }
     return const QueueViewPage();
   }
