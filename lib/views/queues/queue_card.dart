@@ -22,16 +22,26 @@ class QueueCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  queue.name,
-                  style: Theme.of(context).textTheme.bodyLarge,
+                if (!queue.updated) const Padding(
+                  padding: EdgeInsets.only(right: 8.0),
+                  child: CircularProgressIndicator.adaptive(),
                 ),
-                Text(
-                  numberOfPhotos,
-                  style: Theme.of(context).textTheme.bodySmall,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      queue.name,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    Text(
+                      numberOfPhotos,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ),
               ],
             ),

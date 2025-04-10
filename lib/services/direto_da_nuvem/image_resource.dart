@@ -8,4 +8,10 @@ class ImageResource {
   Future<Uint8List?> fetchImageData(String url) async {
     return await _storage.ref().child(url).getData();
   }
+
+  Future<String> uploadImage(String path, Uint8List data) async {
+    final ref = _storage.ref().child(path);
+    await ref.putData(data);
+    return ref.fullPath;
+  }
 }

@@ -9,10 +9,11 @@ import 'package:image_picker/image_picker.dart';
 class QueueEditController extends ChangeNotifier {
   DiretoDaNuvemAPI diretoDaNuvemAPI;
   Queue queue;
-  List<ImageUI> images = [];
+  // List<ImageUI> images = [];
   Uint8List? imageBytes;
   bool hasChanged = false;
   final ImagePicker _picker = ImagePicker();
+  bool disposed = false;
 
   QueueEditController({required this.diretoDaNuvemAPI, required this.queue}) {
     fetchImages();
@@ -23,28 +24,35 @@ class QueueEditController extends ChangeNotifier {
       newIndex--;
     }
     final item = queue.images.removeAt(oldIndex);
-    final itemImage = images.removeAt(oldIndex);
-    images.insert(newIndex, itemImage);
     queue.images.insert(newIndex, item);
     notifyListeners();
   }
 
+  @override
+  void dispose() {
+    disposed = true;
+    debugPrint("QueueEditController disposed");
+    super.dispose();
+  }
+
   void fetchImages() async {
     List<Future<Uint8List?>> futures = [];
-    for (var imagePath in queue.images) {
-      var image = ImageUI(path: imagePath, data: null);
-      futures.add(diretoDaNuvemAPI.imageResource.fetchImageData(imagePath).then(
+    for (var image in queue.images) {
+      if (image.data != null) {
+        continue;
+      }
+      futures
+          .add(diretoDaNuvemAPI.imageResource.fetchImageData(image.path).then(
         (value) {
           image.data = value;
           image.loading = false;
-          images.add(image);
-          // notifyListeners();
           return value;
         },
       ));
     }
     notifyListeners();
     await Future.wait(futures).then((_) {
+      if (disposed) return;
       notifyListeners();
     });
     // List<Uint8List?> datas = await Future.wait(futures);
@@ -54,10 +62,7 @@ class QueueEditController extends ChangeNotifier {
     // }
   }
 
-  void saveQueue() {}
-
   void pickImage() async {
-    // Pick an image
     final XFile? pickedFile =
         await _picker.pickImage(source: ImageSource.gallery);
 
@@ -66,14 +71,17 @@ class QueueEditController extends ChangeNotifier {
     }
 
     imageBytes = await pickedFile.readAsBytes();
-    images.add(ImageUI(path: pickedFile.path, data: imageBytes, loading: false));
-    // queue.images.add(pickedFile.path);
+    queue.images.add(ImageUI(
+        path: pickedFile.name,
+        data: imageBytes,
+        loading: false,
+        uploaded: false));
+    if (disposed) return;
     notifyListeners();
   }
 
   void removeQueueImage(ImageUI image) {
-    images.remove(image);
-    queue.images.remove(image.path);
+    queue.images.remove(image);
     notifyListeners();
   }
 }

@@ -1,4 +1,5 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
+import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/local_storage/booleans.dart';
@@ -23,11 +24,11 @@ class RedirectionData {
 
   RedirectionData(
       {this.firstTime = false,
-        this.loggedIn = false,
-        this.isInstaller = false,
-        this.isDeviceRegistered = false,
-        this.isAdmin = false,
-        this.isLoading = true});
+      this.loggedIn = false,
+      this.isInstaller = false,
+      this.isDeviceRegistered = false,
+      this.isAdmin = false,
+      this.isLoading = true});
 }
 
 class RedirectionPage extends StatefulWidget {
@@ -78,7 +79,8 @@ class _RedirectionPageState extends State<RedirectionPage> {
         redirectionData.loggedIn = userController.isLoggedIn;
         redirectionData.isInstaller = userController.isInstaller;
         redirectionData.isDeviceRegistered = deviceController.isRegistered;
-        redirectionData.isLoading = deviceController.loadingInitialState || userController.loadingInitialState;
+        redirectionData.isLoading = deviceController.loadingInitialState ||
+            userController.loadingInitialState;
         return FutureBuilder(
           future: isFirstTime,
           builder: (c, s) => redirectionBuilder(c, s, redirectionData),
@@ -122,6 +124,8 @@ class _RedirectionPageState extends State<RedirectionPage> {
     if (redirectionData.isAdmin) {
       return const AdminPage();
     }
-    return const QueueViewPage();
+    return Consumer<QueueController>(builder: (context, controller, _) {
+      return QueueViewPage(queue: controller.selectedQueue!);
+    });
   }
 }

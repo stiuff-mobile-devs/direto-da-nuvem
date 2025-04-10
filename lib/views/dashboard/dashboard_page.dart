@@ -52,8 +52,8 @@ class _DashboardPageState extends State<DashboardPage> {
     });
     await deviceController.fetchGroupAndQueue();
     for (var imagePath in deviceController.currentQueue!.images) {
-      var a = await storage.ref().child(imagePath).getData();
-      images.add(ImageUI(path: imagePath, data: a!));
+      var a = await storage.ref().child(imagePath.path).getData();
+      images.add(ImageUI(path: imagePath.path, data: a!));
     }
     setState(() {
       isLoading = false;
