@@ -2,7 +2,12 @@ import 'package:ddnuvem/models/group.dart';
 import 'package:flutter/material.dart';
 
 class GroupCreateController extends ChangeNotifier {
-  GroupCreateController(this.group);
+  GroupCreateController(this.group) {
+    nameController.text = group.name;
+    descriptionController.text = group.description;
+    admins = group.admins ?? [];
+    notifyListeners();
+  }
 
   List<String> admins = [];
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();

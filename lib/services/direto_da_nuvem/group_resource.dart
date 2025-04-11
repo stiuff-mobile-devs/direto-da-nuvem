@@ -45,7 +45,7 @@ class GroupResource {
         .get()
         .then((value) {
       List<dynamic> adminsEmail = (value.data()!["admins"]);
-        group.admins = adminsEmail.map((e) => "$e").toList();
+      group.admins = adminsEmail.map((e) => "$e").toList();
     });
     return group;
   }
@@ -65,6 +65,15 @@ class GroupResource {
 
   Future update(Group group) async {
     var doc = _firestore.collection(collection).doc(group.id);
-    await doc.update(group.toMap());
+    var a = _firestore
+        .collection(collection)
+        .doc(doc.id)
+        .collection("admins")
+        .doc("admins")
+        .set({
+      "admins": group.admins,
+    });
+    var b = doc.update(group.toMap());
+    await Future.wait([a, b]);
   }
 }

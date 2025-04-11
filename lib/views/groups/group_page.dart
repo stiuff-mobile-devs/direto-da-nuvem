@@ -1,6 +1,8 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
+import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
+import 'package:ddnuvem/views/groups/group_create_page.dart';
 import 'package:ddnuvem/views/queues/queue_card.dart';
 import 'package:ddnuvem/views/queues/queue_create_update_page.dart';
 import 'package:flutter/material.dart';
@@ -43,10 +45,29 @@ class GroupPage extends StatelessWidget {
         title: Consumer<GroupController>(builder: (context, controller, _) {
           return Text(controller.selectedGroup!.name);
         }),
-        actions: const [
+        actions: [
           IconButton(
-            onPressed: null,
-            icon: Icon(Icons.edit),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return GroupCreatePage(
+                        group: Group.copy(groupController.selectedGroup!),
+                        onSave: (group) {
+                          groupController.updateGroup(group).then((message) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(message),
+                              ),
+                            );
+                          });
+                          Navigator.pop(context);
+                        },);
+                  },
+                ),
+              );
+            },
+            icon: const Icon(Icons.edit),
           ),
         ],
       ),
@@ -68,7 +89,7 @@ class GroupPage extends StatelessWidget {
             const SizedBox(height: 8),
             Consumer<GroupController>(builder: (context, controller, _) {
               Queue? queue;
-              for(var q in queueController.queues) {
+              for (var q in queueController.queues) {
                 if (q.id == controller.selectedGroup!.currentQueue) {
                   queue = q;
                 }

@@ -40,6 +40,18 @@ class Group {
     );
   }
 
+  factory Group.copy(Group group) {
+    return Group(
+      id: group.id,
+      name: group.name,
+      description: group.description,
+      currentQueue: group.currentQueue,
+      createdAt: group.createdAt,
+      updatedAt: group.updatedAt,
+      admins: [...group.admins ?? []],
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       "name": name,

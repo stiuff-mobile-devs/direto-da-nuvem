@@ -19,13 +19,25 @@ class GroupController extends ChangeNotifier {
     notifyListeners();
   }
 
-  createGroup(Group group) async {
+  Future<String> createGroup(Group group) async {
     loading = true;
     notifyListeners();
     await diretoDaNuvemAPI.groupResource.create(group);
     groups.add(group);
     loading = false;
     notifyListeners();
+    return "Grupo criado com sucesso!";
+  }
+
+  Future<String> updateGroup(Group group) async {
+    loading = true;
+    notifyListeners();
+    await diretoDaNuvemAPI.groupResource.update(group);
+    int index = groups.indexWhere((g) => g.id == group.id);
+    groups[index] = group;
+    loading = false;
+    notifyListeners();
+    return "Grupo atualizado com sucesso!";
   }
 
   selectGroup(Group group) {
