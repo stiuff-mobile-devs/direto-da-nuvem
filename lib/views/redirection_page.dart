@@ -1,6 +1,6 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
-import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
+import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/local_storage/booleans.dart';
 import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
@@ -10,7 +10,8 @@ import 'package:ddnuvem/views/devices/register_device_page.dart';
 import 'package:ddnuvem/views/devices/unregistered_device_error_page.dart';
 import 'package:ddnuvem/views/intro_page.dart';
 import 'package:ddnuvem/views/login_page.dart';
-import 'package:ddnuvem/views/queues/queue_view_page.dart';
+import 'package:ddnuvem/views/queues/monitor_page.dart';
+import 'package:ddnuvem/views/queues/queue_view_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -92,19 +93,19 @@ class _RedirectionPageState extends State<RedirectionPage> {
   Widget redirectionBuilder(BuildContext c, AsyncSnapshot<bool> snapshot,
       RedirectionData redirectionData) {
     if (snapshot.data == null || redirectionData.isLoading) {
-      return Container(
-        color: Theme.of(context).colorScheme.background,
-        child: const Center(
-          child: CircularProgressIndicator.adaptive(),
-        ),
-      );
+      return loading();
     }
     redirectionData.firstTime = snapshot.data ?? true;
     return handleRedirection(redirectionData);
   }
 
   Widget loading() {
-    return const Center(child: CircularProgressIndicator());
+    return Container(
+      color: Theme.of(context).colorScheme.background,
+      child: const Center(
+        child: CircularProgressIndicator.adaptive(),
+      ),
+    );
   }
 
   Widget handleRedirection(RedirectionData redirectionData) {
@@ -124,8 +125,18 @@ class _RedirectionPageState extends State<RedirectionPage> {
     if (redirectionData.isAdmin) {
       return const AdminPage();
     }
-    return Consumer<QueueController>(builder: (context, controller, _) {
-      return QueueViewPage(queue: controller.selectedQueue!);
-    });
+    var deviceController = context.read<DeviceController>();
+
+    Queue? queue = deviceController.currentQueue;
+    if (queue == null) {
+      return loading();
+    }
+    return ChangeNotifierProvider(
+      create: (context) => QueueViewController(
+        diretoDaNuvemAPI,
+        queue,
+      ),
+      child: const MonitorPage(),
+    );
   }
 }

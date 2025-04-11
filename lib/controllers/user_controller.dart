@@ -18,6 +18,8 @@ class UserController extends ChangeNotifier {
     } else {
       isLoggedIn = false;
       uid = null;
+      loadingInitialState = false;
+      notifyListeners();
     }
   }
 
@@ -26,12 +28,14 @@ class UserController extends ChangeNotifier {
   bool isInstaller = false;
   late bool isLoggedIn;
   bool loadingInitialState = true;
+  String? userEmail;
   String? uid;
 
   getUserPrivileges() async {
     UserPrivilege privilege = await _diretoDaNuvemAPI.userResource
         .getUserPrivileges(_firebaseAuth.currentUser!.uid);
 
+    userEmail = _firebaseAuth.currentUser!.email;
     isAdmin = privilege.isAdmin;
     isSuperAdmin = privilege.isSuperAdmin;
     isInstaller = privilege.isInstaller;

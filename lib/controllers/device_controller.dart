@@ -11,29 +11,32 @@ class DeviceController extends ChangeNotifier {
 
   List<Device> devices = [];
   bool loadingInitialState = true;
+  Device? self;
 
   DeviceController(this._diretoDaNuvemAPI);
 
   init() async {
     loadingInitialState = true;
     await _getAndroidInfo();
-    _checkIsRegistered(id!);
+    await _checkIsRegistered(id!);
+    await fetchGroupAndQueue();
     loadingInitialState = false;
     devices = await _diretoDaNuvemAPI.deviceResource.listAll();
+    devices.where((device) => device.id == id).forEach((device) {
+      self = device;
+    });
     notifyListeners();
   }
 
   _getAndroidInfo() async {
     androidInfo = await _deviceInfoPlugin.androidInfo;
     id = androidInfo!.id;
-    notifyListeners();
   }
 
   _checkIsRegistered(String id) async {
     device = await _diretoDaNuvemAPI.deviceResource.checkIfRegistered(id);
     isRegistered = device != null;
     loadingInitialState = false;
-    notifyListeners();
   }
 
   register(Device device, BuildContext context) async {
@@ -54,7 +57,6 @@ class DeviceController extends ChangeNotifier {
   fetchGroupAndQueue() async {
     await _fetchGroup();
     await _fetchCurrentQueue();
-    notifyListeners();
   }
 
   _fetchGroup() async {
