@@ -111,8 +111,8 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _saveNewOrderToFirebase() async {
-    await diretoDaNuvemAPI.queueResource.updateImageList(
-        deviceController.currentQueue!.id, images.map((e) => e.path).toList());
+    // await diretoDaNuvemAPI.queueResource.updateImageList(
+    //     deviceController.currentQueue!.id, images.map((e) => e.path).toList());
 
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text('Nova ordem salva!')));
@@ -140,9 +140,9 @@ class _DashboardPageState extends State<DashboardPage> {
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop();
-                diretoDaNuvemAPI.queueResource.updateImageList(
-                    deviceController.currentQueue!.id,
-                    images.map((e) => e.path).toList());
+                // diretoDaNuvemAPI.queueResource.updateImageList(
+                //     deviceController.currentQueue!.id,
+                //     images.map((e) => e.path).toList());
                 // await storage.ref().child(imagePath).delete();
 
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -172,9 +172,9 @@ class _DashboardPageState extends State<DashboardPage> {
     final storageRef = FirebaseStorage.instance.ref().child(pickedFile.name);
     await storageRef.putData(imageBytes);
 
-    diretoDaNuvemAPI.queueResource.updateImageList(
-        deviceController.currentQueue!.id,
-        [...images.map((e) => e.path), pickedFile.name]);
+    // diretoDaNuvemAPI.queueResource.update(
+    //     deviceController.currentQueue!.id,
+    //     [...images.map((e) => e.path), pickedFile.name]);
 
     await getCurrentQueue();
 
