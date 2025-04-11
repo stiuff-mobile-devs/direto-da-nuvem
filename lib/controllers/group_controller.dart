@@ -39,4 +39,10 @@ class GroupController extends ChangeNotifier {
     selectedGroup = group;
     notifyListeners();
   }
+
+  makeQueueCurrent(String queueId) async {
+    await diretoDaNuvemAPI.groupResource.update(selectedGroup!);
+    selectedGroup?.currentQueue = queueId;
+    notifyListeners();
+  }
 }

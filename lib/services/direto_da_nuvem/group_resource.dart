@@ -32,4 +32,9 @@ class GroupResource {
       "admins": group.admins,
     });
   }
+
+  Future update(Group group) async {
+    var doc = _firestore.collection(collection).doc(group.id);
+    await doc.update(group.toMap());
+  }
 }

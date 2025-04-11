@@ -37,8 +37,7 @@ class QueueController extends ChangeNotifier {
 
       await Future.wait(imagesFutures);
 
-      await diretoDaNuvemAPI.queueResource
-          .updateImageList(queue.id, queue.images.map((e) => e.path).toList());
+      await diretoDaNuvemAPI.queueResource.update(queue);
       queue.updated = true;
       queues[queues.indexOf(oldqueue)] = queue;
       notifyListeners();
