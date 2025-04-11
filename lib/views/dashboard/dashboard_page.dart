@@ -4,7 +4,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/image_ui.dart';
-import 'package:ddnuvem/routes/route_paths.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -251,7 +250,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     width: 140,
                     child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, RoutePaths.groupCreate);
+                          // Navigator.pushNamed(context, RoutePaths.groupCreate);
                         }, child: const Text("Criar grupo")),
                   ),
                   const SizedBox(width: 8),

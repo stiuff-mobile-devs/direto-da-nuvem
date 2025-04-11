@@ -46,7 +46,7 @@ class GroupPage extends StatelessWidget {
         actions: const [
           IconButton(
             onPressed: null,
-            icon: const Icon(Icons.edit),
+            icon: Icon(Icons.edit),
           ),
         ],
       ),
@@ -67,13 +67,17 @@ class GroupPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Consumer<GroupController>(builder: (context, controller, _) {
-              if (queueController.queues.isEmpty) {
-                return const Text("Nenhuma fila encontrada");
+              Queue? queue;
+              for(var q in queueController.queues) {
+                if (q.id == controller.selectedGroup!.currentQueue) {
+                  queue = q;
+                }
+              }
+              if (queue == null) {
+                return const Text("Nenhuma fila associada a este grupo");
               }
               return QueueCard(
-                queue: queueController.queues.firstWhere((element) {
-                  return controller.selectedGroup!.currentQueue == element.id;
-                }),
+                queue: queue,
               );
             }),
             const SizedBox(height: 8),

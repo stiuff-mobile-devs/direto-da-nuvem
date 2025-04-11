@@ -29,6 +29,17 @@ class Group {
         admins: data["admins"]);
   }
 
+  factory Group.empty() {
+    return Group(
+      name: "",
+      description: "",
+      currentQueue: "",
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      admins: [],
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       "name": name,

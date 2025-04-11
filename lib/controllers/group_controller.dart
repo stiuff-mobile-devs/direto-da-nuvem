@@ -19,16 +19,9 @@ class GroupController extends ChangeNotifier {
     notifyListeners();
   }
 
-  createGroup(String name, String description, List<String> admins) async {
+  createGroup(Group group) async {
     loading = true;
     notifyListeners();
-    Group group = Group(
-        name: name,
-        description: description,
-        currentQueue: "init",
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        admins: admins);
     await diretoDaNuvemAPI.groupResource.create(group);
     groups.add(group);
     loading = false;

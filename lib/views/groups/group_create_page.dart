@@ -1,38 +1,39 @@
-import 'package:ddnuvem/controllers/group_controller.dart';
+import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/views/groups/group_create_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class GroupCreatePage extends StatelessWidget {
-  GroupCreatePage({super.key});
+  const GroupCreatePage({super.key, required this.group, required this.onSave});
 
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController adminEmailController = TextEditingController();
-  final GlobalKey<FormState> _adminFormKey = GlobalKey<FormState>();
+  final Group group;
+  final Function(Group) onSave;
 
   @override
   Widget build(BuildContext context) {
-    GroupController controller =
-        Provider.of<GroupController>(context, listen: false);
     return ChangeNotifierProvider(
-      create: (context) => GroupCreateController(),
-      builder: (context, _) => Scaffold(
+      create: (context) => GroupCreateController(group),
+      builder: (context, _) {
+        GroupCreateController groupCreateController =
+            context.read<GroupCreateController>();
+        return Scaffold(
           appBar: AppBar(
             title: const Text("Criar Grupo"),
             actions: [
               IconButton(
                 icon: const Icon(Icons.save),
                 onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    // Save the form data
-                    await controller.createGroup(
-                        nameController.text,
-                        descriptionController.text,
-                        context.read<GroupCreateController>().admins);
-                    Navigator.of(context).pop();
+                  if (!groupCreateController.formKey.currentState!.validate()) {
+                    return;
                   }
+                  groupCreateController.group.name =
+                      groupCreateController.nameController.text;
+                  groupCreateController.group.description =
+                      groupCreateController.descriptionController.text;
+                  groupCreateController.group.admins =
+                      groupCreateController.admins;
+                  onSave(groupCreateController.group);
+                  Navigator.of(context).pop();
                 },
               )
             ],
@@ -40,11 +41,11 @@ class GroupCreatePage extends StatelessWidget {
           body: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Form(
-              key: _formKey,
+              key: groupCreateController.formKey,
               child: Column(
                 children: [
                   TextFormField(
-                    controller: nameController,
+                    controller: groupCreateController.nameController,
                     decoration: const InputDecoration(
                       labelText: "Nome do Grupo",
                       hintText: "Digite o nome do grupo",
@@ -57,7 +58,7 @@ class GroupCreatePage extends StatelessWidget {
                     },
                   ),
                   TextFormField(
-                    controller: descriptionController,
+                    controller: groupCreateController.descriptionController,
                     decoration: const InputDecoration(
                       labelText: "Descrição do Grupo",
                       hintText: "Digite a descrição do grupo",
@@ -70,20 +71,24 @@ class GroupCreatePage extends StatelessWidget {
                     },
                   ),
                   Form(
-                    key: _adminFormKey,
+                    key: groupCreateController.adminFormKey,
                     child: Row(
                       children: [
                         Expanded(
                           child: TextFormField(
-                            controller: adminEmailController,
+                            controller:
+                                groupCreateController.adminEmailController,
                             onFieldSubmitted: (value) {
-                              if (!_adminFormKey.currentState!.validate()) {
+                              if (!groupCreateController
+                                  .adminFormKey.currentState!
+                                  .validate()) {
                                 return;
                               }
                               context.read<GroupCreateController>().addAdmin(
                                     value,
                                   );
-                              adminEmailController.clear();
+                              groupCreateController.adminEmailController
+                                  .clear();
                             },
                             decoration: const InputDecoration(
                               labelText: "Admins do Grupo",
@@ -111,13 +116,16 @@ class GroupCreatePage extends StatelessWidget {
                         IconButton(
                           icon: const Icon(Icons.add),
                           onPressed: () {
-                            if (!_adminFormKey.currentState!.validate()) {
+                            if (!groupCreateController
+                                .adminFormKey.currentState!
+                                .validate()) {
                               return;
                             }
                             context.read<GroupCreateController>().addAdmin(
-                                  adminEmailController.text,
+                                  groupCreateController
+                                      .adminEmailController.text,
                                 );
-                            adminEmailController.clear();
+                            groupCreateController.adminEmailController.clear();
                           },
                         )
                       ],
@@ -142,7 +150,9 @@ class GroupCreatePage extends StatelessWidget {
                 ],
               ),
             ),
-          )),
+          ),
+        );
+      },
     );
   }
 }
