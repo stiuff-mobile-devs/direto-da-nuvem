@@ -60,10 +60,16 @@ class DeviceController extends ChangeNotifier {
   }
 
   _fetchGroup() async {
+    if (device == null) {
+      return;
+    }
     group = await _diretoDaNuvemAPI.groupResource.get(device!.groupId);
   }
 
   _fetchCurrentQueue() async {
+    if (group == null) {
+      return;
+    }
     currentQueue =
         await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
   }

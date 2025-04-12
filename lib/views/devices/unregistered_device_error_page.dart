@@ -1,5 +1,7 @@
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 class UnregisteredDeviceErrorPage extends StatefulWidget {
   const UnregisteredDeviceErrorPage({super.key});
@@ -37,8 +39,10 @@ class _UnregisteredDeviceErrorPageState
                 ElevatedButton(
                   onPressed: () {
                     // Navigator.pushNamed(context, RoutePaths.register);
+                    context.read<UserController>().logout();
+                    // Navigator.pop(context);
                   },
-                  child: const Text('Registrar Dispositivo'),
+                  child: const Text('Sair'),
                 )
               ],
             ),

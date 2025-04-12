@@ -1,7 +1,6 @@
 import 'package:ddnuvem/views/devices/devices_page.dart';
 import 'package:ddnuvem/views/groups/groups_page.dart';
 import 'package:ddnuvem/views/images/images_page.dart';
-import 'package:ddnuvem/views/people/people_page.dart';
 import 'package:ddnuvem/views/profile/settings_page.dart';
 import 'package:flutter/material.dart';
 
@@ -11,13 +10,13 @@ class AdminPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const DefaultTabController(
-      length: 5,
+      length: 4,
       child: Scaffold(
         body: TabBarView(children: [
           DevicesPage(),
           ImagesPage(),
           GroupsPage(),
-          PeoplePage(),
+          // PeoplePage(),
           SettingsPage(),
         ]),
         bottomNavigationBar: TabBar(
@@ -25,7 +24,7 @@ class AdminPage extends StatelessWidget {
             Tab(icon: Icon(Icons.tv), ),
             Tab(icon: Icon(Icons.image), ),
             Tab(icon: Icon(Icons.table_chart), ),
-            Tab(icon: Icon(Icons.group), ),
+            // Tab(icon: Icon(Icons.group), ),
             Tab(icon: Icon(Icons.settings), ),
           ],
         ),
