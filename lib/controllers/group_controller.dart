@@ -45,9 +45,10 @@ class GroupController extends ChangeNotifier {
     notifyListeners();
   }
 
-  makeQueueCurrent(String queueId) async {
-    await diretoDaNuvemAPI.groupResource.update(selectedGroup!);
+  Future<String> makeQueueCurrent(String queueId) async {
     selectedGroup?.currentQueue = queueId;
+    await diretoDaNuvemAPI.groupResource.update(selectedGroup!);
     notifyListeners();
+    return "Fila atualizada com sucesso!";
   }
 }

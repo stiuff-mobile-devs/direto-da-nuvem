@@ -85,6 +85,19 @@ class DeviceController extends ChangeNotifier {
     return count;
   }
 
+  List<Device> listDevicesInGroups(Set<String> groupIds) {
+    if (groupIds.isEmpty) {
+      return devices;
+    }
+    List<Device> devicesInGroups = [];
+    for (var device in devices) {
+      if (groupIds.contains(device.groupId)) {
+        devicesInGroups.add(device);
+      }
+    }
+    return devicesInGroups;
+  }
+
   AndroidDeviceInfo? androidInfo;
   String? id;
   Queue? currentQueue;

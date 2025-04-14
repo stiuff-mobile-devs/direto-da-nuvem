@@ -52,17 +52,20 @@ class GroupPage extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) {
                     return GroupCreatePage(
-                        group: Group.copy(groupController.selectedGroup!),
-                        onSave: (group) {
-                          groupController.updateGroup(group).then((message) {
+                      group: Group.copy(groupController.selectedGroup!),
+                      onSave: (group) {
+                        groupController.updateGroup(group).then(
+                          (message) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(message),
                               ),
                             );
-                          });
-                          Navigator.pop(context);
-                        },);
+                          },
+                        );
+                        Navigator.pop(context);
+                      },
+                    );
                   },
                 ),
               );
@@ -79,39 +82,42 @@ class GroupPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child:
-            Consumer<QueueController>(builder: (context, queueController, _) {
-          return ListView(children: [
-            Text(
-              "Fila atual",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Consumer<GroupController>(builder: (context, controller, _) {
-              Queue? queue;
-              for (var q in queueController.queues) {
-                if (q.id == controller.selectedGroup!.currentQueue) {
-                  queue = q;
-                }
-              }
-              if (queue == null) {
-                return const Text("Nenhuma fila associada a este grupo");
-              }
-              return QueueCard(
-                queue: queue,
-              );
-            }),
-            const SizedBox(height: 8),
-            Text(
-              "Outras filas",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            ...queueController.queues
-                .where((element) =>
-                    element.groupId == groupController.selectedGroup!.id)
-                .map((e) => QueueCard(queue: e)),
-          ]);
-        }),
+        child: Consumer<QueueController>(
+          builder: (context, queueController, _) {
+            return ListView(
+              children: [
+                Text(
+                  "Fila atual",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                Consumer<GroupController>(builder: (context, controller, _) {
+                  Queue? queue;
+                  for (var q in queueController.queues) {
+                    if (q.id == controller.selectedGroup!.currentQueue) {
+                      queue = q;
+                    }
+                  }
+                  if (queue == null) {
+                    return const Text("Nenhuma fila associada a este grupo");
+                  }
+                  return QueueCard(
+                    queue: queue,
+                  );
+                }),
+                const SizedBox(height: 8),
+                Text(
+                  "Outras filas",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                ...queueController.queues
+                    .where((element) =>
+                        element.groupId == groupController.selectedGroup!.id)
+                    .map((e) => QueueCard(queue: e)),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

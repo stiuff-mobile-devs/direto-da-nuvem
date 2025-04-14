@@ -52,8 +52,18 @@ class QueueCard extends StatelessWidget {
                 child: const Text("Fechar"),
               ),
               TextButton(
-                onPressed: () {
-                  context.read<GroupController>().makeQueueCurrent(queue.id);
+                onPressed: () async {
+                  String message = await context
+                      .read<GroupController>()
+                      .makeQueueCurrent(queue.id);
+                  if (!context.mounted) {
+                    return;
+                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(message),
+                    ),
+                  );
                   Navigator.pop(context);
                 },
                 child: const Text("Sim"),

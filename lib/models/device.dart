@@ -6,6 +6,7 @@ class Device {
   String description;
   String groupId;
   String registeredBy;
+  String registeredByEmail;
   String? brand;
   String? model;
   String? product;
@@ -19,6 +20,7 @@ class Device {
     required this.description,
     required this.groupId,
     required this.registeredBy,
+    required this.registeredByEmail,
     required this.createdAt,
     required this.updatedAt,
     this.brand,
@@ -34,6 +36,7 @@ class Device {
         description: map["description"],
         groupId: map["group_id"],
         registeredBy: map["registered_by"] ?? "",
+        registeredByEmail: map["registered_by_email"] ?? "",
         createdAt: (map["created_at"] as Timestamp).toDate(),
         updatedAt: (map["updated_at"] as Timestamp).toDate(),
         brand: map["brand"],
@@ -50,6 +53,7 @@ class Device {
       "description": description,
       "group_id": groupId,
       "registered_by": registeredBy,
+      "registered_by_email": registeredByEmail,
       "created_at": createdAt,
       "updated_at": updatedAt,
       "brand": brand,

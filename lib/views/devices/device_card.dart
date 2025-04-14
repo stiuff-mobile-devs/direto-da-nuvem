@@ -1,6 +1,8 @@
-
+import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/models/device.dart';
+import 'package:ddnuvem/utils/data_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DeviceCard extends StatelessWidget {
   final Device device;
@@ -25,20 +27,19 @@ class DeviceCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text("Locale: ${device.locale}"),
-            Text("Group ID: ${device.groupId}"),
-            Text("Registered By: ${device.registeredBy}"),
-            if (device.brand != null) Text("Brand: ${device.brand}"),
-            if (device.model != null) Text("Model: ${device.model}"),
-            if (device.product != null) Text("Product: ${device.product}"),
-            if (device.device != null) Text("Device: ${device.device}"),
+            Text("Localização: ${device.locale}"),
+            Consumer<GroupController>(builder: (context, controller, _) {
+              return Text(
+                  "Group: ${controller.groups.where((element) => element.id == device.groupId).firstOrNull?.name}");
+            }),
+            Text("Registrado: ${device.registeredByEmail}"),
+            if (device.brand != null) Text("Marca: ${device.brand}"),
+            if (device.model != null) Text("Modelo: ${device.model}"),
+            if (device.product != null) Text("Produto: ${device.product}"),
+            if (device.device != null) Text("Dispositivo: ${device.device}"),
             const SizedBox(height: 8),
             Text(
-              "Created At: ${device.createdAt.toLocal()}",
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            Text(
-              "Updated At: ${device.updatedAt.toLocal()}",
+              "Criado em: ${device.createdAt.formattedDate} ${device.createdAt.formattedTime}",
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
