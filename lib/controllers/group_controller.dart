@@ -1,11 +1,13 @@
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class GroupController extends ChangeNotifier {
   List<Group> groups = [];
   Group? selectedGroup;
   bool loading = false;
+  bool isAdmin = false;
 
   final DiretoDaNuvemAPI diretoDaNuvemAPI;
 
@@ -15,8 +17,23 @@ class GroupController extends ChangeNotifier {
     loading = true;
     notifyListeners();
     groups = await diretoDaNuvemAPI.groupResource.listAll();
+    isAdmin = groups
+        .map((group) => group.admins)
+        .expand((admins) => admins!)
+        .toSet()
+        .contains(FirebaseAuth.instance.currentUser!.email);
     loading = false;
     notifyListeners();
+  }
+
+  List<Group> getAdminGroups(bool isSuperAdmin) {
+    if (isSuperAdmin) {
+      return groups;
+    }
+    return groups
+        .where((element) =>
+            element.admins!.contains(FirebaseAuth.instance.currentUser!.email))
+        .toList();
   }
 
   Future<String> createGroup(Group group) async {

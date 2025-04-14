@@ -1,4 +1,5 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/views/devices/devices_filter_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ class GroupFilterDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    UserController userController = context.read<UserController>();
     return Column(
       children: [
         const SizedBox(height: 16),
@@ -21,10 +23,14 @@ class GroupFilterDrawer extends StatelessWidget {
             itemCount: context.read<GroupController>().groups.length,
             itemBuilder: (context, index) {
               return ListTile(
-                title: Text(context.read<GroupController>().groups[index].name),
+                title: Text(context
+                    .read<GroupController>()
+                    .getAdminGroups(userController.isSuperAdmin)[index]
+                    .name),
                 onTap: () {
-                  context.read<DevicesFilterController>().addFilter(
-                      context.read<GroupController>().groups[index]);
+                  context
+                      .read<DevicesFilterController>()
+                      .addFilter(context.read<GroupController>().getAdminGroups(userController.isSuperAdmin)[index]);
                   Navigator.pop(context);
                 },
               );

@@ -1,4 +1,5 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/views/groups/group_card.dart';
 import 'package:ddnuvem/views/groups/group_create_page.dart';
@@ -10,6 +11,7 @@ class GroupsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    UserController userController = context.read<UserController>();
     return Stack(
       children: [
         SafeArea(
@@ -20,9 +22,11 @@ class GroupsPage extends StatelessWidget {
             body: Consumer<GroupController>(builder: (context, controller, _) {
               return ListView(
                 children: [
-                  ...controller.groups.map((e) => GroupCard(
-                        group: e,
-                      ))
+                  ...controller.getAdminGroups(userController.isSuperAdmin).map(
+                    (e) => GroupCard(
+                      group: e,
+                    ),
+                  ),
                 ],
               );
             }),

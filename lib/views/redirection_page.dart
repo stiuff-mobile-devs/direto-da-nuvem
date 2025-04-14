@@ -1,4 +1,5 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
+import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
@@ -72,10 +73,12 @@ class _RedirectionPageState extends State<RedirectionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<UserController, DeviceController>(
-      builder: (context, userController, deviceController, child) {
+    return Consumer3<UserController, DeviceController, GroupController>(
+      builder:
+          (context, userController, deviceController, groupController, child) {
         RedirectionData redirectionData = RedirectionData();
-        redirectionData.isAdmin = userController.isAdmin;
+        redirectionData.isAdmin =
+            userController.isSuperAdmin || groupController.isAdmin;
         redirectionData.loggedIn = userController.isLoggedIn;
         redirectionData.isInstaller = userController.isInstaller;
         redirectionData.isDeviceRegistered = deviceController.isRegistered;
