@@ -7,19 +7,17 @@ class ImagesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: Scaffold(
-      appBar: AppBar(
-        title: const Text("Imagens"),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Imagens"),
+        ),
+        body: Consumer<DeviceController>(
+          builder: (context, controller, _) {
+            return const SizedBox.shrink();
+          },
+        ),
       ),
-      body: Consumer<DeviceController>(
-        builder: (context, controller, _) {
-          return ListView(
-            children: [
-              ...controller.devices.map((e) => Text(e.description))
-            ],
-          );
-        }
-      )
-    ));
+    );
   }
 }

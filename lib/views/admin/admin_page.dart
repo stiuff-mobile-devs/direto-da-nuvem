@@ -23,7 +23,7 @@ class AdminPage extends StatelessWidget {
           tabs: [
             Tab(icon: Icon(Icons.tv), ),
             Tab(icon: Icon(Icons.image), ),
-            Tab(icon: Icon(Icons.table_chart), ),
+            Tab(icon: Icon(Icons.group_work), ),
             // Tab(icon: Icon(Icons.group), ),
             Tab(icon: Icon(Icons.settings), ),
           ],
