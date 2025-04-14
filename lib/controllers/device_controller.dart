@@ -41,6 +41,7 @@ class DeviceController extends ChangeNotifier {
 
   register(Device device, BuildContext context) async {
     if (androidInfo != null) {
+      device.id = androidInfo!.id;
       device.brand = androidInfo!.brand;
       device.model = androidInfo!.model;
       device.product = androidInfo!.product;

@@ -72,7 +72,6 @@ class _RedirectionPageState extends State<RedirectionPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Remove the MultiProvider block here
     return Consumer2<UserController, DeviceController>(
       builder: (context, userController, deviceController, child) {
         RedirectionData redirectionData = RedirectionData();

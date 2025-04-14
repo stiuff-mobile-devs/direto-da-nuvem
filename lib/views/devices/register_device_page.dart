@@ -1,162 +1,100 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
+import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/models/device.dart';
-import 'package:ddnuvem/models/group.dart';
-import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ddnuvem/views/devices/register_device_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class RegisterDevicePage extends StatefulWidget {
+class RegisterDevicePage extends StatelessWidget {
   const RegisterDevicePage({super.key});
 
   @override
-  State<RegisterDevicePage> createState() => _RegisterDevicePageState();
-}
-
-class _RegisterDevicePageState extends State<RegisterDevicePage> {
-  final _formKey = GlobalKey<FormState>();
-  late DiretoDaNuvemAPI _diretoDaNuvemAPI;
-  late DeviceController _deviceController;
-
-  List<Group> groups = [];
-  String? deviceId;
-  String? groupId;
-  String? description;
-  String? locale;
-
-  getDependencies() {
-    _diretoDaNuvemAPI = Provider.of<DiretoDaNuvemAPI>(context, listen: false);
-    _deviceController = Provider.of<DeviceController>(context, listen: false);
-  }
-
-  listGroups() async {
-    List<Group> gro = await _diretoDaNuvemAPI.groupResource.listAll();
-    setState(() {
-      groups = gro;
-    });
-  }
-
-  getId() async {
-    DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-    var androidInfo = await deviceInfoPlugin.androidInfo;
-    setState(() {
-      deviceId = androidInfo.id;
-    });
-  }
-
-  Future<void> registerDevice() async {
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-    await getId(); // Ensure deviceId is fetched before proceeding
-
-    if (deviceId == null || description == null || groupId == null || locale == null) {
-      // Handle the case where any of these are null, maybe show an error message
-      debugPrint("Error: One or more required fields are null");
-      return;
-    }
-
-    Device device = Device(
-      id: deviceId!,
-      registeredBy: firebaseAuth.currentUser!.uid,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      description: description!,
-      groupId: groupId!,
-      locale: locale!,
-    );
-    _deviceController.register(device, context);
-  }
-
-  @override
-  void initState() {
-    getDependencies();
-    listGroups();
-    getId();
-    super.initState();
-  }
-
-  String? validate(String? value) {
-    if (value == null || value.isEmpty) {
-      return "Valor não pode ser nulo";
-    }
-    return null;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Cadastro de novo dispositivo",
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
-              const SizedBox(height:12,),
-              TextFormField(
-                validator: validate,
-                onChanged: (value) {
-                  setState(() {
-                    description = value;
-                  });
-                },
-                decoration: const InputDecoration(hintText: "Descrição"),
-              ),
-              TextFormField(
-                validator: validate,
-                onChanged: (value) {
-                  setState(() {
-                    locale = value;
-                  });
-                },
-                decoration: const InputDecoration(hintText: "Localização"),
-              ),
-              const SizedBox(height:12,),
-              choseGroup(),
-              const SizedBox(height: 12,),
-              submitButton(),
-            ],
-          )),
-    ));
-  }
-
-  Widget submitButton() {
-    return ElevatedButton(
-        onPressed: () {
-          if (!_formKey.currentState!.validate()) {
-            return;
-          }
-          registerDevice();
-        },
-        style: ElevatedButton.styleFrom(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.zero,
+    return ChangeNotifierProvider<RegisterDeviceController>(
+      create: (_) => RegisterDeviceController(),
+      builder: (context, _) {
+        final controller = Provider.of<RegisterDeviceController>(context);
+        final deviceController = Provider.of<DeviceController>(context);
+        return Scaffold(
+          body: Container(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Cadastro de novo dispositivo",
+                    style: Theme.of(context).textTheme.headlineSmall),
+                const SizedBox(
+                  height: 16,
+                ),
+                Form(
+                    key: controller.formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: controller.descriptionController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Campo obrigatório';
+                            }
+                            return null;
+                          },
+                          decoration:
+                              const InputDecoration(hintText: "Descrição"),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: controller.localeController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Campo obrigatório';
+                            }
+                            return null;
+                          },
+                          decoration:
+                              const InputDecoration(hintText: "Localização"),
+                        ),
+                        const SizedBox(height: 12),
+                        choseGroup(controller),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () async {
+                            Device? device = controller.validate();
+                            if (device != null) {
+                              deviceController.register(device, context);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
+                          ),
+                          child: const Text("Cadastrar"),
+                        ),
+                      ],
+                    ))
+              ],
+            ),
           ),
-        ),
-        child: const Text("Registrar"));
+        );
+      },
+    );
   }
 
-  Widget choseGroup() {
-    List<DropdownMenuEntry<String>> entries = groups.map(
-      (e) {
-        return DropdownMenuEntry<String>(value: e.id!, label: e.name);
-      },
-    ).toList();
+  Widget choseGroup(RegisterDeviceController controller) {
+    return Consumer<GroupController>(
+      builder: (context, groupController, _) {
+        List<DropdownMenuEntry<String>> entries = groupController.groups.map(
+          (e) {
+            return DropdownMenuEntry<String>(value: e.id!, label: e.name);
+          },
+        ).toList();
 
-    return DropdownMenu<String>(
-      width: 250,
-      dropdownMenuEntries: entries,
-      onSelected: (String? id) {
-        setState(() {
-          groupId = id;
-        });
+        return DropdownMenu<String>(
+          width: MediaQuery.of(context).size.width - 16,
+          dropdownMenuEntries: entries,
+          onSelected: controller.selectGroup,
+          label: const Text("Selectionar Grupo"),
+        );
       },
-      label: const Text("Selectionar Grupo"),
     );
   }
 }
