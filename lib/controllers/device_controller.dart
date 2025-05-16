@@ -73,6 +73,8 @@ class DeviceController extends ChangeNotifier {
     }
     currentQueue =
         await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
+    currentQueueStream = _diretoDaNuvemAPI.queueResource
+        .getStream(group!.currentQueue);
   }
 
   int numberOfDevicesOnGroup(String groupId) {
@@ -101,6 +103,7 @@ class DeviceController extends ChangeNotifier {
   AndroidDeviceInfo? androidInfo;
   String? id;
   Queue? currentQueue;
+  Stream<Queue?>? currentQueueStream;
   Group? group;
   Device? device;
   bool isRegistered = false;

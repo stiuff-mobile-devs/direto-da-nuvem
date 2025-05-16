@@ -5,14 +5,13 @@ import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/local_storage/booleans.dart';
 import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
-import 'package:ddnuvem/services/sign_in_service.dart';
 import 'package:ddnuvem/views/admin/admin_page.dart';
 import 'package:ddnuvem/views/devices/register_device_page.dart';
 import 'package:ddnuvem/views/devices/unregistered_device_error_page.dart';
 import 'package:ddnuvem/views/intro_page.dart';
 import 'package:ddnuvem/views/login_page.dart';
 import 'package:ddnuvem/views/queues/monitor_page.dart';
-import 'package:ddnuvem/views/queues/queue_view_controller.dart';
+import 'package:ddnuvem/views/queues/queue_stream_view_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -43,7 +42,6 @@ class RedirectionPage extends StatefulWidget {
 class _RedirectionPageState extends State<RedirectionPage> {
   late LocalStorageService localStorageService;
   late DiretoDaNuvemAPI diretoDaNuvemAPI;
-  late SignInService signInService;
   Future<bool>? isFirstTime;
 
   int i = 0;
@@ -51,7 +49,6 @@ class _RedirectionPageState extends State<RedirectionPage> {
   getDependencies() {
     localStorageService =
         Provider.of<LocalStorageService>(context, listen: false);
-    signInService = Provider.of<SignInService>(context, listen: false);
     diretoDaNuvemAPI = Provider.of<DiretoDaNuvemAPI>(context, listen: false);
   }
 
@@ -120,23 +117,27 @@ class _RedirectionPageState extends State<RedirectionPage> {
     if (!redirectionData.isDeviceRegistered) {
       if (redirectionData.isInstaller) {
         return const RegisterDevicePage();
-      } else {
-        return const UnregisteredDeviceErrorPage();
       }
+      if (redirectionData.isAdmin) {
+        return const AdminPage();
+      }
+      return const UnregisteredDeviceErrorPage();
     }
     if (redirectionData.isAdmin) {
       return const AdminPage();
     }
     var deviceController = context.read<DeviceController>();
 
+    Stream<Queue?>? queueStream = deviceController.currentQueueStream;
     Queue? queue = deviceController.currentQueue;
-    if (queue == null) {
+    if (queueStream == null || queue == null) {
       return loading();
     }
     return ChangeNotifierProvider(
-      create: (context) => QueueViewController(
+      create: (context) => QueueStreamViewController(
         diretoDaNuvemAPI,
         queue,
+        queueStream,
       ),
       child: const MonitorPage(),
     );

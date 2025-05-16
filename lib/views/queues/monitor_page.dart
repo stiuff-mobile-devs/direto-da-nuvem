@@ -1,5 +1,5 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
-import 'package:ddnuvem/views/queues/queue_view_controller.dart';
+import 'package:ddnuvem/views/queues/queue_stream_view_controller.dart';
 import 'package:ddnuvem/views/queues/queue_view_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,9 +23,9 @@ class _MonitorPageState extends State<MonitorPage> {
           showView = false;
         });
       },
-      child: Consumer<QueueViewController>(
+      child: Consumer<QueueStreamViewController>(
         builder: (context, controller, _) => QueueViewPage(
-          queue: controller.queue,
+          queue: controller.currentQueue,
         ),
       ),
     );

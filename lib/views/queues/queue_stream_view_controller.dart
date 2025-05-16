@@ -4,11 +4,18 @@ import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:flutter/material.dart';
 
-class QueueViewController extends ChangeNotifier {
+class QueueStreamViewController extends ChangeNotifier {
   DiretoDaNuvemAPI diretoDaNuvemAPI;
-  Queue queue;
-  QueueViewController(this.diretoDaNuvemAPI, this.queue) {
-    fetchImages();
+  Stream<Queue?> queueStream;
+  Queue currentQueue;
+  QueueStreamViewController(this.diretoDaNuvemAPI, this.currentQueue, this.queueStream) {
+    queueStream.listen((queue) async {
+      if (queue != null) {
+        currentQueue = queue;
+      }
+      notifyListeners();
+      await fetchImages(queue);
+    });
   }
   bool disposed = false;
 
@@ -19,7 +26,10 @@ class QueueViewController extends ChangeNotifier {
     super.dispose();
   }
 
-  Future fetchImages() async {
+  Future fetchImages(Queue? queue) async {
+    if (queue == null) {
+      return null;
+    }
     List<Future<Uint8List?>> futures = [];
 
     for (var image in queue.images) {
@@ -39,6 +49,7 @@ class QueueViewController extends ChangeNotifier {
     await Future.wait(futures).then(
       (_) {
         if (disposed) return;
+        currentQueue = queue;
         notifyListeners();
       },
     );

@@ -21,7 +21,7 @@ class GroupController extends ChangeNotifier {
         .map((group) => group.admins)
         .expand((admins) => admins!)
         .toSet()
-        .contains(FirebaseAuth.instance.currentUser!.email);
+        .contains(FirebaseAuth.instance.currentUser?.email);
     loading = false;
     notifyListeners();
   }
