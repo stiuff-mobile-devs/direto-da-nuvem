@@ -38,16 +38,16 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/direto_da_nuvem_icon.png
+    - assets/banner.png
     - assets/DiretoDaNuvem-JustLogo.svg
 
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: false
-  image_path: "assets/direto_da_nuvem_icon.png"
+  image_path: "assets/banner.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
   web:
     generate: true
-    image_path: "assets/direto_da_nuvem_icon.png"
+    image_path: "assets/banner.png"
     background_color: "#hexcode"
     theme_color: "#hexcode"
