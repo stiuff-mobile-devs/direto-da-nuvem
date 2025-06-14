@@ -79,7 +79,7 @@ class _UnregisteredDeviceErrorPageState
                 });
                 Navigator.of(context).pop();
               },
-              child: const Text("Play"),
+              child: const Text("Tocar demonstração"),
             ),
             ElevatedButton(
               onPressed: () {
