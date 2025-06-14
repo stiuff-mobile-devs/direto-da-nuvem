@@ -114,7 +114,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
     if (!redirectionData.loggedIn) {
       return const LoginPage();
     }
-    if (!redirectionData.isDeviceRegistered) {
+    if (true) {
       if (redirectionData.isInstaller) {
         return const RegisterDevicePage();
       }
