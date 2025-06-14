@@ -64,10 +64,7 @@ class _UnregisteredDeviceErrorPageState
           controller: _pageController,
           children: assetImages.map((path) {
             return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Image.asset(path, fit: BoxFit.contain),
-              ),
+              child: Image.asset(path, fit: BoxFit.contain),
             );
           }).toList(),
         ),
