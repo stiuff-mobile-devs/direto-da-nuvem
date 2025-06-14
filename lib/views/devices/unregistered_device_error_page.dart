@@ -13,6 +13,8 @@ class UnregisteredDeviceErrorPage extends StatefulWidget {
 class _UnregisteredDeviceErrorPageState
     extends State<UnregisteredDeviceErrorPage> {
   bool showView = true;
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
 
   final List<String> assetImages = [
     'assets/001.png',
@@ -20,6 +22,34 @@ class _UnregisteredDeviceErrorPageState
     'assets/003.png',
     'assets/004.png',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _startAutoPage();
+  }
+
+  void _startAutoPage() {
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(seconds: 10));
+      if (!mounted || !showView) return false;
+      if (_pageController.hasClients) {
+        _currentPage = (_currentPage + 1) % assetImages.length;
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+      return showView;
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +61,7 @@ class _UnregisteredDeviceErrorPageState
           });
         },
         child: PageView(
+          controller: _pageController,
           children: assetImages.map((path) {
             return Center(
               child: Padding(
@@ -49,6 +80,7 @@ class _UnregisteredDeviceErrorPageState
           onPressed: () {
             setState(() {
               showView = true;
+              _startAutoPage();
             });
           },
           child: const Text("Play"),
