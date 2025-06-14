@@ -1,5 +1,6 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class UnregisteredDeviceErrorPage extends StatefulWidget {
@@ -51,20 +52,62 @@ class _UnregisteredDeviceErrorPageState
     super.dispose();
   }
 
+  void _showInfoPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(25.0),
+              child: SvgPicture.asset(
+                height: 120,
+                'assets/DiretoDaNuvem-JustLogo.svg',
+                semanticsLabel: 'Logo Direto da Nuvem'
+              ),
+            ),
+            const SizedBox(height: 25),
+            const Text("Bem vindo ao Direto da Nuvem.\nParece que o seu dispositivo não está cadastrado.\n Se está prestes a cadastra-lo, certifique-se que a sua conta é instaladora.\nCaso esse dispositivo já esteja cadastrado, entre em contato com o nosso suporte."),
+            const SizedBox(height: 25),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  showView = true;
+                  _startAutoPage();
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text("Play"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                context.read<UserController>().logout();
+              },
+              child: const Text("Sair"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (showView) {
       return GestureDetector(
         onTap: () {
-          setState(() {
-            showView = false;
-          });
+          _showInfoPopup(context);
         },
         child: PageView(
           controller: _pageController,
           children: assetImages.map((path) {
             return Center(
-              child: Image.asset(path, fit: BoxFit.contain),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Image.asset(path, fit: BoxFit.contain),
+              ),
             );
           }).toList(),
         ),
