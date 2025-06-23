@@ -1,15 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/image_ui.dart';
+import 'package:hive/hive.dart';
 
-class Queue {
+part 'queue.g.dart';
+
+@HiveType(typeId: 3)
+class Queue extends HiveObject {
+  @HiveField(0)
   String id;
+  @HiveField(1)
   String groupId;
+  @HiveField(2)
   String name;
+  @HiveField(3)
   int duration;
+  @HiveField(4)
   String animation;
+  @HiveField(5)
   DateTime createdAt;
+  @HiveField(6)
   String createdBy;
+  @HiveField(7)
   List<ImageUI> images;
+  @HiveField(8)
   bool updated = true;
   // List<Uint8List>? imagesData;
 
@@ -26,28 +39,28 @@ class Queue {
 
   factory Queue.fromMap(Map<String, dynamic> data) {
     return Queue(
-        id: data["id"],
-        name: data["name"],
-        groupId: data["group_id"],
-        duration: data["duration"],
-        animation: data["animation"],
-        createdAt: (data["created_at"] as Timestamp).toDate(),
-        createdBy: data["created_by"],
-        images: (data["images"] as List)
-            .map((e) => ImageUI(path: "$e", data: null))
-            .toList());
+      id: data["id"],
+      name: data["name"],
+      groupId: data["group_id"],
+      duration: data["duration"],
+      animation: data["animation"],
+      createdAt: (data["created_at"] as Timestamp).toDate(),
+      createdBy: data["created_by"],
+      images: (data["images"] as List)
+          .map((e) => ImageUI(path: "$e", data: null))
+          .toList());
   }
 
   factory Queue.copy(Queue other) {
     return Queue(
-        id: other.id,
-        name: other.name,
-        groupId: other.groupId,
-        duration: other.duration,
-        animation: other.animation,
-        createdAt: other.createdAt,
-        createdBy: other.createdBy,
-        images: [...other.images]);
+      id: other.id,
+      name: other.name,
+      groupId: other.groupId,
+      duration: other.duration,
+      animation: other.animation,
+      createdAt: other.createdAt,
+      createdBy: other.createdBy,
+      images: [...other.images]);
   }
 
   factory Queue.empty() {
