@@ -51,6 +51,10 @@ class DeviceController extends ChangeNotifier {
     isRegistered = created;
     if (isRegistered) {
       this.device = device;
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/',
+        (route) => false,
+      );
     }
     notifyListeners();
   }
