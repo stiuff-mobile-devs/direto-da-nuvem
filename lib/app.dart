@@ -21,6 +21,7 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: "Direto da Nuvem",
       home: const RedirectionPage(),
       routes: Routes.routes,

@@ -42,6 +42,10 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
+            </intent-filter>
         </activity>
 
 <!--        <activity-->
@@ -55,30 +59,26 @@
 <!--            </intent-filter>-->
 <!--        </activity>-->
 
-        <activity
-            android:name="com.example.android.TvActivity"
-            android:label="com.example.ddnuvem"
-            android:theme="@style/Theme.Leanback"
-            android:exported="true">
+<!--        <activity-->
+<!--            android:name="com.example.android.TvActivity"-->
+<!--            android:label="com.example.ddnuvem"-->
+<!--            android:theme="@style/Theme.Leanback"-->
+<!--            android:exported="true">-->
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-            </intent-filter>
-        </activity>
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
 
         <receiver
+            android:name=".BootReceiver"
             android:enabled="true"
             android:exported="true"
-            android:name=".BootReceiver"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
-
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
         </receiver>
 
         <!-- Don't delete the meta-data below.
@@ -86,5 +86,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data
+            android:name="com.google.android.tv.banner"
+            android:resource="@drawable/banner" />
     </application>
 </manifest>

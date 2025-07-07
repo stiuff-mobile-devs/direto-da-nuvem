@@ -2,7 +2,7 @@ name: ddnuvem
 description: "A new Flutter project."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.0+14
+version: 0.0.3+30
 
 environment:
   sdk: '>=3.3.2 <4.0.0'
@@ -26,6 +26,7 @@ dependencies:
   image_picker: ^1.1.2
   permission_handler: ^11.3.1
   firebase_app_check: ^0.3.1
+  wakelock_plus: ^1.2.8
 
 dev_dependencies:
   flutter_test:
@@ -38,16 +39,20 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/direto_da_nuvem_icon.png
+    - assets/banner.png
     - assets/DiretoDaNuvem-JustLogo.svg
+    - assets/001.png
+    - assets/002.png
+    - assets/003.png
+    - assets/004.png
 
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: false
-  image_path: "assets/direto_da_nuvem_icon.png"
+  image_path: "assets/banner.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
   web:
     generate: true
-    image_path: "assets/direto_da_nuvem_icon.png"
+    image_path: "assets/banner.png"
     background_color: "#hexcode"
     theme_color: "#hexcode"
