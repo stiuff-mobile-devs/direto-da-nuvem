@@ -13,7 +13,7 @@ class ImageResource {
   }
 
   Future<String> uploadImage(String path, Uint8List data) async {
-    _firestore.collection(path).doc(path).set(Image(
+    _firestore.collection("images").doc(path).set(Image(
       path: path,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
