@@ -32,8 +32,8 @@ class UserController extends ChangeNotifier {
   String? uid;
 
   getUserPrivileges() async {
-    UserPrivilege privilege = await _diretoDaNuvemAPI.userResource
-        .getUserPrivileges(_firebaseAuth.currentUser!.uid);
+    debugPrint(_firebaseAuth.currentUser!.uid);
+    UserPrivilege privilege = await _diretoDaNuvemAPI.userResource.getUserPrivileges(_firebaseAuth.currentUser!.uid);
 
     userEmail = _firebaseAuth.currentUser!.email;
     isAdmin = privilege.isAdmin;

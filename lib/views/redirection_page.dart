@@ -71,11 +71,9 @@ class _RedirectionPageState extends State<RedirectionPage> {
   @override
   Widget build(BuildContext context) {
     return Consumer3<UserController, DeviceController, GroupController>(
-      builder:
-          (context, userController, deviceController, groupController, child) {
+      builder: (context, userController, deviceController, groupController, child) {
         RedirectionData redirectionData = RedirectionData();
-        redirectionData.isAdmin =
-            userController.isSuperAdmin || groupController.isAdmin;
+        redirectionData.isAdmin = userController.isSuperAdmin || userController.isAdmin;
         redirectionData.loggedIn = userController.isLoggedIn;
         redirectionData.isInstaller = userController.isInstaller;
         redirectionData.isDeviceRegistered = deviceController.isRegistered;
