@@ -30,12 +30,10 @@ class UserPrivilege {
     required this.isInstaller,
   });
 
-  factory UserPrivilege.fromMap(
-    Map<String, dynamic> map
-  ) {
+  factory UserPrivilege.fromMap(Map<String, dynamic> map) {
     return UserPrivilege(
-      isAdmin: map['admin'] ?? false, 
-      isSuperAdmin: map['super_admin'] ?? false, 
+      isAdmin: map['admin'] ?? false,
+      isSuperAdmin: map['super_admin'] ?? false,
       isInstaller: map['installer'] ?? false
     );
   }
@@ -58,11 +56,11 @@ class User {
 
   factory User.fromFirebaseUser(firebase_auth.User firebaseAuthUser) {
     return User(
-        id: firebaseAuthUser.uid,
-        email: firebaseAuthUser.email!,
-        name: firebaseAuthUser.displayName!,
-        createdAt: DateTime.now(),
-        privileges: []);
+      id: firebaseAuthUser.uid,
+      email: firebaseAuthUser.email!,
+      name: firebaseAuthUser.displayName!,
+      createdAt: DateTime.now(),
+      privileges: []);
   }
 
   Map<String, dynamic> toMap() {

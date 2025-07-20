@@ -4,6 +4,7 @@ import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
+import 'package:ddnuvem/services/hive_service.dart';
 import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
 import 'package:ddnuvem/views/devices/devices_filter_controller.dart';
@@ -33,6 +34,7 @@ Future<void> main() async {
   await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.debug,
   );
+  await HiveService.initialize();
 
   runApp(MultiProvider(providers: [
     Provider<DiretoDaNuvemAPI>(

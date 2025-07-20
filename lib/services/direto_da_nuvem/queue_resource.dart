@@ -1,11 +1,37 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/queue.dart';
+import 'package:ddnuvem/utils/connection_utils.dart';
+import 'package:hive/hive.dart';
 
 class QueueResource {
   static const collection = "queues";
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final Box<Queue> _box = Hive.box<Queue>(collection);
 
   Future<List<Queue>> listAll() async {
+    List<Queue> queues = [];
+
+    if (await hasInternetConnection()) {
+      queues = await _getAllFromFirestore();
+
+      for (var queue in queues) {
+        if (!_box.containsKey(queue.id)) {
+          _box.put(queue.id, queue);
+        }
+      }
+
+      queues = await _getAllFromLocal();
+    } else {
+      queues = await _getAllFromLocal();
+      if (queues.isEmpty) {
+        // TO DO
+      }
+    }
+
+    return queues;
+  }
+
+  Future<List<Queue>> _getAllFromFirestore() async {
     var l = await _firestore.collection(QueueResource.collection).get();
 
     List<Queue> queues = [];
@@ -15,6 +41,12 @@ class QueueResource {
       queue.id = doc.id;
       queues.add(queue);
     }
+
+    return queues;
+  }
+
+  Future<List<Queue>> _getAllFromLocal() async {
+    List<Queue> queues = _box.values.toList();
     return queues;
   }
 
