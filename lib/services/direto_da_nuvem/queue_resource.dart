@@ -19,13 +19,8 @@ class QueueResource {
           _box.put(queue.id, queue);
         }
       }
-
-      queues = await _getAllFromLocal();
     } else {
       queues = await _getAllFromLocal();
-      if (queues.isEmpty) {
-        // TO DO
-      }
     }
 
     return queues;
@@ -65,11 +60,16 @@ class QueueResource {
   }
 
   Future<Queue?> get(String id) async {
-    var doc = await _firestore.doc("$collection/$id").get();
-    if (!doc.exists) {
-      return null;
+    if (await hasInternetConnection()) {
+      var doc = await _firestore.doc("$collection/$id").get();
+      if (!doc.exists) {
+        return null;
+      }
+      return Queue.fromMap(doc.data()!)..id = doc.id;
+    } else {
+      Queue? queue = _box.get(id);
+      return queue;
     }
-    return Queue.fromMap(doc.data()!)..id = doc.id;
   }
 
   Stream<Queue?> getStream(String id) {

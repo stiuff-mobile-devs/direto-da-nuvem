@@ -100,6 +100,13 @@ class DeviceController extends ChangeNotifier {
     return devicesInGroups;
   }
 
+  Queue getCurrentQueue() {
+    if (currentQueue == null) {
+      throw Exception("Fila atual não definida.");
+    }
+    return currentQueue!;
+  }
+
   AndroidDeviceInfo? androidInfo;
   String? id;
   Queue? currentQueue;
