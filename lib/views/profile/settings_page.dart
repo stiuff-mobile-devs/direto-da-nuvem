@@ -44,7 +44,7 @@ class SettingsPage extends StatelessWidget {
                           ChangeNotifierProvider<QueueViewController>(
                         create: (context) => QueueViewController(
                           context.read<DiretoDaNuvemAPI>(),
-                          context.read<DeviceController>().currentQueue!,
+                          context.read<DeviceController>().getCurrentQueue(),
                         ),
                         builder: (context, cont) {
                           QueueViewController controller =
