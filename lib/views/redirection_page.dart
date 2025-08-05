@@ -56,6 +56,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
     bool firstTime =
         await localStorageService.readBool(LocalStorageBooleans.firstTime) ??
             true;
+    print("getIsFirstTime completed: $firstTime");
     return firstTime;
   }
 
@@ -71,9 +72,11 @@ class _RedirectionPageState extends State<RedirectionPage> {
   @override
   Widget build(BuildContext context) {
     return Consumer3<UserController, DeviceController, GroupController>(
-      builder: (context, userController, deviceController, groupController, child) {
+      builder:
+          (context, userController, deviceController, groupController, child) {
         RedirectionData redirectionData = RedirectionData();
-        redirectionData.isAdmin = userController.isSuperAdmin || userController.isAdmin;
+        redirectionData.isAdmin =
+            userController.isSuperAdmin || userController.isAdmin;
         redirectionData.loggedIn = userController.isLoggedIn;
         redirectionData.isInstaller = userController.isInstaller;
         redirectionData.isDeviceRegistered = deviceController.isRegistered;
@@ -96,6 +99,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
     return handleRedirection(redirectionData);
   }
 
+  // Aparece quando abrimos o app
   Widget loading() {
     return Container(
       color: Theme.of(context).colorScheme.background,

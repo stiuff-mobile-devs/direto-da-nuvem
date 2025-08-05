@@ -77,8 +77,8 @@ class DeviceController extends ChangeNotifier {
     }
     currentQueue =
         await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
-    currentQueueStream = _diretoDaNuvemAPI.queueResource
-        .getStream(group!.currentQueue);
+    currentQueueStream =
+        _diretoDaNuvemAPI.queueResource.getStream(group!.currentQueue);
   }
 
   int numberOfDevicesOnGroup(String groupId) {
