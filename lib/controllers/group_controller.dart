@@ -15,7 +15,6 @@ class GroupController extends ChangeNotifier {
 
   init() async {
     loading = true;
-    notifyListeners();
     groups = await diretoDaNuvemAPI.groupResource.listAll();
     isAdmin = groups
         .map((group) => group.admins)

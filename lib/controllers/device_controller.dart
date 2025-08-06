@@ -6,40 +6,48 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 
 class DeviceController extends ChangeNotifier {
-  final DiretoDaNuvemAPI _diretoDaNuvemAPI;
-  final DeviceInfoPlugin _deviceInfoPlugin = DeviceInfoPlugin();
+  AndroidDeviceInfo? androidInfo;
+  String? id;
+  Queue? currentQueue;
+  Stream<Queue?>? currentQueueStream;
+  Group? group;
+  Device? device;
+  bool isRegistered = false;
 
   List<Device> devices = [];
   bool loadingInitialState = true;
-  Device? self;
+  //Device? self;
+
+  final DiretoDaNuvemAPI _diretoDaNuvemAPI;
+  final DeviceInfoPlugin _deviceInfoPlugin = DeviceInfoPlugin();
 
   DeviceController(this._diretoDaNuvemAPI);
 
-  init() async {
+  void init() async {
     loadingInitialState = true;
+    notifyListeners();
     await _getAndroidInfo();
     await _checkIsRegistered(id!);
     await fetchGroupAndQueue();
-    loadingInitialState = false;
     devices = await _diretoDaNuvemAPI.deviceResource.listAll();
-    devices.where((device) => device.id == id).forEach((device) {
-      self = device;
-    });
+    // devices.where((device) => device.id == id).forEach((device) {
+    //   self = device;
+    // });
+    loadingInitialState = false;
     notifyListeners();
   }
 
-  _getAndroidInfo() async {
+  Future<void> _getAndroidInfo() async {
     androidInfo = await _deviceInfoPlugin.androidInfo;
     id = androidInfo!.id;
   }
 
-  _checkIsRegistered(String id) async {
+  Future<void> _checkIsRegistered(String id) async {
     device = await _diretoDaNuvemAPI.deviceResource.checkIfRegistered(id);
     isRegistered = device != null;
-    loadingInitialState = false;
   }
 
-  register(Device device, BuildContext context) async {
+  Future<void> register(Device device, BuildContext context) async {
     if (androidInfo != null) {
       device.id = androidInfo!.id;
       device.brand = androidInfo!.brand;
@@ -47,6 +55,7 @@ class DeviceController extends ChangeNotifier {
       device.product = androidInfo!.product;
       device.device = androidInfo!.device;
     }
+
     bool created = await _diretoDaNuvemAPI.deviceResource.create(device);
     isRegistered = created;
     if (isRegistered) {
@@ -64,6 +73,12 @@ class DeviceController extends ChangeNotifier {
     await _fetchCurrentQueue();
   }
 
+  Queue getCurrentQueue() {
+    _fetchCurrentQueue();
+    notifyListeners();
+    return currentQueue!;
+  }
+
   _fetchGroup() async {
     if (device == null) {
       return;
@@ -77,8 +92,14 @@ class DeviceController extends ChangeNotifier {
     }
     currentQueue =
         await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
-    currentQueueStream = _diretoDaNuvemAPI.queueResource
-        .getStream(group!.currentQueue);
+    currentQueueStream =
+        _diretoDaNuvemAPI.queueResource.getStream(group!.currentQueue);
+  }
+
+  Future<String> makeQueueCurrent(String queueId) async {
+    currentQueue = await _diretoDaNuvemAPI.queueResource.get(queueId);
+    notifyListeners();
+    return "Fila atualizada com sucesso!";
   }
 
   int numberOfDevicesOnGroup(String groupId) {
@@ -103,19 +124,4 @@ class DeviceController extends ChangeNotifier {
     }
     return devicesInGroups;
   }
-
-  Queue getCurrentQueue() {
-    if (currentQueue == null) {
-      throw Exception("Fila atual não definida.");
-    }
-    return currentQueue!;
-  }
-
-  AndroidDeviceInfo? androidInfo;
-  String? id;
-  Queue? currentQueue;
-  Stream<Queue?>? currentQueueStream;
-  Group? group;
-  Device? device;
-  bool isRegistered = false;
 }

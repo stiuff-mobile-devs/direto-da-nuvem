@@ -1,3 +1,4 @@
+import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
@@ -54,7 +55,7 @@ class QueueCard extends StatelessWidget {
               TextButton(
                 onPressed: () async {
                   String message = await context
-                      .read<GroupController>()
+                      .read<DeviceController>()
                       .makeQueueCurrent(queue.id);
                   if (!context.mounted) {
                     return;
