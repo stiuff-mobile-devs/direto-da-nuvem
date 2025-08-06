@@ -53,26 +53,52 @@ class DevicesPage extends StatelessWidget {
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                return Consumer2<DeviceController, GroupController>(
-                    builder: (context, deviceController, groupController, _) {
-                  UserController userController =
-                      context.read<UserController>();
-                  // Get only groups the admin manages
-                  final adminGroups = groupController
-                      .getAdminGroups(userController.isSuperAdmin);
-                  final adminGroupIds = adminGroups.map((g) => g.id!).toSet();
-                  // Filter devices by those group IDs
-                  final devices =
-                      deviceController.listDevicesInGroups(adminGroupIds);
+                return Consumer3<DeviceController, GroupController,
+                    DevicesFilterController>(
+                  builder: (context, deviceController, groupController,
+                      filterController, _) {
+                    UserController userController =
+                        context.read<UserController>();
+                    final adminGroups = groupController
+                        .getAdminGroups(userController.isSuperAdmin);
+                    final adminGroupIds = adminGroups.map((g) => g.id!).toSet();
 
-                  if (index >= devices.length) {
-                    return const SizedBox.shrink();
-                  }
+                    // Use filters if any, otherwise use all admin group IDs
+                    final filterGroupIds = filterController.filters.isNotEmpty
+                        ? filterController.filters.map((g) => g.id!).toSet()
+                        : adminGroupIds;
 
-                  return DeviceCard(device: devices[index]);
-                });
+                    final devices =
+                        deviceController.listDevicesInGroups(filterGroupIds);
+
+                    if (index >= devices.length) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return DeviceCard(device: devices[index]);
+                  },
+                );
               },
-              childCount: context.watch<DeviceController>().devices.length,
+              // Use the filtered device count for childCount!
+              childCount: () {
+                final filterController =
+                    context.watch<DevicesFilterController>();
+                final deviceController = context.watch<DeviceController>();
+                final groupController = context.watch<GroupController>();
+                final userController = context.watch<UserController>();
+
+                final adminGroups =
+                    groupController.getAdminGroups(userController.isSuperAdmin);
+                final adminGroupIds = adminGroups.map((g) => g.id!).toSet();
+
+                final filterGroupIds = filterController.filters.isNotEmpty
+                    ? filterController.filters.map((g) => g.id!).toSet()
+                    : adminGroupIds;
+
+                return deviceController
+                    .listDevicesInGroups(filterGroupIds)
+                    .length;
+              }(),
             ),
           ),
         ],
