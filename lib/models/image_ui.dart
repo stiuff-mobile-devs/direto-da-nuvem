@@ -17,7 +17,7 @@ class ImageUI extends HiveObject {
   ImageUI({
     required this.path,
     required this.data,
-    this.loading = true,
+    this.loading = false,
     this.uploaded = true
   });
 }

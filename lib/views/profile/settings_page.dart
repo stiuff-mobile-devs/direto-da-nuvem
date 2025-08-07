@@ -37,26 +37,25 @@ class SettingsPage extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.play_arrow),
                 title: const Text("Tocar fila"),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          ChangeNotifierProvider<QueueViewController>(
-                        create: (context) => QueueViewController(
-                          context.read<DiretoDaNuvemAPI>(),
-                          context.read<DeviceController>().getCurrentQueue(),
-                        ),
-                        builder: (context, cont) {
-                          QueueViewController controller =
-                              Provider.of<QueueViewController>(context);
-                          return QueueViewPage(
-                            queue: controller.queue,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return ChangeNotifierProvider<QueueViewController>(
+                            create: (_) => QueueViewController(
+                              context.read<DiretoDaNuvemAPI>(),
+                              context.read<DeviceController>(),
+                            ),
+                            child: Consumer<QueueViewController>(
+                              builder: (context, controller, _) {
+                                return QueueViewPage(queue: controller.queue!);
+                              },
+                            ),
                           );
                         },
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
               ),
             ],
           );

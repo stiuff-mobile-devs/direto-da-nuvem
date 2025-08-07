@@ -15,7 +15,6 @@ class GroupController extends ChangeNotifier {
 
   init() async {
     loading = true;
-    notifyListeners();
     groups = await diretoDaNuvemAPI.groupResource.listAll();
     isAdmin = groups
         .map((group) => group.admins)
@@ -62,10 +61,10 @@ class GroupController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String> makeQueueCurrent(String queueId) async {
-    selectedGroup?.currentQueue = queueId;
-    await diretoDaNuvemAPI.groupResource.update(selectedGroup!);
-    notifyListeners();
-    return "Fila atualizada com sucesso!";
-  }
+  // Future<String> makeQueueCurrent(String queueId) async {
+  //   selectedGroup?.currentQueue = queueId;
+  //   await diretoDaNuvemAPI.groupResource.update(selectedGroup!);
+  //   notifyListeners();
+  //   return "Fila atualizada com sucesso!";
+  // }
 }

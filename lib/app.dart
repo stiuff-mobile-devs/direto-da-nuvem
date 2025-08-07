@@ -10,9 +10,6 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  initServices(Duration d) async {
-  }
-
   @override
   void initState() {
     super.initState();

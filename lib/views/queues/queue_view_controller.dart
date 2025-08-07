@@ -1,28 +1,41 @@
 import 'dart:typed_data';
 
+import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:flutter/material.dart';
 
 class QueueViewController extends ChangeNotifier {
   DiretoDaNuvemAPI diretoDaNuvemAPI;
-  Queue queue;
-  QueueViewController(this.diretoDaNuvemAPI, this.queue) {
+  DeviceController deviceController;
+  Queue? queue;
+  QueueViewController(this.diretoDaNuvemAPI, this.deviceController) {
+    queue = deviceController.getCurrentQueue();
+    deviceController.addListener(_updateQueue);
     fetchImages();
   }
   bool disposed = false;
 
   @override
   void dispose() {
+    deviceController.removeListener(_updateQueue);
     disposed = true;
     debugPrint("QueueViewController disposed");
     super.dispose();
   }
 
+  void _updateQueue() {
+    final newQueue = deviceController.getCurrentQueue();
+    if (queue != newQueue) {
+      queue = newQueue;
+      notifyListeners();
+    }
+  }
+
   Future fetchImages() async {
     List<Future<Uint8List?>> futures = [];
 
-    for (var image in queue.images) {
+    for (var image in queue!.images) {
       if (image.data != null) {
         continue;
       }
