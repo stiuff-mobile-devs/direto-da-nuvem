@@ -55,6 +55,6 @@ Future<void> main() async {
     ChangeNotifierProvider(
         create: (context) => GroupController(context.read())..init()),
     ChangeNotifierProvider<DeviceController>(
-        create: (context) => DeviceController(context.read())..init()),
+        create: (context) => DeviceController(context.read(), context.read<GroupController>())..init()),
   ], child: const App()));
 }

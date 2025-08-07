@@ -10,7 +10,7 @@ class QueueViewController extends ChangeNotifier {
   DeviceController deviceController;
   Queue? queue;
   QueueViewController(this.diretoDaNuvemAPI, this.deviceController) {
-    queue = deviceController.getCurrentQueue();
+    queue = deviceController.currentQueue;
     deviceController.addListener(_updateQueue);
     fetchImages();
   }
@@ -25,7 +25,7 @@ class QueueViewController extends ChangeNotifier {
   }
 
   void _updateQueue() {
-    final newQueue = deviceController.getCurrentQueue();
+    final newQueue = deviceController.currentQueue;
     if (queue != newQueue) {
       queue = newQueue;
       notifyListeners();

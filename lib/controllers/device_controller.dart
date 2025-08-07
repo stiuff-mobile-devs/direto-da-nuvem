@@ -1,3 +1,4 @@
+import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
@@ -20,8 +21,9 @@ class DeviceController extends ChangeNotifier {
 
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
   final DeviceInfoPlugin _deviceInfoPlugin = DeviceInfoPlugin();
+  final GroupController _groupController;
 
-  DeviceController(this._diretoDaNuvemAPI);
+  DeviceController(this._diretoDaNuvemAPI, this._groupController);
 
   void init() async {
     loadingInitialState = true;
@@ -29,12 +31,20 @@ class DeviceController extends ChangeNotifier {
     await _getAndroidInfo();
     await _checkIsRegistered(id!);
     await fetchGroupAndQueue();
+    _groupController.addListener(_updateCurrentQueue);
     devices = await _diretoDaNuvemAPI.deviceResource.listAll();
     // devices.where((device) => device.id == id).forEach((device) {
     //   self = device;
     // });
     loadingInitialState = false;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _groupController.removeListener(_updateCurrentQueue);
+    debugPrint("DeviceController disposed");
+    super.dispose();
   }
 
   Future<void> _getAndroidInfo() async {
@@ -73,12 +83,6 @@ class DeviceController extends ChangeNotifier {
     await _fetchCurrentQueue();
   }
 
-  Queue getCurrentQueue() {
-    _fetchCurrentQueue();
-    notifyListeners();
-    return currentQueue!;
-  }
-
   _fetchGroup() async {
     if (device == null) {
       return;
@@ -91,17 +95,18 @@ class DeviceController extends ChangeNotifier {
       return;
     }
     currentQueue =
-        await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
+    await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
     currentQueueStream =
         _diretoDaNuvemAPI.queueResource.getStream(group!.currentQueue);
   }
 
-  Future<String> makeQueueCurrent(String queueId) async {
-    group!.currentQueue = queueId;
-    await _diretoDaNuvemAPI.groupResource.update(group!);
-    currentQueue = await _diretoDaNuvemAPI.queueResource.get(queueId);
-    notifyListeners();
-    return "Fila atualizada com sucesso!";
+  _updateCurrentQueue() async {
+    final updatedGroup = await _diretoDaNuvemAPI.groupResource.get(group!.id!);
+    if (updatedGroup!.currentQueue != currentQueue!.id) {
+      group = updatedGroup;
+      currentQueue = await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
+      notifyListeners();
+    }
   }
 
   int numberOfDevicesOnGroup(String groupId) {

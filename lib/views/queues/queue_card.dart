@@ -55,7 +55,7 @@ class QueueCard extends StatelessWidget {
               TextButton(
                 onPressed: () async {
                   String message = await context
-                      .read<DeviceController>()
+                      .read<GroupController>()
                       .makeQueueCurrent(queue.id);
                   if (!context.mounted) {
                     return;
