@@ -47,6 +47,7 @@ class GroupResource {
       }
 
       group = Group.fromMap(doc.data()!);
+      group.id = id;
       await _firestore.doc("$collection/$id/admins/admins")
           .get().then((value) {
             List<dynamic> adminsEmail = (value.data()!["admins"]);
