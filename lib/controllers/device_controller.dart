@@ -97,6 +97,8 @@ class DeviceController extends ChangeNotifier {
   }
 
   Future<String> makeQueueCurrent(String queueId) async {
+    group!.currentQueue = queueId;
+    await _diretoDaNuvemAPI.groupResource.update(group!);
     currentQueue = await _diretoDaNuvemAPI.queueResource.get(queueId);
     notifyListeners();
     return "Fila atualizada com sucesso!";
