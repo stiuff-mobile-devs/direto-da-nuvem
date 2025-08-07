@@ -10,6 +10,10 @@ class GroupFilterDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserController userController = context.read<UserController>();
+    final adminGroups = context
+        .read<GroupController>()
+        .getAdminGroups(userController.isSuperAdmin);
+
     return Column(
       children: [
         const SizedBox(height: 16),
@@ -20,17 +24,15 @@ class GroupFilterDrawer extends StatelessWidget {
         const SizedBox(height: 16),
         Expanded(
           child: ListView.builder(
-            itemCount: context.read<GroupController>().groups.length,
+            itemCount: adminGroups
+                .length, //context.read<GroupController>().groups.length,
             itemBuilder: (context, index) {
               return ListTile(
-                title: Text(context
-                    .read<GroupController>()
-                    .getAdminGroups(userController.isSuperAdmin)[index]
-                    .name),
+                title: Text(adminGroups[index].name),
                 onTap: () {
-                  context
-                      .read<DevicesFilterController>()
-                      .addFilter(context.read<GroupController>().getAdminGroups(userController.isSuperAdmin)[index]);
+                  context.read<DevicesFilterController>().addFilter(context
+                      .read<GroupController>()
+                      .getAdminGroups(userController.isSuperAdmin)[index]);
                   Navigator.pop(context);
                 },
               );
