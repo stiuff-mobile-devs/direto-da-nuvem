@@ -110,10 +110,20 @@ class GroupPage extends StatelessWidget {
                   "Outras filas",
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
-                ...queueController.queues
-                    .where((element) =>
-                        element.groupId == groupController.selectedGroup!.id)
-                    .map((e) => QueueCard(queue: e)),
+                Consumer2<QueueController, GroupController>(
+                    builder: (context, queueController, groupController, _) {
+                  final otherQueues = queueController.queues
+                      .where((element) =>
+                          element.groupId ==
+                              groupController.selectedGroup!.id &&
+                          element.id !=
+                              groupController.selectedGroup!.currentQueue)
+                      .map((e) => QueueCard(queue: e));
+
+                  return Column(
+                    children: otherQueues.toList(),
+                  );
+                })
               ],
             );
           },
