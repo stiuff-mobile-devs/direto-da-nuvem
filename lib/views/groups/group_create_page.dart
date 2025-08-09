@@ -11,6 +11,7 @@ class GroupCreatePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String titleAction = group.id!.isEmpty ? "Criar" : "Editar";
     return ChangeNotifierProvider(
       create: (context) => GroupCreateController(group),
       builder: (context, _) {
@@ -18,7 +19,7 @@ class GroupCreatePage extends StatelessWidget {
             context.read<GroupCreateController>();
         return Scaffold(
           appBar: AppBar(
-            title: const Text("Criar Grupo"),
+            title: Text("$titleAction grupo"),
             actions: [
               IconButton(
                 icon: const Icon(Icons.save),

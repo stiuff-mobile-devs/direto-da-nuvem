@@ -48,8 +48,7 @@ class QueueResource {
       }
       return Queue.fromMap(doc.data()!)..id = doc.id;
     } else {
-      Queue? queue = _hiveBox.get(id);
-      return queue;
+      return _hiveBox.get(id);
     }
   }
 

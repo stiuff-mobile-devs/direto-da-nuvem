@@ -44,9 +44,9 @@ class QueueController extends ChangeNotifier {
     } catch (e) {
       debugPrint("Error updating queue: $e");
       notifyListeners();
-      return "Erro ao atualizar fila";
+      return "Erro ao atualizar fila.";
     }
-    return "Fila atualizada com sucesso";
+    return "Fila atualizada com sucesso!";
   }
 
   Future<String> saveQueue(Queue queue) async {
@@ -75,8 +75,8 @@ class QueueController extends ChangeNotifier {
       queues.remove(queue);
 
       notifyListeners();
-      return "Erro ao atualizar fila";
+      return "Erro ao criar fila.";
     }
-    return "Fila atualizada com sucesso";
+    return "Fila criada com sucesso!";
   }
 }

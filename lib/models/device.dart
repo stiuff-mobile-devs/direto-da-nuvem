@@ -29,6 +29,8 @@ class Device extends HiveObject {
   DateTime createdAt;
   @HiveField(12)
   DateTime updatedAt;
+  @HiveField(13)
+  String updatedBy;
 
   Device({
     required this.id,
@@ -39,6 +41,7 @@ class Device extends HiveObject {
     required this.registeredByEmail,
     required this.createdAt,
     required this.updatedAt,
+    required this.updatedBy,
     this.brand,
     this.model,
     this.product,
@@ -55,6 +58,7 @@ class Device extends HiveObject {
       registeredByEmail: map["registered_by_email"] ?? "",
       createdAt: (map["created_at"] as Timestamp).toDate(),
       updatedAt: (map["updated_at"] as Timestamp).toDate(),
+      updatedBy: map["updated_by"] ?? "",
       brand: map["brand"],
       model: map["model"],
       product: map["product"],
@@ -72,6 +76,7 @@ class Device extends HiveObject {
       "registered_by_email": registeredByEmail,
       "created_at": createdAt,
       "updated_at": updatedAt,
+      "updated_by": updatedBy,
       "brand": brand,
       "model": model,
       "product": product,

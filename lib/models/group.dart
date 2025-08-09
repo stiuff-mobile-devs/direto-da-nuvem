@@ -19,6 +19,10 @@ class Group extends HiveObject {
   DateTime updatedAt;
   @HiveField(6)
   List<String>? admins;
+  @HiveField(7)
+  String createdBy;
+  @HiveField(8)
+  String updatedBy;
 
   Group({
     this.id,
@@ -27,18 +31,20 @@ class Group extends HiveObject {
     required this.currentQueue,
     required this.createdAt,
     required this.updatedAt,
-    required this.admins
+    required this.createdBy,
+    required this.updatedBy,
+    this.admins,
   });
 
   factory Group.fromMap(Map<String, dynamic> data) {
     return Group(
-      id: data["id"],
       name: data["name"],
       description: data["description"],
       currentQueue: data["current_queue"],
       createdAt: (data["created_at"] as Timestamp).toDate(),
       updatedAt: (data["updated_at"] as Timestamp).toDate(),
-      admins: data["admins"]
+      createdBy: data["created_by"] ?? "",
+      updatedBy: data["updated_by"] ?? "",
     );
   }
 
@@ -49,6 +55,8 @@ class Group extends HiveObject {
       currentQueue: "",
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
+      createdBy: "",
+      updatedBy: "",
       admins: [],
     );
   }
@@ -61,6 +69,8 @@ class Group extends HiveObject {
       currentQueue: group.currentQueue,
       createdAt: group.createdAt,
       updatedAt: group.updatedAt,
+      createdBy: group.createdBy,
+      updatedBy: group.updatedBy,
       admins: [...group.admins ?? []],
     );
   }
@@ -72,6 +82,8 @@ class Group extends HiveObject {
       "current_queue": currentQueue,
       "created_at": createdAt,
       "updated_at": updatedAt,
+      "created_by": createdBy,
+      "updated_by": updatedBy,
     };
   }
 }

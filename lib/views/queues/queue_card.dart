@@ -1,4 +1,3 @@
-import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
@@ -44,7 +43,7 @@ class QueueCard extends StatelessWidget {
         builder: (_) {
           return AlertDialog(
             title: const Text("Dejesa fazer essa fila ser a atual?"),
-            content: Text("Esta fila possui ${queue.images.length} fotos"),
+            content: Text("Esta fila possui ${queue.images.length} fotos."),
             actions: [
               TextButton(
                 onPressed: () {
@@ -56,7 +55,7 @@ class QueueCard extends StatelessWidget {
                 onPressed: () async {
                   String message = await context
                       .read<GroupController>()
-                      .makeQueueCurrent(queue.id);
+                      .makeQueueCurrent(queue.id!);
                   if (!context.mounted) {
                     return;
                   }

@@ -1,11 +1,22 @@
 import 'package:ddnuvem/models/group.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class GroupCreateController extends ChangeNotifier {
   GroupCreateController(this.group) {
+    final currentUser = FirebaseAuth.instance.currentUser!;
     nameController.text = group.name;
     descriptionController.text = group.description;
     admins = group.admins ?? [];
+    group.updatedBy = currentUser.uid;
+
+    if (group.id!.isEmpty) {
+      group.createdBy = currentUser.uid;
+      admins.contains(currentUser.email!) ? null: admins.add(currentUser.email!);
+    } else {
+      group.updatedAt = DateTime.now();
+    }
+
     notifyListeners();
   }
 

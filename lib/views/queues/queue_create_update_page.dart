@@ -9,11 +9,11 @@ class QueueCreateUpdatePage extends StatelessWidget {
   const QueueCreateUpdatePage(
       {super.key, required this.queue, required this.onSave});
   final Queue queue;
-
   final void Function(Queue queue) onSave;
 
   @override
   Widget build(BuildContext context) {
+    String titleAction = queue.id!.isEmpty ? "Criar" : "Editar";
     return ChangeNotifierProvider(
       create: (context) => QueueEditController(
         diretoDaNuvemAPI: context.read(),
@@ -21,7 +21,7 @@ class QueueCreateUpdatePage extends StatelessWidget {
       ),
       builder: (context, child) => Scaffold(
         appBar: AppBar(
-          title: const Text("Editar Fila"),
+          title: Text("$titleAction fila"),
           actions: [
             IconButton(
               icon: const Icon(Icons.save),
@@ -83,15 +83,20 @@ class QueueCreateUpdatePage extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: ReorderableListView(
+                  child: controller.imagesLoaded ? ReorderableListView(
                     padding: const EdgeInsets.all(16),
                     onReorder: controller.reorderQueue,
                     children: controller.queue.images.map((image) {
+                      if (image.data == null) {
+                        return const CircularProgressIndicator();
+                      }
                       return ImageListTile(
                         image: image,
                         key: Key(image.path),
                       );
                     }).toList(),
+                  ) : const Center(
+                      child: CircularProgressIndicator.adaptive(),
                   ),
                 ),
               ],

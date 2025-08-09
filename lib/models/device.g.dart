@@ -25,6 +25,7 @@ class DeviceAdapter extends TypeAdapter<Device> {
       registeredByEmail: fields[6] as String,
       createdAt: fields[11] as DateTime,
       updatedAt: fields[12] as DateTime,
+      updatedBy: fields[13] as String,
       brand: fields[7] as String?,
       model: fields[8] as String?,
       product: fields[9] as String?,
@@ -35,7 +36,7 @@ class DeviceAdapter extends TypeAdapter<Device> {
   @override
   void write(BinaryWriter writer, Device obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -59,7 +60,9 @@ class DeviceAdapter extends TypeAdapter<Device> {
       ..writeByte(11)
       ..write(obj.createdAt)
       ..writeByte(12)
-      ..write(obj.updatedAt);
+      ..write(obj.updatedAt)
+      ..writeByte(13)
+      ..write(obj.updatedBy);
   }
 
   @override

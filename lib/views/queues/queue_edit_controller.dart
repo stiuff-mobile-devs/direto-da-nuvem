@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:ddnuvem/models/image_ui.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -18,9 +19,13 @@ class QueueEditController extends ChangeNotifier {
   bool disposed = false;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
+  bool imagesLoaded = false;
 
   QueueEditController({required this.diretoDaNuvemAPI, required this.queue}) {
+    final currentUser = FirebaseAuth.instance.currentUser!;
     nameController.text = queue.name;
+    queue.updatedBy = currentUser.uid;
+    queue.id!.isEmpty ? queue.createdBy = currentUser.uid : queue.updatedAt = DateTime.now();
     fetchImages();
   }
 
@@ -60,6 +65,7 @@ class QueueEditController extends ChangeNotifier {
       if (disposed) return;
       notifyListeners();
     });
+    imagesLoaded = true;
     // List<Uint8List?> datas = await Future.wait(futures);
     // for (var data in datas) {
     //   if (data == null) continue;

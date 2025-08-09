@@ -65,6 +65,6 @@ class GroupController extends ChangeNotifier {
     selectedGroup?.currentQueue = queueId;
     await diretoDaNuvemAPI.groupResource.update(selectedGroup!);
     notifyListeners();
-    return "Fila atualizada com sucesso!";
+    return "Fila atual alterada com sucesso!";
   }
 }

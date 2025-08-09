@@ -7,7 +7,7 @@ part 'queue.g.dart';
 @HiveType(typeId: 3)
 class Queue extends HiveObject {
   @HiveField(0)
-  String id;
+  String? id;
   @HiveField(1)
   String groupId;
   @HiveField(2)
@@ -24,10 +24,14 @@ class Queue extends HiveObject {
   List<ImageUI> images;
   @HiveField(8)
   bool updated = true;
+  @HiveField(9)
+  String updatedBy;
+  @HiveField(10)
+  DateTime updatedAt;
   // List<Uint8List>? imagesData;
 
   Queue({
-    required this.id,
+    this.id,
     required this.name,
     required this.groupId,
     required this.duration,
@@ -35,17 +39,20 @@ class Queue extends HiveObject {
     required this.createdAt,
     required this.createdBy,
     required this.images,
+    required this.updatedBy,
+    required this.updatedAt,
   });
 
   factory Queue.fromMap(Map<String, dynamic> data) {
     return Queue(
-      id: data["id"],
       name: data["name"],
       groupId: data["group_id"],
       duration: data["duration"],
       animation: data["animation"],
       createdAt: (data["created_at"] as Timestamp).toDate(),
       createdBy: data["created_by"],
+      updatedBy: data["updated_by"] ?? "",
+      updatedAt: (data["updated_at"] as Timestamp).toDate() ?? DateTime.now(),
       images: (data["images"] as List)
           .map((e) => ImageUI(path: "$e", data: null))
           .toList());
@@ -60,6 +67,8 @@ class Queue extends HiveObject {
       animation: other.animation,
       createdAt: other.createdAt,
       createdBy: other.createdBy,
+      updatedBy: other.updatedBy,
+      updatedAt: other.updatedAt,
       images: [...other.images]);
   }
 
@@ -71,6 +80,8 @@ class Queue extends HiveObject {
       duration: 0,
       animation: "",
       createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      updatedBy: "",
       createdBy: "",
       images: [],
     );
@@ -82,10 +93,11 @@ class Queue extends HiveObject {
       "name": name,
       "created_by": createdBy,
       "created_at": createdAt,
+      "updated_by": updatedBy,
+      "updated_at": updatedAt,
       "animation": animation,
       "duration": duration,
       "group_id": groupId,
-      "id": id,
     };
   }
 }

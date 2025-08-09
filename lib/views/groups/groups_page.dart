@@ -42,11 +42,18 @@ class GroupsPage extends StatelessWidget {
                   builder: (context) {
                     return GroupCreatePage(
                       group: Group.empty(),
-                      onSave: (group) async {
-                        await context
+                      onSave: (group) {
+                        final messenger = ScaffoldMessenger.of(context);
+                        context
                             .read<GroupController>()
-                            .createGroup(group);
-                      },
+                            .createGroup(group).then((message) {
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text(message),
+                            ),
+                          );
+                        });
+                      }
                     );
                   },
                 ),

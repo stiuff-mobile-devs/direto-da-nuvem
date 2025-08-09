@@ -23,6 +23,8 @@ class GroupAdapter extends TypeAdapter<Group> {
       currentQueue: fields[3] as String,
       createdAt: fields[4] as DateTime,
       updatedAt: fields[5] as DateTime,
+      createdBy: fields[7] as String,
+      updatedBy: fields[8] as String,
       admins: (fields[6] as List?)?.cast<String>(),
     );
   }
@@ -30,7 +32,7 @@ class GroupAdapter extends TypeAdapter<Group> {
   @override
   void write(BinaryWriter writer, Group obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +46,11 @@ class GroupAdapter extends TypeAdapter<Group> {
       ..writeByte(5)
       ..write(obj.updatedAt)
       ..writeByte(6)
-      ..write(obj.admins);
+      ..write(obj.admins)
+      ..writeByte(7)
+      ..write(obj.createdBy)
+      ..writeByte(8)
+      ..write(obj.updatedBy);
   }
 
   @override

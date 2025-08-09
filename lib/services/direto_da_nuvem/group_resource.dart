@@ -37,9 +37,9 @@ class GroupResource {
   }
 
   Future<Group?> get(String id) async {
-    Group? group = _hiveBox.get(id);
+    Group? group;
 
-    if (group == null && await hasInternetConnection()) {
+    if (await hasInternetConnection()) {
       var doc = await _firestore.doc("$collection/$id").get();
 
       if (!doc.exists) {
@@ -55,6 +55,8 @@ class GroupResource {
           });
 
       _hiveBox.put(group.id, group);
+    } else {
+      group = _hiveBox.get(id);
     }
 
     return group;
@@ -62,7 +64,7 @@ class GroupResource {
 
   Future<void> create(Group group) async {
     var doc = await _firestore.collection(collection).add(group.toMap());
-    await _firestore.doc("$collection/${doc.id}/admins")
+    await _firestore.doc("$collection/${doc.id}/admins/admins")
         .set({"admins": group.admins});
 
     group.id = doc.id;

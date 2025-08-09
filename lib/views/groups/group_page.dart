@@ -17,6 +17,7 @@ class GroupPage extends StatelessWidget {
         builder: (context) => QueueCreateUpdatePage(
           queue: Queue.empty(),
           onSave: (queue) {
+            final messenger = ScaffoldMessenger.of(context);
             queue.groupId = context.read<GroupController>().selectedGroup!.id!;
             context
                 .read<QueueController>()
@@ -24,7 +25,7 @@ class GroupPage extends StatelessWidget {
                   queue,
                 )
                 .then((message) {
-              ScaffoldMessenger.of(context).showSnackBar(
+              messenger.showSnackBar(
                 SnackBar(
                   content: Text(message),
                 ),
@@ -54,17 +55,16 @@ class GroupPage extends StatelessWidget {
                     return GroupCreatePage(
                       group: Group.copy(groupController.selectedGroup!),
                       onSave: (group) {
-                        groupController.updateGroup(group).then(
-                          (message) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(message),
-                              ),
-                            );
-                          },
-                        );
+                        final messenger = ScaffoldMessenger.of(context);
+                        groupController.updateGroup(group).then((message) {
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text(message),
+                            ),
+                          );
+                        });
                         Navigator.pop(context);
-                      },
+                      }
                     );
                   },
                 ),
@@ -85,6 +85,7 @@ class GroupPage extends StatelessWidget {
         child: Consumer<QueueController>(
           builder: (context, queueController, _) {
             return ListView(
+              padding: const EdgeInsets.only(bottom: 70),
               children: [
                 Text(
                   "Fila atual",

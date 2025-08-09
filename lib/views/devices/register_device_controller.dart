@@ -33,6 +33,7 @@ class RegisterDeviceController extends ChangeNotifier {
       groupId: _groupId!,
       registeredBy: FirebaseAuth.instance.currentUser!.uid,
       registeredByEmail: FirebaseAuth.instance.currentUser!.email ?? "",
+      updatedBy: FirebaseAuth.instance.currentUser!.uid,
       updatedAt: DateTime.now(),
       createdAt: DateTime.now(),
     );
