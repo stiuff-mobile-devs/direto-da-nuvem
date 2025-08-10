@@ -18,7 +18,7 @@ class GroupPage extends StatelessWidget {
           queue: Queue.empty(),
           onSave: (queue) {
             final messenger = ScaffoldMessenger.of(context);
-            queue.groupId = context.read<GroupController>().selectedGroup!.id!;
+            queue.groupId = context.read<GroupController>().selectedGroup!.id;
             context
                 .read<QueueController>()
                 .saveQueue(

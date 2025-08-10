@@ -7,7 +7,7 @@ part 'queue.g.dart';
 @HiveType(typeId: 3)
 class Queue extends HiveObject {
   @HiveField(0)
-  String? id;
+  String id;
   @HiveField(1)
   String groupId;
   @HiveField(2)
@@ -31,7 +31,7 @@ class Queue extends HiveObject {
   // List<Uint8List>? imagesData;
 
   Queue({
-    this.id,
+    required this.id,
     required this.name,
     required this.groupId,
     required this.duration,
@@ -43,8 +43,9 @@ class Queue extends HiveObject {
     required this.updatedAt,
   });
 
-  factory Queue.fromMap(Map<String, dynamic> data) {
+  factory Queue.fromMap(String id, Map<String, dynamic> data) {
     return Queue(
+      id: id,
       name: data["name"],
       groupId: data["group_id"],
       duration: data["duration"],

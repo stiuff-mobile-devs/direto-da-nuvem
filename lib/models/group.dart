@@ -6,7 +6,7 @@ part 'group.g.dart';
 @HiveType(typeId: 1)
 class Group extends HiveObject {
   @HiveField(0)
-  String? id;
+  String id;
   @HiveField(1)
   String name;
   @HiveField(2)
@@ -18,14 +18,14 @@ class Group extends HiveObject {
   @HiveField(5)
   DateTime updatedAt;
   @HiveField(6)
-  List<String>? admins;
+  List<String> admins;
   @HiveField(7)
   String createdBy;
   @HiveField(8)
   String updatedBy;
 
   Group({
-    this.id,
+    required this.id,
     required this.name,
     required this.description,
     required this.currentQueue,
@@ -33,14 +33,16 @@ class Group extends HiveObject {
     required this.updatedAt,
     required this.createdBy,
     required this.updatedBy,
-    this.admins,
+    required this.admins,
   });
 
-  factory Group.fromMap(Map<String, dynamic> data) {
+  factory Group.fromMap(String id, List<String> admins, Map<String, dynamic> data) {
     return Group(
+      id: id,
       name: data["name"],
       description: data["description"],
       currentQueue: data["current_queue"],
+      admins: admins,
       createdAt: (data["created_at"] as Timestamp).toDate(),
       updatedAt: (data["updated_at"] as Timestamp).toDate(),
       createdBy: data["created_by"] ?? "",
@@ -50,6 +52,7 @@ class Group extends HiveObject {
 
   factory Group.empty() {
     return Group(
+      id: "",
       name: "",
       description: "",
       currentQueue: "",

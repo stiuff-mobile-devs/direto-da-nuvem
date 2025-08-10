@@ -48,9 +48,9 @@ class Device extends HiveObject {
     this.device,
   });
 
-  factory Device.fromMap(Map<String, dynamic> map) {
+  factory Device.fromMap(String id, Map<String, dynamic> map) {
     return Device(
-      id: map["id"],
+      id: id,
       locale: map["locale"],
       description: map["description"],
       groupId: map["group_id"],
@@ -68,7 +68,6 @@ class Device extends HiveObject {
 
   Map<String, dynamic> toMap() {
     return {
-      "id": id,
       "locale": locale,
       "description": description,
       "group_id": groupId,

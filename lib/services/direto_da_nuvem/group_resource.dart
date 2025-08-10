@@ -12,22 +12,13 @@ class GroupResource {
     List<Group> groups = [];
 
     if (await hasInternetConnection()) {
-      var list = await _firestore.collection(collection).get();
+      final list = await _firestore.collection(collection).get();
 
       for (var doc in list.docs) {
-        Group group = Group.fromMap(doc.data());
-        group.id = doc.id;
+        List<String> adminsList = await _getGroupAdmins(doc.id);
+        Group group = Group.fromMap(doc.id, adminsList, doc.data());
         groups.add(group);
-
-        await _firestore.doc("$collection/${doc.id}/admins/admins")
-            .get().then((value) {
-          List<dynamic> adminsEmail = (value.data()!["admins"]);
-          group.admins = adminsEmail.map((e) => "$e").toList();
-        });
-
-        if (!_hiveBox.containsKey(group.id)) {
-          _hiveBox.put(group.id, group);
-        }
+        _hiveBox.put(group.id, group);
       }
     } else {
       groups = _hiveBox.values.toList();
@@ -46,20 +37,22 @@ class GroupResource {
         return null;
       }
 
-      group = Group.fromMap(doc.data()!);
-      group.id = id;
-      await _firestore.doc("$collection/$id/admins/admins")
-          .get().then((value) {
-            List<dynamic> adminsEmail = (value.data()!["admins"]);
-            group!.admins = adminsEmail.map((e) => "$e").toList();
-          });
-
+      List<String> adminsList = await _getGroupAdmins(doc.id);
+      group = Group.fromMap(doc.id, adminsList, doc.data()!);
       _hiveBox.put(group.id, group);
     } else {
       group = _hiveBox.get(id);
     }
 
     return group;
+  }
+
+  Future<List<String>> _getGroupAdmins(String groupId) async {
+    var adminsDoc = await _firestore
+        .doc("$collection/$groupId/admins/admins").get();
+
+    var admins = (adminsDoc.data()!["admins"]).map((e) => "$e").toList();
+    return List<String>.from(admins);
   }
 
   Future<void> create(Group group) async {

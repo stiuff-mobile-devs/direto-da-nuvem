@@ -25,7 +25,7 @@ class DeviceResource {
       return null;
     }
 
-    return Device.fromMap(docSnapshot.data()!);
+    return Device.fromMap(docSnapshot.id, docSnapshot.data()!);
   }
 
   Future<Device?> get(String id) async {
@@ -38,7 +38,7 @@ class DeviceResource {
         return null;
       }
 
-      device = Device.fromMap(docSnapshot.data()!);
+      device = Device.fromMap(docSnapshot.id, docSnapshot.data()!);
       _hiveBox.put(device.id, device);
     }
 
@@ -50,7 +50,7 @@ class DeviceResource {
 
     if (await hasInternetConnection()) {
       final docs = await _firestore.collection(collection).get();
-      devices = docs.docs.map((e) => Device.fromMap(e.data())).toList();
+      devices = docs.docs.map((e) => Device.fromMap(e.id, e.data())).toList();
 
       for (var device in devices) {
         if (!_hiveBox.containsKey(device.id)) {

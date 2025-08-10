@@ -17,7 +17,7 @@ class GroupAdapter extends TypeAdapter<Group> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Group(
-      id: fields[0] as String?,
+      id: fields[0] as String,
       name: fields[1] as String,
       description: fields[2] as String,
       currentQueue: fields[3] as String,
@@ -25,7 +25,7 @@ class GroupAdapter extends TypeAdapter<Group> {
       updatedAt: fields[5] as DateTime,
       createdBy: fields[7] as String,
       updatedBy: fields[8] as String,
-      admins: (fields[6] as List?)?.cast<String>(),
+      admins: (fields[6] as List).cast<String>(),
     );
   }
 

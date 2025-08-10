@@ -7,12 +7,14 @@ class GroupCreateController extends ChangeNotifier {
     final currentUser = FirebaseAuth.instance.currentUser!;
     nameController.text = group.name;
     descriptionController.text = group.description;
-    admins = group.admins ?? [];
+    admins = group.admins;
     group.updatedBy = currentUser.uid;
 
-    if (group.id!.isEmpty) {
+    if (group.id.isEmpty) {
       group.createdBy = currentUser.uid;
-      admins.contains(currentUser.email!) ? null: admins.add(currentUser.email!);
+      admins.contains(currentUser.email!)
+          ? null
+          : admins.add(currentUser.email!);
     } else {
       group.updatedAt = DateTime.now();
     }

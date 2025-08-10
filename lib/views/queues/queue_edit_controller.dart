@@ -25,7 +25,7 @@ class QueueEditController extends ChangeNotifier {
     final currentUser = FirebaseAuth.instance.currentUser!;
     nameController.text = queue.name;
     queue.updatedBy = currentUser.uid;
-    queue.id!.isEmpty ? queue.createdBy = currentUser.uid : queue.updatedAt = DateTime.now();
+    queue.id.isEmpty ? queue.createdBy = currentUser.uid : queue.updatedAt = DateTime.now();
     fetchImages();
   }
 

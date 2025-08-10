@@ -70,6 +70,7 @@ class DeviceController extends ChangeNotifier {
     isRegistered = created;
     if (isRegistered) {
       this.device = device;
+      await fetchGroupAndQueue();
       Navigator.of(context).pushNamedAndRemoveUntil(
         '/',
         (route) => false,
@@ -101,8 +102,17 @@ class DeviceController extends ChangeNotifier {
   }
 
   _updateCurrentQueue() async {
-    final updatedGroup = await _diretoDaNuvemAPI.groupResource.get(group!.id!);
-    if (updatedGroup!.currentQueue != currentQueue!.id) {
+    if (group == null) {
+      return;
+    }
+
+    final updatedGroup = await _diretoDaNuvemAPI.groupResource.get(group!.id);
+
+    if (currentQueue == null || updatedGroup == null) {
+      return;
+    }
+
+    if (updatedGroup.currentQueue != currentQueue!.id) {
       group = updatedGroup;
       currentQueue = await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
       notifyListeners();
