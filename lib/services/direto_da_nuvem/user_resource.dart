@@ -6,32 +6,46 @@ class UserResource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<bool> create(User user) async {
-    DocumentReference documentReference =
-        _firestore.doc("${UserResource.collection}/${user.id}");
-    DocumentSnapshot documentSnapshot = await documentReference.get();
+    DocumentReference docReference =
+        _firestore.doc("$collection/${user.id}");
+
+    DocumentSnapshot documentSnapshot = await docReference.get();
     if (documentSnapshot.exists) {
       return false;
     }
-    documentReference.set(user.toMap());
+    docReference.set(user.toMap());
     return true;
   }
 
-  Future<bool> delegatePrivilege(
-      String userId, UserPrivileges privileges) async {
-    return false;
-  }
-
-  Future<UserPrivilege> getUserPrivileges(String uid) async {
+  Future<UserPrivileges> getUserPrivileges(String uid) async {
     var doc = await _firestore
-        .doc('${UserResource.collection}/$uid/privileges/privileges')
-        .get();
+        .doc('$collection/$uid/privileges/privileges').get();
 
     if (!doc.exists) {
-      return UserPrivilege(
-          isAdmin: false, isSuperAdmin: false, isInstaller: false);
+      return UserPrivileges(
+          isAdmin: false,
+          isSuperAdmin: false,
+          isInstaller: false
+      );
     }
 
-    UserPrivilege privileges = UserPrivilege.fromMap(doc.data()!);
-    return privileges;
+    return UserPrivileges.fromMap(doc.data()!);
   }
+
+  Future<bool> userIsValid(String email) async {
+    var query = await _firestore
+        .collection(collection)
+        .where('email', isEqualTo: email)
+        .get();
+
+    if (!query.docs.isNotEmpty) {
+      return false;
+    }
+
+    return true;
+  }
+
+// Future<bool> delegatePrivilege(String userId, UserPrivileges privileges) async {
+//   return false;
+// }
 }

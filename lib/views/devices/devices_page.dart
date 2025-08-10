@@ -61,11 +61,11 @@ class DevicesPage extends StatelessWidget {
                         context.read<UserController>();
                     final adminGroups = groupController
                         .getAdminGroups(userController.isSuperAdmin);
-                    final adminGroupIds = adminGroups.map((g) => g.id!).toSet();
+                    final adminGroupIds = adminGroups.map((g) => g.id).toSet();
 
                     // Use filters if any, otherwise use all admin group IDs
                     final filterGroupIds = filterController.filters.isNotEmpty
-                        ? filterController.filters.map((g) => g.id!).toSet()
+                        ? filterController.filters.map((g) => g.id).toSet()
                         : adminGroupIds;
 
                     final devices =
@@ -89,10 +89,10 @@ class DevicesPage extends StatelessWidget {
 
                 final adminGroups =
                     groupController.getAdminGroups(userController.isSuperAdmin);
-                final adminGroupIds = adminGroups.map((g) => g.id!).toSet();
+                final adminGroupIds = adminGroups.map((g) => g.id).toSet();
 
                 final filterGroupIds = filterController.filters.isNotEmpty
-                    ? filterController.filters.map((g) => g.id!).toSet()
+                    ? filterController.filters.map((g) => g.id).toSet()
                     : adminGroupIds;
 
                 return deviceController

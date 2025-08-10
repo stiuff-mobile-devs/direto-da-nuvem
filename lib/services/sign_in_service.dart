@@ -11,47 +11,26 @@ class SignInService {
   SignInService(this.context, this.diretoDaNuvemAPI);
 
   final auth = FirebaseAuth.instance;
-  final db = FirebaseFirestore.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
-  UserCredential? userCredential;
 
-  Future<void> signInWithGoogle() async {
+  Future<bool> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
-
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
-    debugPrint('googleUser: $googleUser');
-    debugPrint('googleAuth: $googleAuth');
-    userCredential = await auth.signInWithCredential(credential);
-    await diretoDaNuvemAPI.userResource
-        .create(models.User.fromFirebaseUser(auth.currentUser!));
-  }
-
-  Future<bool> trySignIn() async {
-    final googleUser = await googleSignIn.signInSilently();
-    if (googleUser == null) {
+    bool validUser = await diretoDaNuvemAPI.userResource
+        .userIsValid(googleUser!.email);
+    if (!validUser) {
       return false;
     }
+
     final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
 
-    // Create a new credential
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
-    debugPrint('googleUser: $googleUser');
-    debugPrint('googleAuth: $googleAuth');
-    userCredential = await auth.signInWithCredential(credential);
-    await diretoDaNuvemAPI.userResource
-        .create(models.User.fromFirebaseUser(auth.currentUser!));
+
+    await auth.signInWithCredential(credential);
     return true;
   }
 
@@ -68,4 +47,25 @@ class SignInService {
   bool checkUserLoggedIn() {
     return auth.currentUser != null;
   }
+
+// Future<bool> trySignIn() async {
+//   final googleUser = await googleSignIn.signInSilently();
+//   if (googleUser == null) {
+//     return false;
+//   }
+//   final GoogleSignInAuthentication googleAuth =
+//       await googleUser.authentication;
+//
+//   // Create a new credential
+//   final credential = GoogleAuthProvider.credential(
+//     accessToken: googleAuth.accessToken,
+//     idToken: googleAuth.idToken,
+//   );
+//   debugPrint('googleUser: $googleUser');
+//   debugPrint('googleAuth: $googleAuth');
+//   userCredential = await auth.signInWithCredential(credential);
+//   await diretoDaNuvemAPI.userResource
+//       .create(models.User.fromFirebaseUser(auth.currentUser!));
+//   return true;
+// }
 }

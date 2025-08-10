@@ -1,13 +1,18 @@
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/device.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RegisterDeviceController extends ChangeNotifier {
-  RegisterDeviceController();
+  RegisterDeviceController(this.context) {
+    userController = Provider.of<UserController>(context, listen: false);
+  }
 
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController localeController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  UserController? userController;
+  final BuildContext context;
 
   String? _groupId;
 
@@ -31,9 +36,9 @@ class RegisterDeviceController extends ChangeNotifier {
       description: description,
       locale: locale,
       groupId: _groupId!,
-      registeredBy: FirebaseAuth.instance.currentUser!.uid,
-      registeredByEmail: FirebaseAuth.instance.currentUser!.email ?? "",
-      updatedBy: FirebaseAuth.instance.currentUser!.uid,
+      registeredBy: userController?.uid ?? "",
+      registeredByEmail: userController?.userEmail ?? "",
+      updatedBy: userController?.uid ?? "",
       updatedAt: DateTime.now(),
       createdAt: DateTime.now(),
     );

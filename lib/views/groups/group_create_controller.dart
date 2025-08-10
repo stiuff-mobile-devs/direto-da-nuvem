@@ -1,20 +1,23 @@
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class GroupCreateController extends ChangeNotifier {
-  GroupCreateController(this.group) {
-    final currentUser = FirebaseAuth.instance.currentUser!;
+  GroupCreateController(this.context, this.group) {
+    UserController userController = Provider
+        .of<UserController>(context, listen: false);
+
     nameController.text = group.name;
     descriptionController.text = group.description;
     admins = group.admins;
-    group.updatedBy = currentUser.uid;
+    group.updatedBy = userController.uid ?? "";
 
     if (group.id.isEmpty) {
-      group.createdBy = currentUser.uid;
-      admins.contains(currentUser.email!)
+      group.createdBy = userController.uid ?? "";
+      admins.contains(userController.userEmail ?? "")
           ? null
-          : admins.add(currentUser.email!);
+          : admins.add(userController.userEmail ?? "");
     } else {
       group.updatedAt = DateTime.now();
     }
@@ -29,6 +32,7 @@ class GroupCreateController extends ChangeNotifier {
   final TextEditingController adminEmailController = TextEditingController();
   final GlobalKey<FormState> adminFormKey = GlobalKey<FormState>();
   final Group group;
+  final BuildContext context;
 
   void addAdmin(String admin) {
     admin = admin.trim();

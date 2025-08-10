@@ -11,7 +11,7 @@ class RegisterDevicePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<RegisterDeviceController>(
-      create: (_) => RegisterDeviceController(),
+      create: (_) => RegisterDeviceController(context),
       builder: (context, _) {
         final controller = Provider.of<RegisterDeviceController>(context);
         final deviceController = Provider.of<DeviceController>(context);
@@ -84,7 +84,7 @@ class RegisterDevicePage extends StatelessWidget {
       builder: (context, groupController, _) {
         List<DropdownMenuEntry<String>> entries = groupController.groups.map(
           (e) {
-            return DropdownMenuEntry<String>(value: e.id!, label: e.name);
+            return DropdownMenuEntry<String>(value: e.id, label: e.name);
           },
         ).toList();
 

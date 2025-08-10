@@ -10,45 +10,40 @@ class UserController extends ChangeNotifier {
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
-  UserController(this._signInService, this._diretoDaNuvemAPI) {
-    loadingInitialState = true;
-    isLoggedIn = _signInService.checkUserLoggedIn();
-    if (isLoggedIn) {
-      getUserPrivileges();
-    } else {
-      isLoggedIn = false;
-      uid = null;
-      loadingInitialState = false;
-      notifyListeners();
-    }
-  }
-
+  String? userEmail;
+  String? uid;
   bool isAdmin = false;
   bool isSuperAdmin = false;
   bool isInstaller = false;
   late bool isLoggedIn;
   bool loadingInitialState = true;
-  String? userEmail;
-  String? uid;
 
-  getUserPrivileges() async {
-    debugPrint(_firebaseAuth.currentUser!.uid);
-    UserPrivilege privilege = await _diretoDaNuvemAPI.userResource.getUserPrivileges(_firebaseAuth.currentUser!.uid);
+  UserController(this._signInService, this._diretoDaNuvemAPI) {
+    loadingInitialState = true;
+    isLoggedIn = _signInService.checkUserLoggedIn();
 
-    userEmail = _firebaseAuth.currentUser!.email;
-    isAdmin = privilege.isAdmin;
-    isSuperAdmin = privilege.isSuperAdmin;
-    isInstaller = privilege.isInstaller;
-    uid = _firebaseAuth.currentUser!.uid;
-    loadingInitialState = false;
-    notifyListeners();
+    if (isLoggedIn) {
+      _getUserPrivileges();
+    } else {
+      isLoggedIn = false;
+      uid = null;
+      userEmail = null;
+      loadingInitialState = false;
+      notifyListeners();
+    }
   }
 
   login(BuildContext context) async {
-    await _signInService.signInWithGoogle();
-    await getUserPrivileges();
+    bool signedIn = await _signInService.signInWithGoogle();
+    if (!signedIn) {
+      return;
+    }
+
+    final currentUser = _firebaseAuth.currentUser;
+    uid = currentUser!.uid;
+    userEmail = currentUser.email;
+    await _getUserPrivileges();
     isLoggedIn = true;
-    uid = _firebaseAuth.currentUser!.uid;
     notifyListeners();
     Navigator.pushAndRemoveUntil(
       context,
@@ -60,7 +55,24 @@ class UserController extends ChangeNotifier {
   logout() async {
     await _signInService.signOut();
     uid = null;
+    userEmail = null;
     isLoggedIn = false;
+    notifyListeners();
+  }
+
+  _getUserPrivileges() async {
+    final currentUser = _firebaseAuth.currentUser;
+    userEmail = currentUser!.email;
+    uid = currentUser.uid;
+
+    UserPrivileges privileges = await _diretoDaNuvemAPI.userResource
+        .getUserPrivileges(currentUser.uid);
+
+    isAdmin = privileges.isAdmin;
+    isSuperAdmin = privileges.isSuperAdmin;
+    isInstaller = privileges.isInstaller;
+
+    loadingInitialState = false;
     notifyListeners();
   }
 }

@@ -11,9 +11,9 @@ class GroupCreatePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String titleAction = group.id!.isEmpty ? "Criar" : "Editar";
+    String titleAction = group.id.isEmpty ? "Criar" : "Editar";
     return ChangeNotifierProvider(
-      create: (context) => GroupCreateController(group),
+      create: (context) => GroupCreateController(context, group),
       builder: (context, _) {
         GroupCreateController groupCreateController =
             context.read<GroupCreateController>();

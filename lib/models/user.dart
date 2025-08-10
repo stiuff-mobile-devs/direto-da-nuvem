@@ -1,37 +1,18 @@
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum UserPrivileges {
-  superAdmin,
-  admin,
-  installer;
-
-  String get name {
-    switch (this) {
-      case UserPrivileges.admin:
-        return "admin";
-      case UserPrivileges.installer:
-        return "installer";
-      case UserPrivileges.superAdmin:
-        return "super_admin";
-      default:
-        throw Exception("Privilégio inexistente");
-    }
-  }
-}
-
-class UserPrivilege {
+class UserPrivileges {
   bool isAdmin;
   bool isSuperAdmin;
   bool isInstaller;
 
-  UserPrivilege({
+  UserPrivileges({
     required this.isAdmin,
     required this.isSuperAdmin,
     required this.isInstaller,
   });
 
-  factory UserPrivilege.fromMap(Map<String, dynamic> map) {
-    return UserPrivilege(
+  factory UserPrivileges.fromMap(Map<String, dynamic> map) {
+    return UserPrivileges(
       isAdmin: map['admin'] ?? false,
       isSuperAdmin: map['super_admin'] ?? false,
       isInstaller: map['installer'] ?? false
@@ -44,7 +25,7 @@ class User {
   String email;
   String name;
   DateTime createdAt;
-  List<UserPrivileges> privileges;
+  UserPrivileges privileges;
 
   User({
     required this.id,
@@ -54,18 +35,19 @@ class User {
     required this.privileges,
   });
 
-  factory User.fromFirebaseUser(firebase_auth.User firebaseAuthUser) {
+  factory User.fromMap(Map<String, dynamic> map, UserPrivileges privileges) {
     return User(
-      id: firebaseAuthUser.uid,
-      email: firebaseAuthUser.email!,
-      name: firebaseAuthUser.displayName!,
-      createdAt: DateTime.now(),
-      privileges: []);
+      id: map['uid'],
+      email: map['email'],
+      name: map['name'],
+      createdAt: (map["created_at"] as Timestamp).toDate(),
+      privileges: privileges
+    );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      "id": id,
+      "uid": id,
       "email": email,
       "name": name,
       "created_at": createdAt,
