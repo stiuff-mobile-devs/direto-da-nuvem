@@ -10,22 +10,30 @@ class AdminPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const DefaultTabController(
-      length: 4,
+      length: 3,
       child: Scaffold(
         body: TabBarView(children: [
           DevicesPage(),
-          ImagesPage(),
+          //ImagesPage(),
           GroupsPage(),
           // PeoplePage(),
           SettingsPage(),
         ]),
         bottomNavigationBar: TabBar(
           tabs: [
-            Tab(icon: Icon(Icons.tv), ),
-            Tab(icon: Icon(Icons.image), ),
-            Tab(icon: Icon(Icons.group_work), ),
+            Tab(
+              icon: Icon(Icons.tv),
+            ),
+            //Tab(
+            //  icon: Icon(Icons.image),
+            //),
+            Tab(
+              icon: Icon(Icons.group_work),
+            ),
             // Tab(icon: Icon(Icons.group), ),
-            Tab(icon: Icon(Icons.settings), ),
+            Tab(
+              icon: Icon(Icons.settings),
+            ),
           ],
         ),
       ),
