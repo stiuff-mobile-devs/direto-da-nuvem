@@ -88,7 +88,7 @@ class GroupPage extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 70),
               children: [
                 Text(
-                  "Fila atual",
+                  "Fila ativa",
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 8),
@@ -104,6 +104,7 @@ class GroupPage extends StatelessWidget {
                   }
                   return QueueCard(
                     queue: queue,
+                    isActive: true,
                   );
                 }),
                 const SizedBox(height: 8),

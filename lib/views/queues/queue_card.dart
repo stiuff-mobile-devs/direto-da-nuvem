@@ -6,9 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class QueueCard extends StatelessWidget {
-  const QueueCard({super.key, required this.queue});
+  const QueueCard({super.key, required this.queue, this.isActive = false});
 
   final Queue queue;
+  final bool isActive;
 
   pushUpdateQueuePage(BuildContext context) {
     QueueController queueController = context.read();
@@ -37,13 +38,13 @@ class QueueCard extends StatelessWidget {
     );
   }
 
-  show(BuildContext context) {
+  show(BuildContext context, String numberOfPhotos) {
     showDialog(
         context: context,
         builder: (_) {
           return AlertDialog(
-            title: const Text("Dejesa fazer essa fila ser a atual?"),
-            content: Text("Esta fila possui ${queue.images.length} fotos."),
+            title: const Text("Dejesa tornar esta fila ativa?"),
+            content: Text("Esta fila possui $numberOfPhotos."),
             actions: [
               TextButton(
                 onPressed: () {
@@ -55,7 +56,7 @@ class QueueCard extends StatelessWidget {
                 onPressed: () async {
                   String message = await context
                       .read<GroupController>()
-                      .makeQueueCurrent(queue.id!);
+                      .makeQueueCurrent(queue.id);
                   if (!context.mounted) {
                     return;
                   }
@@ -79,7 +80,7 @@ class QueueCard extends StatelessWidget {
         ? "${queue.images.length} foto"
         : "${queue.images.length} fotos";
     return GestureDetector(
-      onTap: () => show(context),
+      onTap: () => !isActive ? show(context, numberOfPhotos) : null,
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(8.0),

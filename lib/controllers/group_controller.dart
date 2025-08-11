@@ -18,7 +18,7 @@ class GroupController extends ChangeNotifier {
     groups = await diretoDaNuvemAPI.groupResource.listAll();
     isAdmin = groups
         .map((group) => group.admins)
-        .expand((admins) => admins!)
+        .expand((admins) => admins)
         .toSet()
         .contains(FirebaseAuth.instance.currentUser?.email);
     loading = false;
@@ -65,6 +65,6 @@ class GroupController extends ChangeNotifier {
     selectedGroup?.currentQueue = queueId;
     await diretoDaNuvemAPI.groupResource.update(selectedGroup!);
     notifyListeners();
-    return "Fila atual alterada com sucesso!";
+    return "Fila ativa atualizada com sucesso!";
   }
 }
