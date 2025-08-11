@@ -3,6 +3,7 @@ import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/views/queues/queue_view_controller.dart';
 import 'package:ddnuvem/views/queues/queue_view_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,12 +21,23 @@ class SettingsPage extends StatelessWidget {
           return Column(
             children: [
               ListTile(
+                leading:
+                    Consumer<UserController>(builder: (context, controller, _) {
+                  final photoUrl = FirebaseAuth.instance.currentUser?.photoURL;
+                  return CircleAvatar(
+                    radius: 24,
+                    backgroundImage:
+                        photoUrl != null ? NetworkImage(photoUrl) : null,
+                    child: photoUrl == null ? const Icon(Icons.person) : null,
+                  );
+                }),
                 title: const Text("Perfil"),
                 subtitle:
                     Consumer<UserController>(builder: (context, controller, _) {
                   return Text("logado como ${controller.userEmail}");
                 }),
                 onTap: () {
+                  // TODO
                   Navigator.pushNamed(context, "/profile");
                 },
               ),
@@ -37,25 +49,25 @@ class SettingsPage extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.play_arrow),
                 title: const Text("Tocar fila"),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return ChangeNotifierProvider<QueueViewController>(
-                            create: (_) => QueueViewController(
-                              context.read<DiretoDaNuvemAPI>(),
-                              context.read<DeviceController>(),
-                            ),
-                            child: Consumer<QueueViewController>(
-                              builder: (context, controller, _) {
-                                return QueueViewPage(queue: controller.queue!);
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return ChangeNotifierProvider<QueueViewController>(
+                          create: (_) => QueueViewController(
+                            context.read<DiretoDaNuvemAPI>(),
+                            context.read<DeviceController>(),
+                          ),
+                          child: Consumer<QueueViewController>(
+                            builder: (context, controller, _) {
+                              return QueueViewPage(queue: controller.queue!);
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
             ],
           );
