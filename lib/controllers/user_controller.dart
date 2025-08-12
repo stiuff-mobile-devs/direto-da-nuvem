@@ -2,30 +2,34 @@ import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
 import 'package:ddnuvem/views/redirection_page.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/material.dart';
 
 class UserController extends ChangeNotifier {
   final SignInService _signInService;
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
-  final fb_auth.FirebaseAuth _firebaseAuth = fb_auth.FirebaseAuth.instance;
 
   User? currentUser;
   String? profileImageUrl;
   bool isLoggedIn = false;
   bool loadingInitialState = true;
 
-  UserController(this._signInService, this._diretoDaNuvemAPI) {
-    loadingInitialState = true;
-    isLoggedIn = _firebaseAuth.currentUser != null;
+  UserController(this._signInService, this._diretoDaNuvemAPI);
 
-    if (isLoggedIn) {
-      _getCurrentUserInfo();
+  Future<void> init() async {
+    loadingInitialState = true;
+    notifyListeners();
+
+    if (_signInService.checkIfLoggedIn()) {
+      await _getCurrentUserInfo();
+      isLoggedIn = true;
     } else {
+      isLoggedIn = false;
       currentUser = null;
-      loadingInitialState = false;
-      notifyListeners();
+      profileImageUrl = null;
     }
+
+    loadingInitialState = false;
+    notifyListeners();
   }
 
   login(BuildContext context) async {
@@ -56,12 +60,13 @@ class UserController extends ChangeNotifier {
   logout() async {
     await _signInService.signOut();
     currentUser = null;
+    profileImageUrl = null;
     isLoggedIn = false;
     notifyListeners();
   }
 
   _getCurrentUserInfo() async {
-    final fbAuthUser = _firebaseAuth.currentUser;
+    final fbAuthUser = _signInService.getFirebaseAuthUser();
     profileImageUrl = fbAuthUser?.photoURL;
     currentUser = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.uid);
     loadingInitialState = false;

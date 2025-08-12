@@ -1,9 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:ddnuvem/models/user.dart' as models;
 
 class SignInService {
   BuildContext context;
@@ -53,5 +51,14 @@ class SignInService {
     } catch (e) {
       debugPrint("ERRO deslogando:\n$e");
     }
+  }
+
+  bool checkIfLoggedIn() {
+    final user = getFirebaseAuthUser();
+    return user == null ? false : true;
+  }
+
+  User? getFirebaseAuthUser() {
+    return auth.currentUser;
   }
 }
