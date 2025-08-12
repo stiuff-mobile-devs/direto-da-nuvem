@@ -1,19 +1,38 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/user.dart';
+import 'package:ddnuvem/utils/connection_utils.dart';
 
 class UserResource {
   static String collection = "users";
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<String> create(User user) async {
+  Future<List<User>> listAll() async {
+    List<User> users = [];
+
+    if (await hasInternetConnection()) {
+      final list = await _firestore.collection(collection).get();
+
+      for (var doc in list.docs) {
+        UserPrivileges privileges = await _getUserPrivileges(doc.id);
+        User user = User.fromMap(doc.data(), doc.id, privileges);
+        users.add(user);
+      }
+    } else {
+      //  TO DO
+    }
+
+    return users;
+  }
+
+  Future<bool> create(User user) async {
     if (await userIsValid(user.email) != null) {
-      return "Usuário já cadastrado!";
+      return false;
     }
 
     var doc = await _firestore.collection(collection).add(user.toMap());
     await _firestore.doc("$collection/${doc.id}/privileges/privileges")
         .set(user.privileges.toMap());
-    return "Usuário criado com sucesso!";
+    return true;
   }
 
   Future<User?> get(String uid) async {
@@ -29,6 +48,19 @@ class UserResource {
     final doc = query.docs.first;
     UserPrivileges privileges = await _getUserPrivileges(doc.id);
     return User.fromMap(doc.data(), doc.id, privileges);
+  }
+
+  Future<void> update(User user) async {
+    var doc = await _firestore
+        .doc("$collection/${user.id}").get();
+
+    if (!doc.exists) {
+      return;
+    }
+
+    await _firestore.doc("$collection/${user.id}").update(user.toMap());
+    await _firestore.doc("$collection/${user.id}/privileges/privileges")
+        .update(user.privileges.toMap());
   }
 
   Future updateAuthenticatedUser(String id, String uid, String name) async {

@@ -2,6 +2,7 @@ import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/image_ui.dart';
 import 'package:ddnuvem/models/queue.dart';
+import 'package:ddnuvem/models/user.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class HiveService {

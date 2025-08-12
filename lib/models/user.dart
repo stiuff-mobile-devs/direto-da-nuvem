@@ -11,6 +11,17 @@ class UserPrivileges {
     required this.isInstaller,
   });
 
+  @override
+  String toString() {
+    String string = [
+      if (isSuperAdmin) "Super Admin",
+      if (isAdmin) "Admin",
+      if (isInstaller) "Instalador",
+    ].join(", ");
+
+    return string;
+  }
+
   factory UserPrivileges.fromMap(Map<String, dynamic> map) {
     return UserPrivileges(
       isAdmin: map['admin'] ?? false,
@@ -30,9 +41,9 @@ class UserPrivileges {
 
 class User {
   String id;
-  String? uid;
+  String uid;
   String email;
-  String? name;
+  String name;
   UserPrivileges privileges;
   DateTime createdAt;
   DateTime updatedAt;
@@ -47,8 +58,8 @@ class User {
     required this.createdBy,
     required this.updatedBy,
     required this.privileges,
-    this.name,
-    this.uid
+    required this.name,
+    required this.uid
   });
 
   factory User.empty() {
@@ -70,13 +81,28 @@ class User {
   }
 
   factory User.fromMap(Map<String, dynamic> map, String id, UserPrivileges privileges) {
+    DateTime? createdAt;
+    DateTime? updatedAt;
+
+    if (map["created_at"] is Timestamp) {
+      createdAt = (map["created_at"] as Timestamp).toDate();
+    } else {
+      createdAt = DateTime.now();
+    }
+
+    if (map["updated_at"] is Timestamp) {
+      updatedAt = (map["updated_at"] as Timestamp).toDate();
+    } else {
+      updatedAt = DateTime.now();
+    }
+
     return User(
       id: id,
       uid: map['uid'] ?? "",
       email: map['email'],
       name: map['name'] ?? "",
-      createdAt: (map["created_at"] as Timestamp).toDate(),
-      updatedAt: (map["updated_at"] as Timestamp).toDate(),
+      createdAt: createdAt,
+      updatedAt: updatedAt,
       createdBy: map["created_by"] ?? "",
       updatedBy: map["updated_by"] ?? "",
       privileges: privileges
@@ -85,9 +111,9 @@ class User {
 
   Map<String, dynamic> toMap() {
     return {
-      "uid": uid ?? "",
+      "uid": uid,
       "email": email,
-      "name": name ?? "",
+      "name": name,
       "created_at": createdAt,
       "updated_at": updatedAt,
       "created_by": createdBy,

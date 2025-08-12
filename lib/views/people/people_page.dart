@@ -1,5 +1,6 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
+import 'package:ddnuvem/views/people/user_card.dart';
 import 'package:ddnuvem/views/people/user_create_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,11 +12,25 @@ class PeoplePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        SafeArea(child: Scaffold(
-          appBar: AppBar(
-            title: const Text("Pessoas"),
-          ),
-        )),
+        SafeArea(
+            child: Scaffold(
+              appBar: AppBar(
+                title: const Text("Pessoas"),
+              ),
+              body: Consumer<UserController>(builder: (context, controller, _) {
+                return ListView(
+                  padding: const EdgeInsets.only(bottom: 80),
+                  children: [
+                    ...controller.users.map(
+                          (e) => UserCard(
+                        user: e,
+                      ),
+                    ),
+                  ],
+                );
+              }),
+            )
+        ),
         Positioned(
           bottom: 16,
           right: 16,
@@ -51,3 +66,44 @@ class PeoplePage extends StatelessWidget {
     );
   }
 }
+
+// ListView.builder(
+// itemCount: 1/*context.watch<UserController>().users.length*/,
+// itemBuilder: (context, index) {
+// final user = context.watch<UserController>().currentUser;
+// return UserCard(
+// margin: const EdgeInsets.all(8),
+// child: ListTile(
+// title: Text(user.name ?? "Sem nome"),
+// subtitle: Text(user.email ?? "Sem email"),
+// trailing: IconButton(
+// icon: const Icon(Icons.edit),
+// onPressed: () {
+// Navigator.of(context).push(
+// MaterialPageRoute(
+// builder: (context) {
+// return UserCreatePage(
+// user: user,
+// onSave: (updatedUser) {
+// final messenger = ScaffoldMessenger.of(context);
+// context
+//     .read<UserController>()
+//     .updateUser(updatedUser)
+//     .then((message) {
+// messenger.showSnackBar(
+// SnackBar(
+// content: Text(message),
+// ),
+// );
+// });
+// },
+// );
+// },
+// ),
+// );
+// },
+// ),
+// ),
+// );
+// },
+// ),

@@ -8,6 +8,7 @@ class UserController extends ChangeNotifier {
   final SignInService _signInService;
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
 
+  List<User> users = [];
   User? currentUser;
   String? profileImageUrl;
   bool isLoggedIn = false;
@@ -22,6 +23,7 @@ class UserController extends ChangeNotifier {
     if (_signInService.checkIfLoggedIn()) {
       await _getCurrentUserInfo();
       isLoggedIn = true;
+      await _loadAllUsers();
     } else {
       isLoggedIn = false;
       currentUser = null;
@@ -47,6 +49,7 @@ class UserController extends ChangeNotifier {
     } else {
       await _getCurrentUserInfo();
       isLoggedIn = true;
+      await _loadAllUsers();
     }
 
     notifyListeners();
@@ -73,8 +76,27 @@ class UserController extends ChangeNotifier {
     notifyListeners();
   }
 
+  _loadAllUsers() async {
+    if (currentUser!.privileges.isSuperAdmin) {
+      users = await _diretoDaNuvemAPI.userResource.listAll();
+      notifyListeners();
+    }
+  }
+
   Future<String> createUser(User user) async {
-    return await _diretoDaNuvemAPI.userResource.create(user);
+    if (await _diretoDaNuvemAPI.userResource.create(user)) {
+      _loadAllUsers();
+      notifyListeners();
+      return "Usuário criado com sucesso!";
+    }
+
+    return "Usuário já existe.";
+  }
+
+  Future<String> updateUser(User user) async {
+    await _diretoDaNuvemAPI.userResource.update(user);
+    notifyListeners();
+    return "Usuário atualizado com sucesso!";
   }
 
   Future<bool> verifyAdminPrivilege(List<String> emails) async {

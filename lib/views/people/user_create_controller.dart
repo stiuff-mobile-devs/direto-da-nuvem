@@ -20,10 +20,10 @@ class UserCreateController extends ChangeNotifier {
     isAdmin.value = user.privileges.isAdmin;
     isSuperAdmin.value = user.privileges.isSuperAdmin;
 
-    user.updatedBy = userController.currentUser!.uid ?? "";
+    user.updatedBy = userController.currentUser!.uid;
 
     if (user.id.isEmpty) {
-      user.createdBy = userController.currentUser!.uid ?? "";
+      user.createdBy = userController.currentUser!.uid;
     } else {
       user.updatedAt = DateTime.now();
     }
