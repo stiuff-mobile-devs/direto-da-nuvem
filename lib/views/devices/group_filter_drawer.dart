@@ -12,7 +12,8 @@ class GroupFilterDrawer extends StatelessWidget {
     UserController userController = context.read<UserController>();
     final adminGroups = context
         .read<GroupController>()
-        .getAdminGroups(userController.isSuperAdmin);
+        .getAdminGroups(userController
+        .currentUser!.privileges.isSuperAdmin);
 
     return Column(
       children: [
@@ -32,7 +33,8 @@ class GroupFilterDrawer extends StatelessWidget {
                 onTap: () {
                   context.read<DevicesFilterController>().addFilter(context
                       .read<GroupController>()
-                      .getAdminGroups(userController.isSuperAdmin)[index]);
+                      .getAdminGroups(userController
+                      .currentUser!.privileges.isSuperAdmin)[index]);
                   Navigator.pop(context);
                 },
               );

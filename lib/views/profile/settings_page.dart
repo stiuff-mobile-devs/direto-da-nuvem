@@ -23,7 +23,7 @@ class SettingsPage extends StatelessWidget {
                 title: const Text("Perfil"),
                 subtitle:
                     Consumer<UserController>(builder: (context, controller, _) {
-                  return Text("logado como ${controller.userEmail}");
+                  return Text("logado como ${controller.currentUser!.email}");
                 }),
                 onTap: () {
                   Navigator.pushNamed(context, "/profile");

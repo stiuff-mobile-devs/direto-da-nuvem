@@ -5,21 +5,50 @@ class UserResource {
   static String collection = "users";
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<bool> create(User user) async {
-    DocumentReference docReference =
-        _firestore.doc("$collection/${user.id}");
-
-    DocumentSnapshot documentSnapshot = await docReference.get();
-    if (documentSnapshot.exists) {
-      return false;
+  Future<String> create(User user) async {
+    if (await userIsValid(user.email) != null) {
+      return "Usuário já cadastrado!";
     }
-    docReference.set(user.toMap());
-    return true;
+
+    var doc = await _firestore.collection(collection).add(user.toMap());
+    await _firestore.doc("$collection/${doc.id}/privileges/privileges")
+        .set(user.privileges.toMap());
+    return "Usuário criado com sucesso!";
   }
 
-  Future<UserPrivileges> getUserPrivileges(String uid) async {
+  Future<User?> get(String uid) async {
+    final query = await _firestore
+        .collection(collection)
+        .where('uid', isEqualTo: uid)
+        .get();
+
+    if (query.docs.isEmpty) {
+      return null;
+    }
+
+    final doc = query.docs.first;
+    UserPrivileges privileges = await _getUserPrivileges(doc.id);
+    return User.fromMap(doc.data(), doc.id, privileges);
+  }
+
+  Future updateAuthenticatedUser(String id, String uid, String name) async {
+    var doc = await _firestore.doc("$collection/$id").get();
+
+    if (!doc.exists) {
+      return;
+    }
+
+    await _firestore.doc("$collection/$id").update({
+      "uid": uid,
+      "name": name,
+      "updated_at": DateTime.now(),
+      "updated_by": id,
+    });
+  }
+
+  Future<UserPrivileges> _getUserPrivileges(String id) async {
     var doc = await _firestore
-        .doc('$collection/$uid/privileges/privileges').get();
+        .doc('$collection/$id/privileges/privileges').get();
 
     if (!doc.exists) {
       return UserPrivileges(
@@ -32,20 +61,35 @@ class UserResource {
     return UserPrivileges.fromMap(doc.data()!);
   }
 
-  Future<bool> userIsValid(String email) async {
+  Future<Map<String,String>?> userIsValid(String email) async {
     var query = await _firestore
         .collection(collection)
         .where('email', isEqualTo: email)
         .get();
 
-    if (!query.docs.isNotEmpty) {
+    if (query.docs.isEmpty) {
+      return null;
+    }
+
+    final doc = query.docs.first;
+    return {
+      "id": doc.id,
+      "uid": doc.data()['uid'] ?? ""
+    };
+  }
+
+  Future<bool> userIsAdmin(String email) async {
+    var query = await _firestore
+        .collection(collection)
+        .where('email', isEqualTo: email)
+        .get();
+
+    if (query.docs.isEmpty) {
       return false;
     }
 
-    return true;
+    final doc = query.docs.first;
+    UserPrivileges privileges = await _getUserPrivileges(doc.id);
+    return privileges.isAdmin || privileges.isSuperAdmin;
   }
-
-// Future<bool> delegatePrivilege(String userId, UserPrivileges privileges) async {
-//   return false;
-// }
 }

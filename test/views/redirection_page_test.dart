@@ -31,8 +31,8 @@ void main() {
 
           when(() => userController.loadingInitialState).thenReturn(false);
           when(() => userController.isLoggedIn).thenReturn(false);
-          when(() => userController.isInstaller).thenReturn(false);
-          when(() => userController.isSuperAdmin).thenReturn(false);
+          when(() => userController.currentUser!.privileges.isInstaller).thenReturn(false);
+          when(() => userController.currentUser!.privileges.isSuperAdmin).thenReturn(false);
 
           when(() =>
                   localStorageService.readBool(LocalStorageBooleans.firstTime))

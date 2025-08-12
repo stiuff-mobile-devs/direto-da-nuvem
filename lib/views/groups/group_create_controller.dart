@@ -11,13 +11,13 @@ class GroupCreateController extends ChangeNotifier {
     nameController.text = group.name;
     descriptionController.text = group.description;
     admins = group.admins;
-    group.updatedBy = userController.uid ?? "";
+    group.updatedBy = userController.currentUser!.uid ?? "";
 
     if (group.id.isEmpty) {
-      group.createdBy = userController.uid ?? "";
-      admins.contains(userController.userEmail ?? "")
+      group.createdBy = userController.currentUser!.uid ?? "";
+      admins.contains(userController.currentUser!.email)
           ? null
-          : admins.add(userController.userEmail ?? "");
+          : admins.add(userController.currentUser!.email);
     } else {
       group.updatedAt = DateTime.now();
     }

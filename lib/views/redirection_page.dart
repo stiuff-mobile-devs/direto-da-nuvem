@@ -56,7 +56,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
     bool firstTime =
         await localStorageService.readBool(LocalStorageBooleans.firstTime) ??
             true;
-    print("getIsFirstTime completed: $firstTime");
+    debugPrint("getIsFirstTime completed: $firstTime");
     return firstTime;
   }
 
@@ -75,10 +75,19 @@ class _RedirectionPageState extends State<RedirectionPage> {
       builder:
           (context, userController, deviceController, groupController, child) {
         RedirectionData redirectionData = RedirectionData();
-        redirectionData.isAdmin =
-            userController.isSuperAdmin || userController.isAdmin;
+
         redirectionData.loggedIn = userController.isLoggedIn;
-        redirectionData.isInstaller = userController.isInstaller;
+
+        if (redirectionData.loggedIn) {
+          final userPrivileges = userController.currentUser!.privileges;
+          redirectionData.isAdmin =
+              userPrivileges.isSuperAdmin || userPrivileges.isAdmin;
+          redirectionData.isInstaller = userPrivileges.isInstaller;
+        } else {
+          redirectionData.isAdmin = false;
+          redirectionData.isInstaller = false;
+        }
+
         redirectionData.isDeviceRegistered = deviceController.isRegistered;
         redirectionData.isLoading = deviceController.loadingInitialState ||
             userController.loadingInitialState;

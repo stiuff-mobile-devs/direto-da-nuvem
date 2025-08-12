@@ -7,8 +7,8 @@ import 'package:ddnuvem/models/user.dart' as models;
 
 class SignInService {
   BuildContext context;
-  DiretoDaNuvemAPI diretoDaNuvemAPI;
-  SignInService(this.context, this.diretoDaNuvemAPI);
+  final DiretoDaNuvemAPI _diretoDaNuvemAPI;
+  SignInService(this.context, this._diretoDaNuvemAPI);
 
   final auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -16,9 +16,10 @@ class SignInService {
   Future<bool> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
-    bool validUser = await diretoDaNuvemAPI.userResource
+    final validUser = await _diretoDaNuvemAPI.userResource
         .userIsValid(googleUser!.email);
-    if (!validUser) {
+    if (validUser == null) {
+      await googleSignIn.disconnect();
       return false;
     }
 
@@ -31,6 +32,16 @@ class SignInService {
     );
 
     await auth.signInWithCredential(credential);
+
+    // Usuário está logando pela primeira vez, registrar uid no Firestore
+    if (validUser['uid']!.isEmpty) {
+      await _diretoDaNuvemAPI.userResource
+          .updateAuthenticatedUser(validUser['id']!,
+          auth.currentUser!.uid,
+          googleUser.displayName ?? ""
+      );
+    }
+
     return true;
   }
 
@@ -43,29 +54,4 @@ class SignInService {
       debugPrint("ERRO deslogando:\n$e");
     }
   }
-
-  bool checkUserLoggedIn() {
-    return auth.currentUser != null;
-  }
-
-// Future<bool> trySignIn() async {
-//   final googleUser = await googleSignIn.signInSilently();
-//   if (googleUser == null) {
-//     return false;
-//   }
-//   final GoogleSignInAuthentication googleAuth =
-//       await googleUser.authentication;
-//
-//   // Create a new credential
-//   final credential = GoogleAuthProvider.credential(
-//     accessToken: googleAuth.accessToken,
-//     idToken: googleAuth.idToken,
-//   );
-//   debugPrint('googleUser: $googleUser');
-//   debugPrint('googleAuth: $googleAuth');
-//   userCredential = await auth.signInWithCredential(credential);
-//   await diretoDaNuvemAPI.userResource
-//       .create(models.User.fromFirebaseUser(auth.currentUser!));
-//   return true;
-// }
 }

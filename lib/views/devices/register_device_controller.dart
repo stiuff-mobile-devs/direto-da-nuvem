@@ -31,14 +31,15 @@ class RegisterDeviceController extends ChangeNotifier {
     }
     String description = descriptionController.text;
     String locale = localeController.text;
+    final currentUser = userController?.currentUser;
     return Device(
       id: "",
       description: description,
       locale: locale,
       groupId: _groupId!,
-      registeredBy: userController?.uid ?? "",
-      registeredByEmail: userController?.userEmail ?? "",
-      updatedBy: userController?.uid ?? "",
+      registeredBy: currentUser?.uid ?? "",
+      registeredByEmail: currentUser?.email ?? "",
+      updatedBy: currentUser?.uid ?? "",
       updatedAt: DateTime.now(),
       createdAt: DateTime.now(),
     );

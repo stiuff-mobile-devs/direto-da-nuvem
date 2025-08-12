@@ -1,4 +1,6 @@
-import 'package:ddnuvem/controllers/group_controller.dart';
+import 'package:ddnuvem/controllers/user_controller.dart';
+import 'package:ddnuvem/models/user.dart';
+import 'package:ddnuvem/views/people/user_create_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,20 +15,34 @@ class PeoplePage extends StatelessWidget {
           appBar: AppBar(
             title: const Text("Pessoas"),
           ),
-          body: Consumer<GroupController>(
-            builder: (context, controller, _) {
-              return ListView(
-                children: [
-                  ...controller.groups.map((e) => Text(e.description))
-                ],
-              );
-            }
-          )
         )),
         Positioned(
           bottom: 16,
           right: 16,
-          child: FloatingActionButton(onPressed: () {}, 
+          child: FloatingActionButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return UserCreatePage(
+                        user: User.empty(),
+                        onSave: (user) {
+                          final messenger = ScaffoldMessenger.of(context);
+                          context
+                              .read<UserController>()
+                              .createUser(user).then((message) {
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text(message),
+                              ),
+                            );
+                          });
+                        }
+                    );
+                  },
+                ),
+              );
+            },
             backgroundColor: Theme.of(context).colorScheme.primary,
             child: const Icon(Icons.add, color: Colors.white,),
           ),

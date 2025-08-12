@@ -1,3 +1,4 @@
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/views/groups/group_create_controller.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,8 @@ class GroupCreatePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    UserController userController = Provider
+        .of<UserController>(context, listen: false);
     String titleAction = group.id.isEmpty ? "Criar" : "Editar";
     return ChangeNotifierProvider(
       create: (context) => GroupCreateController(context, group),
@@ -27,6 +30,19 @@ class GroupCreatePage extends StatelessWidget {
                   if (!groupCreateController.formKey.currentState!.validate()) {
                     return;
                   }
+
+                  final messenger = ScaffoldMessenger.of(context);
+                  if (!await userController
+                      .verifyAdminPrivilege(groupCreateController.admins)) {
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text("Usuário inserido não é administrador."),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
+
                   groupCreateController.group.name =
                       groupCreateController.nameController.text;
                   groupCreateController.group.description =
@@ -96,11 +112,8 @@ class GroupCreatePage extends StatelessWidget {
                               hintText: "Adicione o email do admin",
                             ),
                             validator: (value) {
-                              if (value != null &&
-                                  context
-                                      .read<GroupCreateController>()
-                                      .admins
-                                      .contains(value)) {
+                              if (value != null
+                                  && groupCreateController.admins.contains(value)) {
                                 return "Email já adicionado";
                               }
                               if (value == null || value.isEmpty) {
