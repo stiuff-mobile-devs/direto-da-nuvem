@@ -11,6 +11,7 @@ class UserController extends ChangeNotifier {
   final fb_auth.FirebaseAuth _firebaseAuth = fb_auth.FirebaseAuth.instance;
 
   User? currentUser;
+  String? profileImageUrl;
   bool isLoggedIn = false;
   bool loadingInitialState = true;
 
@@ -61,6 +62,7 @@ class UserController extends ChangeNotifier {
 
   _getCurrentUserInfo() async {
     final fbAuthUser = _firebaseAuth.currentUser;
+    profileImageUrl = fbAuthUser?.photoURL;
     currentUser = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.uid);
     loadingInitialState = false;
     notifyListeners();

@@ -13,7 +13,7 @@ class QueueCreateUpdatePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String titleAction = queue.id!.isEmpty ? "Criar" : "Editar";
+    String titleAction = queue.id.isEmpty ? "Criar" : "Editar";
     return ChangeNotifierProvider(
       create: (context) => QueueEditController(
         diretoDaNuvemAPI: context.read(),

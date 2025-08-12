@@ -42,7 +42,7 @@ class UserResource {
       "uid": uid,
       "name": name,
       "updated_at": DateTime.now(),
-      "updated_by": id,
+      "updated_by": uid,
     });
   }
 
