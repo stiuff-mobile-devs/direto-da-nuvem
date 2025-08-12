@@ -70,6 +70,7 @@ class DeviceController extends ChangeNotifier {
     isRegistered = created;
     if (isRegistered) {
       this.device = device;
+      devices.add(device);
       await fetchGroupAndQueue();
       Navigator.of(context).pushNamedAndRemoveUntil(
         '/',

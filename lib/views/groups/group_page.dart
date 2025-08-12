@@ -88,7 +88,7 @@ class GroupPage extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 70),
               children: [
                 Text(
-                  "Fila atual",
+                  "Fila ativa",
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 8),
@@ -104,6 +104,7 @@ class GroupPage extends StatelessWidget {
                   }
                   return QueueCard(
                     queue: queue,
+                    isActive: true,
                   );
                 }),
                 const SizedBox(height: 8),
@@ -111,10 +112,20 @@ class GroupPage extends StatelessWidget {
                   "Outras filas",
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
-                ...queueController.queues
-                    .where((element) =>
-                        element.groupId == groupController.selectedGroup!.id)
-                    .map((e) => QueueCard(queue: e)),
+                Consumer2<QueueController, GroupController>(
+                    builder: (context, queueController, groupController, _) {
+                  final otherQueues = queueController.queues
+                      .where((element) =>
+                          element.groupId ==
+                              groupController.selectedGroup!.id &&
+                          element.id !=
+                              groupController.selectedGroup!.currentQueue)
+                      .map((e) => QueueCard(queue: e));
+
+                  return Column(
+                    children: otherQueues.toList(),
+                  );
+                })
               ],
             );
           },
