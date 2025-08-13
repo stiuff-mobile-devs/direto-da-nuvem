@@ -15,7 +15,7 @@ class SignInService {
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
     final validUser = await _diretoDaNuvemAPI.userResource
-        .userIsValid(googleUser!.email);
+        .checkAuthorizedLogin(googleUser!.email);
     if (validUser == null) {
       await googleSignIn.disconnect();
       return false;

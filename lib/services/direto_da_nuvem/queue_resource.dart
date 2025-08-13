@@ -38,6 +38,16 @@ class QueueResource {
     }
   }
 
+  Future<Queue?> getDefaultQueue() async {
+    var doc = await _firestore.doc("$collection/init").get();
+    return Queue.fromMap(doc.id, doc.data()!);
+  }
+
+  Stream<Queue?> getDefaultStream() {
+    var doc = _firestore.doc("$collection/init").snapshots();
+    return doc.map((event) => Queue.fromMap(event.id, event.data()!));
+  }
+
   Future create(Queue queue) async {
     var doc = await _firestore.collection(collection).add(queue.toMap());
     queue.id = doc.id;

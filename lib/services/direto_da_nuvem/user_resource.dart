@@ -25,7 +25,7 @@ class UserResource {
   }
 
   Future<bool> create(User user) async {
-    if (await userIsValid(user.email) != null) {
+    if (await checkAuthorizedLogin(user.email) != null) {
       return false;
     }
 
@@ -93,7 +93,7 @@ class UserResource {
     return UserPrivileges.fromMap(doc.data()!);
   }
 
-  Future<Map<String,String>?> userIsValid(String email) async {
+  Future<Map<String,String>?> checkAuthorizedLogin(String email) async {
     var query = await _firestore
         .collection(collection)
         .where('email', isEqualTo: email)

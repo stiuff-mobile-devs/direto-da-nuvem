@@ -69,7 +69,7 @@ class _UnregisteredDeviceErrorPageState
               ),
             ),
             const SizedBox(height: 25),
-            const Text("Bem vindo ao Direto da Nuvem.\nParece que o seu dispositivo não está cadastrado.\n Se está prestes a cadastra-lo, certifique-se que a sua conta é instaladora.\nCaso esse dispositivo já esteja cadastrado, entre em contato com o nosso suporte."),
+            const Text("Seja bem vindo ao Direto da Nuvem!\nParece que o seu dispositivo não está cadastrado.\nSe está prestes a cadastrá-lo, certifique-se de que a sua conta é instaladora.\nCaso esse dispositivo já esteja cadastrado, entre em contato com o nosso suporte."),
             const SizedBox(height: 25),
             ElevatedButton(
               onPressed: () {
@@ -83,6 +83,7 @@ class _UnregisteredDeviceErrorPageState
             ),
             ElevatedButton(
               onPressed: () {
+                Navigator.of(context).pop();
                 context.read<UserController>().logout();
               },
               child: const Text("Sair"),
@@ -127,6 +128,7 @@ class _UnregisteredDeviceErrorPageState
         ),
         ElevatedButton(
           onPressed: () {
+            Navigator.of(context).pop();
             context.read<UserController>().logout();
           },
           child: const Text("Sair"),

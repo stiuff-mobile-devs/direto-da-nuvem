@@ -35,17 +35,10 @@ class UserController extends ChangeNotifier {
   }
 
   login(BuildContext context) async {
-    final messenger = ScaffoldMessenger.of(context);
-
     bool signedIn = await _signInService.signInWithGoogle();
     if (!signedIn) {
-      messenger.showSnackBar(
-        const SnackBar(
-          content: Text("Usuário não autorizado!"),
-          backgroundColor: Colors.red,
-        ),
-      );
-      isLoggedIn = false;
+      currentUser = User.empty();
+      isLoggedIn = true;
     } else {
       await _getCurrentUserInfo();
       isLoggedIn = true;
@@ -61,7 +54,9 @@ class UserController extends ChangeNotifier {
   }
 
   logout() async {
-    await _signInService.signOut();
+    if (currentUser!.id.isNotEmpty) {
+      await _signInService.signOut();
+    }
     currentUser = null;
     profileImageUrl = null;
     isLoggedIn = false;
