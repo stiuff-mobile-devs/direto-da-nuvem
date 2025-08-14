@@ -40,97 +40,102 @@ class GroupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    GroupController groupController = Provider.of(context, listen: false);
-    return Scaffold(
-      appBar: AppBar(
-        title: Consumer<GroupController>(builder: (context, controller, _) {
-          return Text(controller.selectedGroup!.name);
-        }),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return GroupCreatePage(
-                      group: Group.copy(groupController.selectedGroup!),
-                      onSave: (group) {
-                        final messenger = ScaffoldMessenger.of(context);
-                        groupController.updateGroup(group).then((message) {
-                          messenger.showSnackBar(
-                            SnackBar(
-                              content: Text(message),
-                            ),
-                          );
-                        });
-                        Navigator.pop(context);
-                      }
-                    );
-                  },
-                ),
-              );
-            },
-            icon: const Icon(Icons.edit),
+    return Consumer<GroupController>(
+      builder: (context, groupController, _) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(groupController.selectedGroup!.name),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return GroupCreatePage(
+                            group: Group.copy(groupController.selectedGroup!),
+                            onSave: (group) {
+                              final messenger = ScaffoldMessenger.of(context);
+                              groupController
+                                  .updateGroup(group)
+                                  .then((message) {
+                                messenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(message),
+                                  ),
+                                );
+                              });
+                              Navigator.pop(context);
+                            });
+                      },
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.edit),
+              ),
+            ],
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => pushCreatePage(context),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Consumer<QueueController>(
-          builder: (context, queueController, _) {
-            return ListView(
-              padding: const EdgeInsets.only(bottom: 70),
-              children: [
-                Text(
-                  "Fila ativa",
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 8),
-                Consumer<GroupController>(builder: (context, controller, _) {
-                  Queue? queue;
-                  for (var q in queueController.queues) {
-                    if (q.id == controller.selectedGroup!.currentQueue) {
-                      queue = q;
-                    }
-                  }
-                  if (queue == null) {
-                    return const Text("Nenhuma fila associada a este grupo");
-                  }
-                  return QueueCard(
-                    queue: queue,
-                    isActive: true,
-                  );
-                }),
-                const SizedBox(height: 8),
-                Text(
-                  "Outras filas",
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                Consumer2<QueueController, GroupController>(
-                    builder: (context, queueController, groupController, _) {
-                  final otherQueues = queueController.queues
-                      .where((element) =>
-                          element.groupId ==
-                              groupController.selectedGroup!.id &&
-                          element.id !=
-                              groupController.selectedGroup!.currentQueue)
-                      .map((e) => QueueCard(queue: e));
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => pushCreatePage(context),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Colors.white,
+            child: const Icon(Icons.add),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Consumer<QueueController>(
+              builder: (context, queueController, _) {
+                return ListView(
+                  padding: const EdgeInsets.only(bottom: 70),
+                  children: [
+                    Text(
+                      "Fila ativa",
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    QueueCardForActiveQueue(groupController, queueController),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Outras filas",
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    OtherQueuesList(groupController, queueController),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-                  return Column(
-                    children: otherQueues.toList(),
-                  );
-                })
-              ],
-            );
-          },
-        ),
-      ),
+  Widget QueueCardForActiveQueue(
+      GroupController groupController, QueueController queueController) {
+    Queue? queue;
+    for (var q in queueController.queues) {
+      if (q.id == groupController.selectedGroup!.currentQueue) {
+        queue = q;
+      }
+    }
+    if (queue == null) {
+      return const Text("Nenhuma fila associada a este grupo");
+    }
+    return QueueCard(
+      queue: queue,
+      isActive: true,
+    );
+  }
+
+  Widget OtherQueuesList(
+      GroupController groupController, QueueController queueController) {
+    final otherQueues = queueController.queues
+        .where((element) =>
+            element.groupId == groupController.selectedGroup!.id &&
+            element.id != groupController.selectedGroup!.currentQueue)
+        .map((e) => QueueCard(queue: e));
+
+    return Column(
+      children: otherQueues.toList(),
     );
   }
 }

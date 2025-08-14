@@ -36,17 +36,17 @@ class Group extends HiveObject {
     required this.admins,
   });
 
-  factory Group.fromMap(String id, List<String> admins, Map<String, dynamic> data) {
+  factory Group.fromMap(String id, Map<String, dynamic> data) {
     return Group(
       id: id,
       name: data["name"],
       description: data["description"],
       currentQueue: data["current_queue"],
-      admins: admins,
       createdAt: (data["created_at"] as Timestamp).toDate(),
       updatedAt: (data["updated_at"] as Timestamp).toDate(),
       createdBy: data["created_by"] ?? "",
       updatedBy: data["updated_by"] ?? "",
+      admins: (data["admins"] as List).map((e) => e.toString()).toList(),
     );
   }
 
@@ -83,6 +83,7 @@ class Group extends HiveObject {
       "name": name,
       "description": description,
       "current_queue": currentQueue,
+      "admins": admins.map((e) => e).toList(),
       "created_at": createdAt,
       "updated_at": updatedAt,
       "created_by": createdBy,

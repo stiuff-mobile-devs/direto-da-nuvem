@@ -21,12 +21,14 @@ class QueueViewPage extends StatelessWidget {
         return Container(
           width: MediaQuery.of(context).size.width,
           margin: const EdgeInsets.symmetric(horizontal: 5.0),
-          child: image.data != null ? Image.memory(
-            image.data!,
-            fit: BoxFit.cover,
-          ) : Container(
-            color: Colors.grey,
-          ),
+          child: image.data != null
+              ? Image.memory(
+                  image.data!,
+                  fit: BoxFit.cover,
+                )
+              : Container(
+                  color: Colors.grey,
+                ),
         );
       }).toList(),
     );

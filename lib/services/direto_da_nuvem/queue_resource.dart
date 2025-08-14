@@ -26,6 +26,19 @@ class QueueResource {
     return queues;
   }
 
+  Stream<List<Queue>> listAllStream() {
+    var l = _firestore.collection(collection).snapshots();
+    return l.map((event) {
+      List<Queue> queues = [];
+
+      for (var doc in event.docs) {
+        Queue queue = Queue.fromMap(doc.id, doc.data());
+        queues.add(queue);
+      }
+      return queues;
+    });
+  }
+
   Future<Queue?> get(String id) async {
     if (await hasInternetConnection()) {
       var doc = await _firestore.doc("$collection/$id").get();
@@ -63,18 +76,5 @@ class QueueResource {
   Stream<Queue?> getStream(String id) {
     var doc = _firestore.doc("$collection/$id").snapshots();
     return doc.map((event) => Queue.fromMap(event.id, event.data()!));
-  }
-
-  Stream<List<Queue>> listAllStream() {
-    var l = _firestore.collection(QueueResource.collection).snapshots();
-    return l.map((event) {
-      List<Queue> queues = [];
-
-      for (var doc in event.docs) {
-        Queue queue = Queue.fromMap(doc.id, doc.data());
-        queues.add(queue);
-      }
-      return queues;
-    });
   }
 }

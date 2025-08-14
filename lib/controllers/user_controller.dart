@@ -41,8 +41,8 @@ class UserController extends ChangeNotifier {
       isLoggedIn = true;
     } else {
       await _getCurrentUserInfo();
-      isLoggedIn = true;
       await _loadAllUsers();
+      isLoggedIn = true;
     }
 
     notifyListeners();
@@ -59,6 +59,7 @@ class UserController extends ChangeNotifier {
     }
     currentUser = null;
     profileImageUrl = null;
+    users = [];
     isLoggedIn = false;
     notifyListeners();
   }
@@ -72,7 +73,7 @@ class UserController extends ChangeNotifier {
   }
 
   _loadAllUsers() async {
-    if (currentUser!.privileges.isSuperAdmin) {
+    if (currentUser!.privileges.isSuperAdmin || currentUser!.privileges.isAdmin) {
       users = await _diretoDaNuvemAPI.userResource.listAll();
       notifyListeners();
     }

@@ -24,6 +24,19 @@ class UserResource {
     return users;
   }
 
+  // Stream<List<User>> listAllStream() {
+  //   var l = _firestore.collection(collection).snapshots();
+  //   return l.map((event) {
+  //     List<User> users = [];
+  //
+  //     for (var doc in event.docs) {
+  //       User user = User.fromMap(doc.id, doc.data());
+  //       users.add(user);
+  //     }
+  //     return users;
+  //   });
+  // }
+
   Future<bool> create(User user) async {
     if (await checkAuthorizedLogin(user.email) != null) {
       return false;

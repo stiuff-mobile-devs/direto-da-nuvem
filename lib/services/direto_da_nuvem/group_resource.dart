@@ -15,8 +15,7 @@ class GroupResource {
       final list = await _firestore.collection(collection).get();
 
       for (var doc in list.docs) {
-        List<String> adminsList = await _getGroupAdmins(doc.id);
-        Group group = Group.fromMap(doc.id, adminsList, doc.data());
+        Group group = Group.fromMap(doc.id, doc.data());
         groups.add(group);
         _hiveBox.put(group.id, group);
       }
@@ -25,6 +24,29 @@ class GroupResource {
     }
 
     return groups;
+  }
+
+  Stream<List<Group>> listAllStream() {
+    var l = _firestore.collection(collection).snapshots();
+    return l.map((event) {
+      List<Group> groups = [];
+
+      for (var doc in event.docs) {
+        Group group = Group.fromMap(doc.id, doc.data());
+        groups.add(group);
+      }
+      return groups;
+    });
+  }
+
+  Stream<Group?> getStream(String id) {
+    var doc = _firestore.doc("$collection/$id").snapshots();
+    return doc.map((event) {
+      if (!event.exists) {
+        return null;
+      }
+      return Group.fromMap(event.id, event.data()!);
+    });
   }
 
   Future<Group?> get(String id) async {
@@ -37,8 +59,7 @@ class GroupResource {
         return null;
       }
 
-      List<String> adminsList = await _getGroupAdmins(doc.id);
-      group = Group.fromMap(doc.id, adminsList, doc.data()!);
+      group = Group.fromMap(doc.id, doc.data()!);
       _hiveBox.put(group.id, group);
     } else {
       group = _hiveBox.get(id);
@@ -47,19 +68,8 @@ class GroupResource {
     return group;
   }
 
-  Future<List<String>> _getGroupAdmins(String groupId) async {
-    var adminsDoc = await _firestore
-        .doc("$collection/$groupId/admins/admins").get();
-
-    var admins = (adminsDoc.data()!["admins"]).map((e) => "$e").toList();
-    return List<String>.from(admins);
-  }
-
   Future<void> create(Group group) async {
     var doc = await _firestore.collection(collection).add(group.toMap());
-    await _firestore.doc("$collection/${doc.id}/admins/admins")
-        .set({"admins": group.admins});
-
     group.id = doc.id;
     _hiveBox.put(group.id, group);
   }
@@ -72,12 +82,16 @@ class GroupResource {
       return false;
     }
 
-    var a = docReference.update(group.toMap());
-    var b = _firestore.doc("$collection/${group.id}/admins/admins")
-        .update({"admins": group.admins});
-
-    await Future.wait([a, b]);
+    await docReference.update(group.toMap());
     _hiveBox.put(group.id, group);
     return true;
   }
+
+  // Future<List<String>> _getGroupAdmins(String groupId) async {
+  //   var adminsDoc =
+  //       await _firestore.doc("$collection/$groupId/admins/admins").get();
+
+  //   var admins = (adminsDoc.data()!["admins"]).map((e) => "$e").toList();
+  //   return List<String>.from(admins);
+  // }
 }

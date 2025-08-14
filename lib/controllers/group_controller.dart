@@ -1,11 +1,16 @@
+import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ddnuvem/controllers/device_controller.dart';
 
 class GroupController extends ChangeNotifier {
-  List<Group> groups = [];
   Group? selectedGroup;
+  List<Group> groups = [];
+  Stream<List<Group>>? groupsStream;
+  Group? currentGroup;
+  Stream<Group?>? groupStream;
   bool loading = false;
   bool isAdmin = false;
 
@@ -15,7 +20,7 @@ class GroupController extends ChangeNotifier {
 
   init() async {
     loading = true;
-    groups = await diretoDaNuvemAPI.groupResource.listAll();
+    await fetchAllGroups();
     isAdmin = groups
         .map((group) => group.admins)
         .expand((admins) => admins)
@@ -31,8 +36,28 @@ class GroupController extends ChangeNotifier {
     }
     return groups
         .where((element) =>
-            element.admins!.contains(FirebaseAuth.instance.currentUser!.email))
+            element.admins.contains(FirebaseAuth.instance.currentUser!.email))
         .toList();
+  }
+
+  fetchAllGroups() async {
+    groups = await diretoDaNuvemAPI.groupResource.listAll();
+    groupsStream = diretoDaNuvemAPI.groupResource.listAllStream();
+
+    groupsStream?.listen((newGroups) {
+      groups = newGroups;
+      notifyListeners();
+    });
+  }
+
+  fetchDeviceGroup(Device device) async {
+    currentGroup = await diretoDaNuvemAPI.groupResource.get(device.groupId);
+    groupStream = diretoDaNuvemAPI.groupResource.getStream(device.groupId);
+    groupStream?.listen((newGroup) {
+      currentGroup = newGroup;
+      notifyListeners();
+    });
+    notifyListeners();
   }
 
   Future<String> createGroup(Group group) async {

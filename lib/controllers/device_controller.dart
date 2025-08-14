@@ -17,7 +17,6 @@ class DeviceController extends ChangeNotifier {
 
   List<Device> devices = [];
   bool loadingInitialState = true;
-  //Device? self;
 
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
   final DeviceInfoPlugin _deviceInfoPlugin = DeviceInfoPlugin();
@@ -31,18 +30,15 @@ class DeviceController extends ChangeNotifier {
     await _getAndroidInfo();
     await _checkIsRegistered(id!);
     await fetchGroupAndQueue();
-    _groupController.addListener(_updateCurrentQueue);
+    _groupController.addListener(_updateCurrentQueueAndGroup);
     devices = await _diretoDaNuvemAPI.deviceResource.listAll();
-    // devices.where((device) => device.id == id).forEach((device) {
-    //   self = device;
-    // });
     loadingInitialState = false;
     notifyListeners();
   }
 
   @override
   void dispose() {
-    _groupController.removeListener(_updateCurrentQueue);
+    _groupController.removeListener(_updateCurrentQueueAndGroup);
     debugPrint("DeviceController disposed");
     super.dispose();
   }
@@ -89,25 +85,34 @@ class DeviceController extends ChangeNotifier {
     if (device == null) {
       return;
     }
-    group = await _diretoDaNuvemAPI.groupResource.get(device!.groupId);
+    await _groupController.fetchDeviceGroup(device!);
+    group = _groupController.currentGroup;
   }
 
   _fetchCurrentQueue() async {
     if (group == null) {
       return;
     }
+
     currentQueue =
-    await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
+        await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
+
     currentQueueStream =
         _diretoDaNuvemAPI.queueResource.getStream(group!.currentQueue);
+
+    currentQueueStream?.listen((queue) {
+      currentQueue = queue;
+      notifyListeners();
+    });
+    notifyListeners();
   }
 
-  _updateCurrentQueue() async {
+  _updateCurrentQueueAndGroup() async {
     if (group == null) {
       return;
     }
 
-    final updatedGroup = await _diretoDaNuvemAPI.groupResource.get(group!.id);
+    final updatedGroup = _groupController.currentGroup;
 
     if (currentQueue == null || updatedGroup == null) {
       return;
@@ -115,7 +120,7 @@ class DeviceController extends ChangeNotifier {
 
     if (updatedGroup.currentQueue != currentQueue!.id) {
       group = updatedGroup;
-      currentQueue = await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
+      await _fetchCurrentQueue();
       notifyListeners();
     }
   }

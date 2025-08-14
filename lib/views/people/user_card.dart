@@ -33,40 +33,31 @@ class UserCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserController userController = context.read<UserController>();
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.all(8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row (
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  user.name.isEmpty ? "Usuário não autenticado" : user.name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return GestureDetector(
+      onTap: () {
+        _pushUpdateUserPage(context, userController);
+      },
+      child: Card(
+        elevation: 4,
+        margin: const EdgeInsets.all(8),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                user.name.isEmpty ? "Usuário não autenticado" : user.name,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 8),
-                Text(user.email),
-                Text("Privilégios: ${user.privileges.toString()}"),
-              ],
-            ),
-            userController.currentUser!.id == user.id ? const SizedBox.shrink() :
-            IconButton(
-              onPressed: () {
-                _pushUpdateUserPage(context, userController);
-              },
-              icon: const Icon(Icons.edit),
-            ),
-          ]
-        )
-
+              ),
+              const SizedBox(height: 8),
+              Text(user.email),
+              Text("Privilégios: ${user.privileges.toString()}"),
+            ],
+          ),
+        ),
       ),
     );
   }

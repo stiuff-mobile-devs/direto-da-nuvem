@@ -40,31 +40,25 @@ Future<void> main() async {
     Provider<DiretoDaNuvemAPI>(
       create: (context) => DiretoDaNuvemAPI(),
     ),
-
-    Provider<LocalStorageService>(
-        create: (context) => LocalStorageService()
-    ),
-
+    Provider<LocalStorageService>(create: (context) => LocalStorageService()),
     Provider<SignInService>(
       create: (context) => SignInService(context, context.read()),
     ),
-
     ChangeNotifierProvider<UserController>(
-      create: (context) => UserController(context.read(), context.read())..init()),
-
-    ChangeNotifierProvider<DevicesFilterController>(
-      create: (context) {
-        return DevicesFilterController();
-      }
-    ),
-
+        create: (context) =>
+            UserController(context.read(), context.read())..init()),
+    ChangeNotifierProvider<DevicesFilterController>(create: (context) {
+      return DevicesFilterController();
+    }),
     ChangeNotifierProvider<QueueController>(
         create: (context) => QueueController(context.read())..init()),
-
     ChangeNotifierProvider(
-        create: (context) => GroupController(context.read())..init()),
-
+        create: (context) =>
+        GroupController(context.read())
+          ..init()),
     ChangeNotifierProvider<DeviceController>(
-        create: (context) => DeviceController(context.read(), context.read<GroupController>())..init()),
+        create: (context) =>
+            DeviceController(context.read(), context.read<GroupController>())
+              ..init()),
   ], child: const App()));
 }

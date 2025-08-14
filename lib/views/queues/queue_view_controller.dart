@@ -28,6 +28,7 @@ class QueueViewController extends ChangeNotifier {
     final newQueue = deviceController.currentQueue;
     if (queue != newQueue) {
       queue = newQueue;
+      fetchImages();
       notifyListeners();
     }
   }
