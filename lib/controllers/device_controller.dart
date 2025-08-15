@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
@@ -16,8 +17,12 @@ class DeviceController extends ChangeNotifier {
   Device? device;
   bool isRegistered = false;
   Queue? currentQueue;
-  Stream<Queue?>? currentQueueStream;
   List<Device> devices = [];
+
+  Stream<Queue?>? _currentQueueStream;
+  StreamSubscription<Queue?>? _currentQueueSubscription;
+  StreamSubscription<List<Device>>? _devicesSubscription;
+  Stream<List<Device>>? _devicesStream;
   bool loadingInitialState = true;
 
   DeviceController(this._diretoDaNuvemAPI, this._groupController);
@@ -29,7 +34,7 @@ class DeviceController extends ChangeNotifier {
     await _checkIsRegistered(androidInfo!.id);
     await _fetchGroupAndQueue();
     _groupController.addListener(_updateCurrentQueueAndGroup);
-    devices = await _diretoDaNuvemAPI.deviceResource.listAll();
+    await _loadDevices();
     loadingInitialState = false;
     notifyListeners();
   }
@@ -37,6 +42,8 @@ class DeviceController extends ChangeNotifier {
   @override
   void dispose() {
     _groupController.removeListener(_updateCurrentQueueAndGroup);
+    _currentQueueSubscription?.cancel();
+    _devicesSubscription?.cancel();
     super.dispose();
   }
 
@@ -64,10 +71,12 @@ class DeviceController extends ChangeNotifier {
       this.device = device;
       devices.add(device);
       await _fetchGroupAndQueue();
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        '/',
-        (route) => false,
-      );
+      if (context.mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/',
+              (route) => false,
+        );
+      }
     }
     notifyListeners();
   }
@@ -91,11 +100,23 @@ class DeviceController extends ChangeNotifier {
 
     currentQueue =
         await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
-    currentQueueStream =
+    _currentQueueStream =
         _diretoDaNuvemAPI.queueResource.getStream(group!.currentQueue);
 
-    currentQueueStream?.listen((queue) {
+    _currentQueueSubscription?.cancel();
+    _currentQueueSubscription = _currentQueueStream?.listen((queue) {
       currentQueue = queue;
+      notifyListeners();
+    });
+  }
+
+  _loadDevices() async {
+    devices = await _diretoDaNuvemAPI.deviceResource.listAll();
+    _devicesStream = _diretoDaNuvemAPI.deviceResource.listAllStream();
+
+    _devicesSubscription?.cancel();
+    _devicesSubscription = _devicesStream?.listen((updatedDevices) {
+      devices = updatedDevices;
       notifyListeners();
     });
   }

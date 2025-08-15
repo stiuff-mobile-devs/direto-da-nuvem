@@ -57,4 +57,18 @@ class DeviceResource {
 
     return devices;
   }
+
+  Stream<List<Device>> listAllStream() {
+    var l = _firestore.collection(collection).snapshots();
+    return l.map((event) {
+      List<Device> devices = [];
+
+      for (var doc in event.docs) {
+        Device device = Device.fromMap(doc.id, doc.data());
+        devices.add(device);
+        _hiveBox.put(device.id, device);
+      }
+      return devices;
+    });
+  }
 }

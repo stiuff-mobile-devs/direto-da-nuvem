@@ -45,17 +45,14 @@ Future<void> main() async {
       create: (context) => SignInService(context, context.read()),
     ),
     ChangeNotifierProvider<UserController>(
-        create: (context) =>
-            UserController(context.read(), context.read())..init()),
+        create: (context) => UserController(context.read(), context.read())..init()),
     ChangeNotifierProvider<DevicesFilterController>(create: (context) {
       return DevicesFilterController();
     }),
     ChangeNotifierProvider<QueueController>(
         create: (context) => QueueController(context.read())..init()),
-    ChangeNotifierProvider(
-        create: (context) =>
-        GroupController(context.read())
-          ..init()),
+    ChangeNotifierProvider<GroupController>(
+        create: (context) => GroupController(context.read())..init()),
     ChangeNotifierProvider<DeviceController>(
         create: (context) =>
             DeviceController(context.read(), context.read<GroupController>())

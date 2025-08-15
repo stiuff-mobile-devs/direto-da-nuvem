@@ -1,24 +1,23 @@
+import 'dart:async';
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ddnuvem/controllers/device_controller.dart';
 
 class GroupController extends ChangeNotifier {
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
 
   Group? selectedGroup;
   List<Group> groups = [];
-  Stream<List<Group>>? groupsStream;
-  Group? currentDeviceGroup;
-  bool loading = false;
   bool isAdmin = false;
+
+  Stream<List<Group>>? _groupsStream;
+  StreamSubscription<List<Group>>? _groupsSubscription;
 
   GroupController(this._diretoDaNuvemAPI);
 
   init() async {
-    loading = true;
     notifyListeners();
     await _fetchAllGroups();
     isAdmin = groups
@@ -26,8 +25,13 @@ class GroupController extends ChangeNotifier {
         .expand((admins) => admins)
         .toSet()
         .contains(FirebaseAuth.instance.currentUser?.email);
-    loading = false;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _groupsSubscription?.cancel();
+    super.dispose();
   }
 
   List<Group> getAdminGroups(bool isSuperAdmin) {
@@ -42,36 +46,42 @@ class GroupController extends ChangeNotifier {
 
   _fetchAllGroups() async {
     groups = await _diretoDaNuvemAPI.groupResource.listAll();
-    groupsStream = _diretoDaNuvemAPI.groupResource.listAllStream();
+    _groupsStream = _diretoDaNuvemAPI.groupResource.listAllStream();
 
-    groupsStream?.listen((updatedGroups) {
+    _groupsSubscription?.cancel();
+    _groupsSubscription = _groupsStream?.listen((updatedGroups) {
       groups = updatedGroups;
+
+      if (selectedGroup != null) {
+        try {
+          selectedGroup = groups.firstWhere(
+                  (group) => group.id == selectedGroup!.id);
+        } catch (e) {
+          selectedGroup = null;
+        }
+      }
+
       notifyListeners();
     });
   }
 
   Future<Group?> fetchDeviceGroup(Device device) async {
-    currentDeviceGroup = await _diretoDaNuvemAPI.groupResource.get(device.groupId);
-    return currentDeviceGroup;
+    return await _diretoDaNuvemAPI.groupResource.get(device.groupId);
   }
 
   Future<String> createGroup(Group group) async {
-    loading = true;
     notifyListeners();
     await _diretoDaNuvemAPI.groupResource.create(group);
     groups.add(group);
-    loading = false;
     notifyListeners();
     return "Grupo criado com sucesso!";
   }
 
   Future<String> updateGroup(Group group) async {
-    loading = true;
     notifyListeners();
     await _diretoDaNuvemAPI.groupResource.update(group);
     int index = groups.indexWhere((g) => g.id == group.id);
     groups[index] = group;
-    loading = false;
     notifyListeners();
     return "Grupo atualizado com sucesso!";
   }

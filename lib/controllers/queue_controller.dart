@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +7,9 @@ class QueueController extends ChangeNotifier {
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
 
   List<Queue> queues = [];
-  Stream<List<Queue>>? queuesStream;
-  Queue? selectedQueue;
+
+  Stream<List<Queue>>? _queuesStream;
+  StreamSubscription<List<Queue>>? _queuesSubscription;
 
   QueueController(this._diretoDaNuvemAPI);
 
@@ -16,16 +18,18 @@ class QueueController extends ChangeNotifier {
     notifyListeners();
   }
 
-  selectQueue(Queue queue) {
-    selectedQueue = queue;
-    notifyListeners();
+  @override
+  void dispose() {
+    _queuesSubscription?.cancel();
+    super.dispose();
   }
 
   _loadQueues() async {
     queues = await _diretoDaNuvemAPI.queueResource.listAll();
-    queuesStream = _diretoDaNuvemAPI.queueResource.listAllStream();
+    _queuesStream = _diretoDaNuvemAPI.queueResource.listAllStream();
 
-    queuesStream?.listen((updatedQueues) {
+    _queuesSubscription?.cancel();
+    _queuesSubscription = _queuesStream?.listen((updatedQueues) {
       queues = updatedQueues;
       notifyListeners();
     });

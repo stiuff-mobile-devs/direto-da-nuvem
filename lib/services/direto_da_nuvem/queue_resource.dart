@@ -56,7 +56,11 @@ class QueueResource {
 
   Stream<Queue?> getStream(String id) {
     var doc = _firestore.doc("$collection/$id").snapshots();
-    return doc.map((event) => Queue.fromMap(event.id, event.data()!));
+    return doc.map((event) {
+      Queue queue = Queue.fromMap(event.id, event.data()!);
+      _hiveBox.put(queue.id, queue);
+      return queue;
+    });
   }
 
   Future create(Queue queue) async {

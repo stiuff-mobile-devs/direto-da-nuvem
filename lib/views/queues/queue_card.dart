@@ -12,8 +12,6 @@ class QueueCard extends StatelessWidget {
   final bool isActive;
 
   pushUpdateQueuePage(BuildContext context) {
-    QueueController queueController = context.read();
-    queueController.selectQueue(queue);
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => QueueCreateUpdatePage(

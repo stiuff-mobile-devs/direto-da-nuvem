@@ -92,13 +92,13 @@ class GroupPage extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
-                    QueueCardForActiveQueue(groupController, queueController),
+                    queueCardForActiveQueue(groupController, queueController),
                     const SizedBox(height: 8),
                     Text(
                       "Outras filas",
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    OtherQueuesList(groupController, queueController),
+                    otherQueuesList(groupController, queueController),
                   ],
                 );
               },
@@ -109,7 +109,7 @@ class GroupPage extends StatelessWidget {
     );
   }
 
-  Widget QueueCardForActiveQueue(
+  Widget queueCardForActiveQueue(
       GroupController groupController, QueueController queueController) {
     Queue? queue;
     for (var q in queueController.queues) {
@@ -126,7 +126,7 @@ class GroupPage extends StatelessWidget {
     );
   }
 
-  Widget OtherQueuesList(
+  Widget otherQueuesList(
       GroupController groupController, QueueController queueController) {
     final otherQueues = queueController.queues
         .where((element) =>

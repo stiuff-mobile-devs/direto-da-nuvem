@@ -11,6 +11,7 @@ class UserController extends ChangeNotifier {
   List<User> users = [];
   User? currentUser;
   String? profileImageUrl;
+
   bool isLoggedIn = false;
   bool loadingInitialState = true;
 
@@ -42,11 +43,14 @@ class UserController extends ChangeNotifier {
 
     isLoggedIn = true;
     notifyListeners();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const RedirectionPage()),
-      (Route<dynamic> route) => false,
-    );
+
+    if (context.mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const RedirectionPage()),
+            (Route<dynamic> route) => false,
+      );
+    }
   }
 
   logout() async {
