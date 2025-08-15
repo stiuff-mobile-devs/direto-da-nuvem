@@ -16,14 +16,13 @@ class UserController extends ChangeNotifier {
 
   UserController(this._signInService, this._diretoDaNuvemAPI);
 
-  Future<void> init() async {
+  Future init() async {
     loadingInitialState = true;
     notifyListeners();
 
     if (_signInService.checkIfLoggedIn()) {
-      await _getCurrentUserInfo();
+      await _loadUserData();
       isLoggedIn = true;
-      await _loadAllUsers();
     } else {
       isLoggedIn = false;
       currentUser = null;
@@ -35,16 +34,13 @@ class UserController extends ChangeNotifier {
   }
 
   login(BuildContext context) async {
-    bool signedIn = await _signInService.signInWithGoogle();
-    if (!signedIn) {
-      currentUser = User.empty();
-      isLoggedIn = true;
+    if (await _signInService.signInWithGoogle()) {
+      await _loadUserData();
     } else {
-      await _getCurrentUserInfo();
-      await _loadAllUsers();
-      isLoggedIn = true;
+      currentUser = User.empty();
     }
 
+    isLoggedIn = true;
     notifyListeners();
     Navigator.pushAndRemoveUntil(
       context,
@@ -64,18 +60,21 @@ class UserController extends ChangeNotifier {
     notifyListeners();
   }
 
+  _loadUserData() async {
+    await _getCurrentUserInfo();
+    await _loadAllUsers();
+  }
+
   _getCurrentUserInfo() async {
     final fbAuthUser = _signInService.getFirebaseAuthUser();
     profileImageUrl = fbAuthUser?.photoURL;
     currentUser = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.uid);
     loadingInitialState = false;
-    notifyListeners();
   }
 
   _loadAllUsers() async {
     if (currentUser!.privileges.isSuperAdmin || currentUser!.privileges.isAdmin) {
       users = await _diretoDaNuvemAPI.userResource.listAll();
-      notifyListeners();
     }
   }
 

@@ -3,13 +3,15 @@ import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:flutter/material.dart';
 
 class QueueController extends ChangeNotifier {
-  final DiretoDaNuvemAPI diretoDaNuvemAPI;
-  QueueController(this.diretoDaNuvemAPI);
+  final DiretoDaNuvemAPI _diretoDaNuvemAPI;
+
   List<Queue> queues = [];
   Queue? selectedQueue;
 
+  QueueController(this._diretoDaNuvemAPI);
+
   init() async {
-    queues = await diretoDaNuvemAPI.queueResource.listAll();
+    queues = await _diretoDaNuvemAPI.queueResource.listAll();
     notifyListeners();
   }
 
@@ -27,7 +29,7 @@ class QueueController extends ChangeNotifier {
       for (var image in queue.images.where((q) => !q.uploaded)) {
         if (image.data != null) {
           debugPrint("Uploading image ${image.path}");
-          imagesFutures.add(diretoDaNuvemAPI.imageResource
+          imagesFutures.add(_diretoDaNuvemAPI.imageResource
               .uploadImage(image.path, image.data!)
               .then(
                 (_) => image.uploaded = true,
@@ -37,7 +39,7 @@ class QueueController extends ChangeNotifier {
 
       await Future.wait(imagesFutures);
 
-      await diretoDaNuvemAPI.queueResource.update(queue);
+      await _diretoDaNuvemAPI.queueResource.update(queue);
       queue.updated = true;
       queues[queues.indexOf(oldqueue)] = queue;
       notifyListeners();
@@ -57,7 +59,7 @@ class QueueController extends ChangeNotifier {
       for (var image in queue.images.where((q) => !q.uploaded)) {
         if (image.data != null) {
           debugPrint("Uploading image ${image.path}");
-          imagesFutures.add(diretoDaNuvemAPI.imageResource
+          imagesFutures.add(_diretoDaNuvemAPI.imageResource
               .uploadImage(image.path, image.data!)
               .then(
                 (_) => image.uploaded = true,
@@ -67,7 +69,7 @@ class QueueController extends ChangeNotifier {
 
       await Future.wait(imagesFutures);
 
-      await diretoDaNuvemAPI.queueResource.create(queue);
+      await _diretoDaNuvemAPI.queueResource.create(queue);
       queue.updated = true;
       notifyListeners();
     } catch (e) {

@@ -6,21 +6,21 @@ import 'package:flutter/material.dart';
 import 'package:ddnuvem/controllers/device_controller.dart';
 
 class GroupController extends ChangeNotifier {
+  final DiretoDaNuvemAPI _diretoDaNuvemAPI;
+
   Group? selectedGroup;
   List<Group> groups = [];
   Stream<List<Group>>? groupsStream;
-  Group? currentGroup;
-  Stream<Group?>? groupStream;
+  Group? currentDeviceGroup;
   bool loading = false;
   bool isAdmin = false;
 
-  final DiretoDaNuvemAPI diretoDaNuvemAPI;
-
-  GroupController(this.diretoDaNuvemAPI);
+  GroupController(this._diretoDaNuvemAPI);
 
   init() async {
     loading = true;
-    await fetchAllGroups();
+    notifyListeners();
+    await _fetchAllGroups();
     isAdmin = groups
         .map((group) => group.admins)
         .expand((admins) => admins)
@@ -40,30 +40,25 @@ class GroupController extends ChangeNotifier {
         .toList();
   }
 
-  fetchAllGroups() async {
-    groups = await diretoDaNuvemAPI.groupResource.listAll();
-    groupsStream = diretoDaNuvemAPI.groupResource.listAllStream();
+  _fetchAllGroups() async {
+    groups = await _diretoDaNuvemAPI.groupResource.listAll();
+    groupsStream = _diretoDaNuvemAPI.groupResource.listAllStream();
 
-    groupsStream?.listen((newGroups) {
-      groups = newGroups;
+    groupsStream?.listen((updatedGroups) {
+      groups = updatedGroups;
       notifyListeners();
     });
   }
 
-  fetchDeviceGroup(Device device) async {
-    currentGroup = await diretoDaNuvemAPI.groupResource.get(device.groupId);
-    groupStream = diretoDaNuvemAPI.groupResource.getStream(device.groupId);
-    groupStream?.listen((newGroup) {
-      currentGroup = newGroup;
-      notifyListeners();
-    });
-    notifyListeners();
+  Future<Group?> fetchDeviceGroup(Device device) async {
+    currentDeviceGroup = await _diretoDaNuvemAPI.groupResource.get(device.groupId);
+    return currentDeviceGroup;
   }
 
   Future<String> createGroup(Group group) async {
     loading = true;
     notifyListeners();
-    await diretoDaNuvemAPI.groupResource.create(group);
+    await _diretoDaNuvemAPI.groupResource.create(group);
     groups.add(group);
     loading = false;
     notifyListeners();
@@ -73,7 +68,7 @@ class GroupController extends ChangeNotifier {
   Future<String> updateGroup(Group group) async {
     loading = true;
     notifyListeners();
-    await diretoDaNuvemAPI.groupResource.update(group);
+    await _diretoDaNuvemAPI.groupResource.update(group);
     int index = groups.indexWhere((g) => g.id == group.id);
     groups[index] = group;
     loading = false;
@@ -88,7 +83,7 @@ class GroupController extends ChangeNotifier {
 
   Future<String> makeQueueCurrent(String queueId) async {
     selectedGroup?.currentQueue = queueId;
-    await diretoDaNuvemAPI.groupResource.update(selectedGroup!);
+    await _diretoDaNuvemAPI.groupResource.update(selectedGroup!);
     notifyListeners();
     return "Fila ativa atualizada com sucesso!";
   }

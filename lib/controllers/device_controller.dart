@@ -7,29 +7,27 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 
 class DeviceController extends ChangeNotifier {
-  AndroidDeviceInfo? androidInfo;
-  String? id;
-  Queue? currentQueue;
-  Stream<Queue?>? currentQueueStream;
-  Group? group;
-  Device? device;
-  bool isRegistered = false;
-
-  List<Device> devices = [];
-  bool loadingInitialState = true;
-
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
   final DeviceInfoPlugin _deviceInfoPlugin = DeviceInfoPlugin();
   final GroupController _groupController;
 
+  AndroidDeviceInfo? androidInfo;
+  Group? group;
+  Device? device;
+  bool isRegistered = false;
+  Queue? currentQueue;
+  Stream<Queue?>? currentQueueStream;
+  List<Device> devices = [];
+  bool loadingInitialState = true;
+
   DeviceController(this._diretoDaNuvemAPI, this._groupController);
 
-  void init() async {
+  init() async {
     loadingInitialState = true;
     notifyListeners();
     await _getAndroidInfo();
-    await _checkIsRegistered(id!);
-    await fetchGroupAndQueue();
+    await _checkIsRegistered(androidInfo!.id);
+    await _fetchGroupAndQueue();
     _groupController.addListener(_updateCurrentQueueAndGroup);
     devices = await _diretoDaNuvemAPI.deviceResource.listAll();
     loadingInitialState = false;
@@ -39,13 +37,11 @@ class DeviceController extends ChangeNotifier {
   @override
   void dispose() {
     _groupController.removeListener(_updateCurrentQueueAndGroup);
-    debugPrint("DeviceController disposed");
     super.dispose();
   }
 
   Future<void> _getAndroidInfo() async {
     androidInfo = await _deviceInfoPlugin.androidInfo;
-    id = androidInfo!.id;
   }
 
   Future<void> _checkIsRegistered(String id) async {
@@ -67,7 +63,7 @@ class DeviceController extends ChangeNotifier {
     if (isRegistered) {
       this.device = device;
       devices.add(device);
-      await fetchGroupAndQueue();
+      await _fetchGroupAndQueue();
       Navigator.of(context).pushNamedAndRemoveUntil(
         '/',
         (route) => false,
@@ -76,7 +72,7 @@ class DeviceController extends ChangeNotifier {
     notifyListeners();
   }
 
-  fetchGroupAndQueue() async {
+  _fetchGroupAndQueue() async {
     await _fetchGroup();
     await _fetchCurrentQueue();
   }
@@ -85,8 +81,7 @@ class DeviceController extends ChangeNotifier {
     if (device == null) {
       return;
     }
-    await _groupController.fetchDeviceGroup(device!);
-    group = _groupController.currentGroup;
+    group = await _groupController.fetchDeviceGroup(device!);
   }
 
   _fetchCurrentQueue() async {
@@ -96,7 +91,6 @@ class DeviceController extends ChangeNotifier {
 
     currentQueue =
         await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
-
     currentQueueStream =
         _diretoDaNuvemAPI.queueResource.getStream(group!.currentQueue);
 
@@ -104,25 +98,11 @@ class DeviceController extends ChangeNotifier {
       currentQueue = queue;
       notifyListeners();
     });
-    notifyListeners();
   }
 
   _updateCurrentQueueAndGroup() async {
-    if (group == null) {
-      return;
-    }
-
-    final updatedGroup = _groupController.currentGroup;
-
-    if (currentQueue == null || updatedGroup == null) {
-      return;
-    }
-
-    if (updatedGroup.currentQueue != currentQueue!.id) {
-      group = updatedGroup;
-      await _fetchCurrentQueue();
-      notifyListeners();
-    }
+    await _fetchGroupAndQueue();
+    notifyListeners();
   }
 
   int numberOfDevicesOnGroup(String groupId) {

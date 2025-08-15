@@ -10,8 +10,8 @@ import 'package:ddnuvem/views/devices/register_device_page.dart';
 import 'package:ddnuvem/views/devices/unregistered_device_error_page.dart';
 import 'package:ddnuvem/views/intro_page.dart';
 import 'package:ddnuvem/views/login_page.dart';
-import 'package:ddnuvem/views/queues/monitor_page.dart';
-import 'package:ddnuvem/views/queues/queue_stream_view_controller.dart';
+import 'package:ddnuvem/views/queues/queue_view_controller.dart';
+import 'package:ddnuvem/views/queues/queue_view_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -145,12 +145,15 @@ class _RedirectionPageState extends State<RedirectionPage> {
       return loading();
     }
     return ChangeNotifierProvider(
-      create: (context) => QueueStreamViewController(
+      create: (context) => QueueViewController(
         diretoDaNuvemAPI,
-        queue,
-        queueStream,
+        deviceController,
       ),
-      child: const MonitorPage(),
+      child: Consumer<QueueViewController>(
+        builder: (context, controller, _) {
+          return QueueViewPage(queue: controller.queue!);
+        },
+      )
     );
   }
 }
