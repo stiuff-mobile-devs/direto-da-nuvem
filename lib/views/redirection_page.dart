@@ -1,7 +1,6 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
-import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/local_storage/booleans.dart';
 import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
@@ -119,9 +118,6 @@ class _RedirectionPageState extends State<RedirectionPage> {
   }
 
   Widget handleRedirection(RedirectionData redirectionData) {
-    if (redirectionData.isLoading) {
-      return loading();
-    }
     if (redirectionData.firstTime) {
       return const IntroPage();
     }

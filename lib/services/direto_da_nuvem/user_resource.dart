@@ -59,8 +59,8 @@ class UserResource {
       _hiveBox.put(user.id, user);
     } else {
       try {
-        user = _hiveBox.values.firstWhere((user) => user.uid == uid);
-      } catch (_) {
+        user = _hiveBox.values.firstWhere((u) => u.uid == uid);
+      } catch (e) {
         return null;
       }
     }
@@ -79,7 +79,6 @@ class UserResource {
     await _firestore.doc("$collection/${user.id}").update(user.toMap());
     await _firestore.doc("$collection/${user.id}/privileges/privileges")
         .update(user.privileges.toMap());
-    _hiveBox.put(user.id, user);
   }
 
   Future updateAuthenticatedUser(String id, String uid, String name) async {
@@ -98,18 +97,11 @@ class UserResource {
   }
 
   Future<UserPrivileges> _getUserPrivileges(String id) async {
-    if (await hasInternetConnection()) {
-      var doc = await _firestore
-          .doc('$collection/$id/privileges/privileges').get();
+    var doc = await _firestore
+        .doc('$collection/$id/privileges/privileges').get();
 
-      if (doc.exists) {
-        return UserPrivileges.fromMap(doc.data()!);
-      }
-    } else {
-      User? user = _hiveBox.get(id);
-      if (user != null) {
-        return user.privileges;
-      }
+    if (doc.exists) {
+      return UserPrivileges.fromMap(doc.data()!);
     }
 
     return UserPrivileges(
