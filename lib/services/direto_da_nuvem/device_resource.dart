@@ -18,31 +18,27 @@ class DeviceResource {
     return true;
   }
 
-  Future<Device?> checkIfRegistered(String id) async {
-    final docSnapshot = await _firestore.doc("$collection/$id").get();
-
-    if (!docSnapshot.exists) {
-      return null;
-    }
-
-    return Device.fromMap(docSnapshot.id, docSnapshot.data()!);
-  }
-
   Future<Device?> get(String id) async {
-    Device? device = _hiveBox.get(id);
+    Device? device;
 
-    if (device == null && await hasInternetConnection()) {
-      final docSnapshot = await _firestore.doc("$collection/$id").get();
+    if (await hasInternetConnection()) {
+      final doc = await _firestore.doc("$collection/$id").get();
 
-      if (!docSnapshot.exists) {
+      if (!doc.exists) {
         return null;
       }
 
-      device = Device.fromMap(docSnapshot.id, docSnapshot.data()!);
+      device = Device.fromMap(doc.id, doc.data()!);
       _hiveBox.put(device.id, device);
+    } else {
+      device = _hiveBox.get(id);
     }
 
     return device;
+  }
+
+  Future<Device?> checkIfRegistered(String id) async {
+    return await get(id);
   }
 
   Future<List<Device>> listAll() async {
@@ -53,9 +49,7 @@ class DeviceResource {
       devices = docs.docs.map((e) => Device.fromMap(e.id, e.data())).toList();
 
       for (var device in devices) {
-        if (!_hiveBox.containsKey(device.id)) {
-          _hiveBox.put(device.id, device);
-        }
+        _hiveBox.put(device.id, device);
       }
     } else {
       devices = _hiveBox.values.toList();

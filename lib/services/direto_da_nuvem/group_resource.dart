@@ -34,18 +34,9 @@ class GroupResource {
       for (var doc in event.docs) {
         Group group = Group.fromMap(doc.id, doc.data());
         groups.add(group);
+        _hiveBox.put(group.id, group);
       }
       return groups;
-    });
-  }
-
-  Stream<Group?> getStream(String id) {
-    var doc = _firestore.doc("$collection/$id").snapshots();
-    return doc.map((event) {
-      if (!event.exists) {
-        return null;
-      }
-      return Group.fromMap(event.id, event.data()!);
     });
   }
 
@@ -76,9 +67,9 @@ class GroupResource {
 
   Future<bool> update(Group group) async {
     final docReference = _firestore.doc("$collection/${group.id}");
-    final docSnapshot = await docReference.get();
+    final doc = await docReference.get();
 
-    if (!docSnapshot.exists) {
+    if (!doc.exists) {
       return false;
     }
 

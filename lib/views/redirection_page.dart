@@ -119,6 +119,9 @@ class _RedirectionPageState extends State<RedirectionPage> {
   }
 
   Widget handleRedirection(RedirectionData redirectionData) {
+    if (redirectionData.isLoading) {
+      return loading();
+    }
     if (redirectionData.firstTime) {
       return const IntroPage();
     }
@@ -138,12 +141,6 @@ class _RedirectionPageState extends State<RedirectionPage> {
       return const AdminPage();
     }
     var deviceController = context.read<DeviceController>();
-
-    Stream<Queue?>? queueStream = deviceController.currentQueueStream;
-    Queue? queue = deviceController.currentQueue;
-    if (queueStream == null || queue == null) {
-      return loading();
-    }
     return ChangeNotifierProvider(
       create: (context) => QueueViewController(
         diretoDaNuvemAPI,

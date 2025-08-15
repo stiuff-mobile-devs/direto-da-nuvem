@@ -6,18 +6,29 @@ class QueueController extends ChangeNotifier {
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
 
   List<Queue> queues = [];
+  Stream<List<Queue>>? queuesStream;
   Queue? selectedQueue;
 
   QueueController(this._diretoDaNuvemAPI);
 
   init() async {
-    queues = await _diretoDaNuvemAPI.queueResource.listAll();
+    await _loadQueues();
     notifyListeners();
   }
 
   selectQueue(Queue queue) {
     selectedQueue = queue;
     notifyListeners();
+  }
+
+  _loadQueues() async {
+    queues = await _diretoDaNuvemAPI.queueResource.listAll();
+    queuesStream = _diretoDaNuvemAPI.queueResource.listAllStream();
+
+    queuesStream?.listen((updatedQueues) {
+      queues = updatedQueues;
+      notifyListeners();
+    });
   }
 
   Future<String> updateQueue(Queue queue) async {

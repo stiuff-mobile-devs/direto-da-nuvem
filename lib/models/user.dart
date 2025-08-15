@@ -1,53 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ddnuvem/models/user_privileges.dart';
+import 'package:hive/hive.dart';
 
-class UserPrivileges {
-  bool isAdmin;
-  bool isSuperAdmin;
-  bool isInstaller;
+part 'user.g.dart';
 
-  UserPrivileges({
-    required this.isAdmin,
-    required this.isSuperAdmin,
-    required this.isInstaller,
-  });
-
-  @override
-  String toString() {
-    String string = [
-      if (isSuperAdmin) "Super Admin",
-      if (isAdmin) "Admin",
-      if (isInstaller) "Instalador",
-    ].join(", ");
-
-    return string;
-  }
-
-  factory UserPrivileges.fromMap(Map<String, dynamic> map) {
-    return UserPrivileges(
-      isAdmin: map['admin'] ?? false,
-      isSuperAdmin: map['super_admin'] ?? false,
-      isInstaller: map['installer'] ?? false
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      "installer": isInstaller,
-      "admin": isAdmin,
-      "super_admin": isSuperAdmin,
-    };
-  }
-}
-
-class User {
+@HiveType(typeId: 4)
+class User extends HiveObject {
+  @HiveField(0)
   String id;
+  @HiveField(1)
   String uid;
+  @HiveField(2)
   String email;
+  @HiveField(3)
   String name;
+  @HiveField(4)
   UserPrivileges privileges;
+  @HiveField(5)
   DateTime createdAt;
+  @HiveField(6)
   DateTime updatedAt;
+  @HiveField(7)
   String createdBy;
+  @HiveField(8)
   String updatedBy;
 
   User({

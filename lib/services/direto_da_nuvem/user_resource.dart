@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/user.dart';
+import 'package:ddnuvem/models/user_privileges.dart';
 import 'package:ddnuvem/utils/connection_utils.dart';
+import 'package:hive/hive.dart';
 
 class UserResource {
   static String collection = "users";
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final Box<User> _hiveBox = Hive.box<User>(collection);
 
   Future<List<User>> listAll() async {
     List<User> users = [];
@@ -16,26 +19,14 @@ class UserResource {
         UserPrivileges privileges = await _getUserPrivileges(doc.id);
         User user = User.fromMap(doc.data(), doc.id, privileges);
         users.add(user);
+        _hiveBox.put(user.id, user);
       }
     } else {
-      //  TO DO
+      users = _hiveBox.values.toList();
     }
 
     return users;
   }
-
-  // Stream<List<User>> listAllStream() {
-  //   var l = _firestore.collection(collection).snapshots();
-  //   return l.map((event) {
-  //     List<User> users = [];
-  //
-  //     for (var doc in event.docs) {
-  //       User user = User.fromMap(doc.id, doc.data());
-  //       users.add(user);
-  //     }
-  //     return users;
-  //   });
-  // }
 
   Future<bool> create(User user) async {
     if (await checkAuthorizedLogin(user.email) != null) {
@@ -45,22 +36,36 @@ class UserResource {
     var doc = await _firestore.collection(collection).add(user.toMap());
     await _firestore.doc("$collection/${doc.id}/privileges/privileges")
         .set(user.privileges.toMap());
+    _hiveBox.put(user.id, user);
     return true;
   }
 
   Future<User?> get(String uid) async {
-    final query = await _firestore
-        .collection(collection)
-        .where('uid', isEqualTo: uid)
-        .get();
+    User? user;
 
-    if (query.docs.isEmpty) {
-      return null;
+    if (await hasInternetConnection()) {
+      final query = await _firestore
+          .collection(collection)
+          .where('uid', isEqualTo: uid)
+          .get();
+
+      if (query.docs.isEmpty) {
+        return null;
+      }
+
+      final doc = query.docs.first;
+      UserPrivileges privileges = await _getUserPrivileges(doc.id);
+      user = User.fromMap(doc.data(), doc.id, privileges);
+      _hiveBox.put(user.id, user);
+    } else {
+      try {
+        user = _hiveBox.values.firstWhere((user) => user.uid == uid);
+      } catch (_) {
+        return null;
+      }
     }
 
-    final doc = query.docs.first;
-    UserPrivileges privileges = await _getUserPrivileges(doc.id);
-    return User.fromMap(doc.data(), doc.id, privileges);
+    return user;
   }
 
   Future<void> update(User user) async {
@@ -74,6 +79,7 @@ class UserResource {
     await _firestore.doc("$collection/${user.id}").update(user.toMap());
     await _firestore.doc("$collection/${user.id}/privileges/privileges")
         .update(user.privileges.toMap());
+    _hiveBox.put(user.id, user);
   }
 
   Future updateAuthenticatedUser(String id, String uid, String name) async {
@@ -92,18 +98,25 @@ class UserResource {
   }
 
   Future<UserPrivileges> _getUserPrivileges(String id) async {
-    var doc = await _firestore
-        .doc('$collection/$id/privileges/privileges').get();
+    if (await hasInternetConnection()) {
+      var doc = await _firestore
+          .doc('$collection/$id/privileges/privileges').get();
 
-    if (!doc.exists) {
-      return UserPrivileges(
-          isAdmin: false,
-          isSuperAdmin: false,
-          isInstaller: false
-      );
+      if (doc.exists) {
+        return UserPrivileges.fromMap(doc.data()!);
+      }
+    } else {
+      User? user = _hiveBox.get(id);
+      if (user != null) {
+        return user.privileges;
+      }
     }
 
-    return UserPrivileges.fromMap(doc.data()!);
+    return UserPrivileges(
+        isAdmin: false,
+        isSuperAdmin: false,
+        isInstaller: false
+    );
   }
 
   Future<Map<String,String>?> checkAuthorizedLogin(String email) async {

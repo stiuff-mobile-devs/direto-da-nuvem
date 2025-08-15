@@ -34,6 +34,7 @@ class QueueResource {
       for (var doc in event.docs) {
         Queue queue = Queue.fromMap(doc.id, doc.data());
         queues.add(queue);
+        _hiveBox.put(queue.id, queue);
       }
       return queues;
     });
@@ -45,19 +46,16 @@ class QueueResource {
       if (!doc.exists) {
         return null;
       }
-      return Queue.fromMap(doc.id, doc.data()!);
+      final queue = Queue.fromMap(doc.id, doc.data()!);
+      _hiveBox.put(queue.id, queue);
+      return queue;
     } else {
       return _hiveBox.get(id);
     }
   }
 
-  Future<Queue?> getDefaultQueue() async {
-    var doc = await _firestore.doc("$collection/init").get();
-    return Queue.fromMap(doc.id, doc.data()!);
-  }
-
-  Stream<Queue?> getDefaultStream() {
-    var doc = _firestore.doc("$collection/init").snapshots();
+  Stream<Queue?> getStream(String id) {
+    var doc = _firestore.doc("$collection/$id").snapshots();
     return doc.map((event) => Queue.fromMap(event.id, event.data()!));
   }
 
@@ -71,10 +69,5 @@ class QueueResource {
     var doc = _firestore.collection(collection).doc(queue.id);
     await doc.update(queue.toMap());
     _hiveBox.put(queue.id, queue);
-  }
-
-  Stream<Queue?> getStream(String id) {
-    var doc = _firestore.doc("$collection/$id").snapshots();
-    return doc.map((event) => Queue.fromMap(event.id, event.data()!));
   }
 }
