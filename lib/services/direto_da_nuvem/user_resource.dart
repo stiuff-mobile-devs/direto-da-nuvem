@@ -111,6 +111,21 @@ class UserResource {
     );
   }
 
+  Future<User?> getByEmail(String email) async {
+    var query = await _firestore
+        .collection(collection)
+        .where('email', isEqualTo: email)
+        .get();
+
+    if (query.docs.isEmpty) {
+      return null;
+    }
+
+    final doc = query.docs.first;
+    UserPrivileges privileges = await _getUserPrivileges(doc.id);
+    return User.fromMap(doc.data(), doc.id, privileges);
+  }
+
   Future<Map<String,String>?> checkAuthorizedLogin(String email) async {
     var query = await _firestore
         .collection(collection)

@@ -15,9 +15,6 @@ class GroupCreateController extends ChangeNotifier {
 
     if (group.id.isEmpty) {
       group.createdBy = userController.currentUser!.uid ?? "";
-      admins.contains(userController.currentUser!.email)
-          ? null
-          : admins.add(userController.currentUser!.email);
     } else {
       group.updatedAt = DateTime.now();
     }

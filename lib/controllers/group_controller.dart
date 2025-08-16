@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
+import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -84,6 +85,16 @@ class GroupController extends ChangeNotifier {
     groups[index] = group;
     notifyListeners();
     return "Grupo atualizado com sucesso!";
+  }
+
+  Future removeAdministeredGroups(String email, String removedBy) async {
+    List<Group> g = groups.where((group) => group.admins.contains(email)).toList();
+    for (var group in g) {
+      group.admins.remove(email);
+      group.updatedAt = DateTime.now();
+      group.updatedBy = removedBy;
+      await updateGroup(group);
+    }
   }
 
   selectGroup(Group group) {

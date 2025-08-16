@@ -55,6 +55,24 @@ class User extends HiveObject {
     );
   }
 
+  factory User.copy(User user) {
+    return User(
+      id: user.id,
+      uid: user.uid,
+      email: user.email,
+      name: user.name,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      createdBy: user.createdBy,
+      updatedBy: user.updatedBy,
+      privileges: UserPrivileges(
+        isAdmin: user.privileges.isAdmin,
+        isSuperAdmin: user.privileges.isSuperAdmin,
+        isInstaller: user.privileges.isInstaller
+      )
+    );
+  }
+
   factory User.fromMap(Map<String, dynamic> map, String id, UserPrivileges privileges) {
     DateTime? createdAt;
     DateTime? updatedAt;

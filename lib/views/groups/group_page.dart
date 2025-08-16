@@ -1,5 +1,6 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/views/groups/group_create_page.dart';
@@ -40,8 +41,8 @@ class GroupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<GroupController>(
-      builder: (context, groupController, _) {
+    return Consumer2<GroupController, UserController>(
+      builder: (context, groupController, userController,_) {
         return Scaffold(
           appBar: AppBar(
             title: Text(groupController.selectedGroup!.name),
@@ -53,11 +54,13 @@ class GroupPage extends StatelessWidget {
                       builder: (context) {
                         return GroupCreatePage(
                             group: Group.copy(groupController.selectedGroup!),
-                            onSave: (group) {
+                            onSave: (group) async {
                               final messenger = ScaffoldMessenger.of(context);
                               groupController
                                   .updateGroup(group)
-                                  .then((message) {
+                                  .then((message) async {
+                                await userController
+                                    .updateGroupAdmins(group.admins);
                                 messenger.showSnackBar(
                                   SnackBar(
                                     content: Text(message),

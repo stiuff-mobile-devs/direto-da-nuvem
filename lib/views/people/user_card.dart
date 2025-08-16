@@ -1,3 +1,4 @@
+import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/views/people/user_create_page.dart';
@@ -10,14 +11,19 @@ class UserCard extends StatelessWidget {
   const UserCard({super.key, required this.user});
 
   _pushUpdateUserPage(BuildContext context, UserController controller) {
+    GroupController groupController = context.read<GroupController>();
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => UserCreatePage(
-          user: user,
-          onSave: (queue) {
+          user: User.copy(user),
+          onSave: (updatedUser) {
             final messenger = ScaffoldMessenger.of(context);
-            controller.updateUser(user)
-                .then((message) {
+            controller.updateUser(updatedUser).then((message) async {
+              if (user.privileges.isAdmin && !updatedUser.privileges.isAdmin) {
+                await groupController
+                    .removeAdministeredGroups(updatedUser.email, updatedUser.updatedBy);
+              }
               messenger.showSnackBar(
                 SnackBar(
                   content: Text(message),

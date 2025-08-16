@@ -31,18 +31,6 @@ class GroupCreatePage extends StatelessWidget {
                     return;
                   }
 
-                  final messenger = ScaffoldMessenger.of(context);
-                  if (!await userController
-                      .verifyAdminPrivilege(groupCreateController.admins)) {
-                    messenger.showSnackBar(
-                      const SnackBar(
-                        content: Text("Usuário inserido não é administrador."),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                    return;
-                  }
-
                   groupCreateController.group.name =
                       groupCreateController.nameController.text;
                   groupCreateController.group.description =

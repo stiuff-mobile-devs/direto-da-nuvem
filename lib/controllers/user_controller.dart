@@ -1,3 +1,4 @@
+import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
@@ -83,7 +84,7 @@ class UserController extends ChangeNotifier {
 
   Future<String> createUser(User user) async {
     if (await _diretoDaNuvemAPI.userResource.create(user)) {
-      _loadAllUsers();
+      await _loadAllUsers();
       notifyListeners();
       return "Usuário criado com sucesso!";
     }
@@ -95,6 +96,27 @@ class UserController extends ChangeNotifier {
     await _diretoDaNuvemAPI.userResource.update(user);
     notifyListeners();
     return "Usuário atualizado com sucesso!";
+  }
+
+  Future updateGroupAdmins(List<String> emails) async {
+    for (var e in emails) {
+      User? user = await _diretoDaNuvemAPI.userResource.getByEmail(e);
+      if (user == null) {
+        user = User.empty();
+        user.email = e;
+        user.createdBy = currentUser!.uid;
+        user.updatedBy = currentUser!.uid;
+        user.privileges.isAdmin = true;
+        await _diretoDaNuvemAPI.userResource.create(user);
+      } else {
+        if (!user.privileges.isAdmin) {
+          user.privileges.isAdmin = true;
+          user.updatedAt = DateTime.now();
+          user.updatedBy = currentUser!.uid;
+          await _diretoDaNuvemAPI.userResource.update(user);
+        }
+      }
+    }
   }
 
   Future<bool> verifyAdminPrivilege(List<String> emails) async {

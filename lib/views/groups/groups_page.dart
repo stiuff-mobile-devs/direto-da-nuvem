@@ -51,7 +51,9 @@ class GroupsPage extends StatelessWidget {
                         final messenger = ScaffoldMessenger.of(context);
                         context
                             .read<GroupController>()
-                            .createGroup(group).then((message) {
+                            .createGroup(group).then((message) async {
+                              await userController
+                                  .updateGroupAdmins(group.admins);
                           messenger.showSnackBar(
                             SnackBar(
                               content: Text(message),

@@ -67,7 +67,7 @@ class UserCreatePage extends StatelessWidget {
               child: Column(
                 children: [
                   TextFormField(
-                    enabled: user.uid!.isEmpty,
+                    enabled: user.uid.isEmpty,
                     controller: userCreateController.emailController,
                     decoration: const InputDecoration(
                       labelText: "E-mail",
