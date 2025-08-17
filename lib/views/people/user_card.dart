@@ -16,8 +16,7 @@ class UserCard extends StatelessWidget {
           user: user,
           onSave: (queue) {
             final messenger = ScaffoldMessenger.of(context);
-            controller.updateUser(user)
-                .then((message) {
+            controller.updateUser(user).then((message) {
               messenger.showSnackBar(
                 SnackBar(
                   content: Text(message),

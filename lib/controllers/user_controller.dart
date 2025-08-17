@@ -73,7 +73,8 @@ class UserController extends ChangeNotifier {
   }
 
   _loadAllUsers() async {
-    if (currentUser!.privileges.isSuperAdmin || currentUser!.privileges.isAdmin) {
+    if (currentUser!.privileges.isSuperAdmin ||
+        currentUser!.privileges.isAdmin) {
       users = await _diretoDaNuvemAPI.userResource.listAll();
       notifyListeners();
     }
@@ -102,5 +103,18 @@ class UserController extends ChangeNotifier {
       }
     }
     return true;
+  }
+
+  List<User> getUsersByPrivilege(Set<String> privileges) {
+    if (privileges.isEmpty) return users;
+
+    return users.where((user) {
+      final userPrivs = <String>{
+        if (user.privileges.isSuperAdmin) 'Super Admin',
+        if (user.privileges.isAdmin) 'Admin',
+        if (user.privileges.isInstaller) 'Instalador',
+      };
+      return userPrivs.intersection(privileges).isNotEmpty;
+    }).toList();
   }
 }

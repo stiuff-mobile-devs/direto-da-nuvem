@@ -8,6 +8,7 @@ import 'package:ddnuvem/services/hive_service.dart';
 import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
 import 'package:ddnuvem/views/devices/devices_filter_controller.dart';
+import 'package:ddnuvem/views/people/people_filter_controller.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -53,12 +54,12 @@ Future<void> main() async {
     ChangeNotifierProvider<QueueController>(
         create: (context) => QueueController(context.read())..init()),
     ChangeNotifierProvider(
-        create: (context) =>
-        GroupController(context.read())
-          ..init()),
+        create: (context) => GroupController(context.read())..init()),
     ChangeNotifierProvider<DeviceController>(
         create: (context) =>
             DeviceController(context.read(), context.read<GroupController>())
               ..init()),
+    ChangeNotifierProvider<PeopleFilterController>(
+        create: (_) => PeopleFilterController())
   ], child: const App()));
 }
