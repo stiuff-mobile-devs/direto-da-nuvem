@@ -63,21 +63,24 @@ class PeoplePage extends StatelessWidget {
                       onRemove: value.removeFilter))
                   .toList());
             })),
-          SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              return Consumer2<UserController, PeopleFilterController>(
-                builder: (context, userController, filterController, _) {
-                  final users = userController
-                      .getUsersByPrivilege(filterController.filters);
-                  if (index >= users.length) {
-                    return const SizedBox.shrink();
+          SliverPadding(
+            padding: const EdgeInsets.only(bottom: 80),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return Consumer2<UserController, PeopleFilterController>(
+                  builder: (context, userController, filterController, _) {
+                    final users = userController
+                        .getUsersByPrivilege(filterController.filters);
+                    if (index >= users.length) {
+                      return const SizedBox.shrink();
+                    }
+                    return UserCard(user: users[index]);
                   }
-                  return UserCard(user: users[index]);
-                }
-              );
-            },
-            childCount: context.watch<UserController>().users.length)
-          ),
+                );
+              },
+              childCount: context.watch<UserController>().users.length)
+            ),
+          )
         ],
       )
     ),
