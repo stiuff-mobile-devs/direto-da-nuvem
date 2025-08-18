@@ -54,6 +54,13 @@ class QueueResource {
     }
   }
 
+  Future delete(String id) async {
+    if (await hasInternetConnection()) {
+      await _firestore.doc("$collection/$id").delete();
+      _hiveBox.delete(id);
+    }
+  }
+
   Stream<Queue?> getStream(String id) {
     var doc = _firestore.doc("$collection/$id").snapshots();
     return doc.map((event) {

@@ -76,6 +76,16 @@ class GroupController extends ChangeNotifier {
     return "Grupo criado com sucesso!";
   }
 
+  deleteGroup() async {
+    for (var queue in selectedGroup.q)
+    await _diretoDaNuvemAPI.groupResource.delete(id);
+    groups.removeWhere((g) => g.id == id);
+    if (selectedGroup?.id == id) {
+      selectedGroup = null;
+    }
+    notifyListeners();
+  }
+
   Future<String> updateGroup(Group group) async {
     notifyListeners();
     await _diretoDaNuvemAPI.groupResource.update(group);

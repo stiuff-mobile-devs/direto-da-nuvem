@@ -78,6 +78,11 @@ class GroupResource {
     return true;
   }
 
+  Future<void> delete(String id) async {
+    await _firestore.doc("$collection/$id").delete();
+    _hiveBox.delete(id);
+  }
+
   // Future<List<String>> _getGroupAdmins(String groupId) async {
   //   var adminsDoc =
   //       await _firestore.doc("$collection/$groupId/admins/admins").get();

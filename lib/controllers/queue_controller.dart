@@ -96,4 +96,16 @@ class QueueController extends ChangeNotifier {
     }
     return "Fila criada com sucesso!";
   }
+
+  Future deleteQueue(String id) async {
+    notifyListeners();
+    try {
+      await _diretoDaNuvemAPI.queueResource.delete(id);
+    } catch (e) {
+      debugPrint("Error deleting queue: $e");
+      notifyListeners();
+      return "Erro ao excluir fila.";
+    }
+    return "Fila excluída com sucesso!";
+  }
 }
