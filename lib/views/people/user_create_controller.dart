@@ -1,7 +1,6 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class UserCreateController extends ChangeNotifier {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -9,21 +8,19 @@ class UserCreateController extends ChangeNotifier {
   final isInstaller = ValueNotifier<bool>(false);
   final isAdmin = ValueNotifier<bool>(false);
   final isSuperAdmin = ValueNotifier<bool>(false);
+  final UserController controller;
   final User user;
-  final BuildContext context;
 
-  UserCreateController(this.context, this.user) {
-    UserController userController = context.read<UserController>();
-
+  UserCreateController(this.controller, this.user) {
     emailController.text = user.email;
     isInstaller.value = user.privileges.isInstaller;
     isAdmin.value = user.privileges.isAdmin;
     isSuperAdmin.value = user.privileges.isSuperAdmin;
 
-    user.updatedBy = userController.currentUser!.uid;
+    user.updatedBy = controller.currentUser!.uid;
 
     if (user.id.isEmpty) {
-      user.createdBy = userController.currentUser!.uid;
+      user.createdBy = controller.currentUser!.uid;
     } else {
       user.updatedAt = DateTime.now();
     }
@@ -31,7 +28,7 @@ class UserCreateController extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool validPrivileges() {
+  bool privilegesNotEmpty() {
     return isAdmin.value || isInstaller.value || isSuperAdmin.value;
   }
 }

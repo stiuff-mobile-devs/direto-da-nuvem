@@ -53,8 +53,7 @@ Future<void> main() async {
         create: (context) => QueueController(context.read())..init()),
     ChangeNotifierProvider<GroupController>(
         create: (context) => GroupController(context.read())..init()),
-    ChangeNotifierProvider<DeviceController>(
-        create: (context) =>
+    ChangeNotifierProvider<DeviceController>(create: (context) =>
             DeviceController(context.read(), context.read<GroupController>())
               ..init()),
   ], child: const App()));

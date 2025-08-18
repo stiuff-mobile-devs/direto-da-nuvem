@@ -1,4 +1,3 @@
-import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
@@ -127,4 +126,5 @@ class UserController extends ChangeNotifier {
     }
     return true;
   }
+
 }

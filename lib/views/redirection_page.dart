@@ -110,7 +110,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
   // Aparece quando abrimos o app
   Widget loading() {
     return Container(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       child: const Center(
         child: CircularProgressIndicator.adaptive(),
       ),

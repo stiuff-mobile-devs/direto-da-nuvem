@@ -19,10 +19,8 @@ class DeviceController extends ChangeNotifier {
   Queue? currentQueue;
   List<Device> devices = [];
 
-  Stream<Queue?>? _currentQueueStream;
   StreamSubscription<Queue?>? _currentQueueSubscription;
   StreamSubscription<List<Device>>? _devicesSubscription;
-  Stream<List<Device>>? _devicesStream;
   bool loadingInitialState = true;
 
   DeviceController(this._diretoDaNuvemAPI, this._groupController);
@@ -100,11 +98,11 @@ class DeviceController extends ChangeNotifier {
 
     currentQueue =
         await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
-    _currentQueueStream =
+    Stream<Queue?>? currentQueueStream =
         _diretoDaNuvemAPI.queueResource.getStream(group!.currentQueue);
 
     _currentQueueSubscription?.cancel();
-    _currentQueueSubscription = _currentQueueStream?.listen((queue) {
+    _currentQueueSubscription = currentQueueStream.listen((queue) {
       currentQueue = queue;
       notifyListeners();
     });
@@ -112,10 +110,11 @@ class DeviceController extends ChangeNotifier {
 
   _loadDevices() async {
     devices = await _diretoDaNuvemAPI.deviceResource.listAll();
-    _devicesStream = _diretoDaNuvemAPI.deviceResource.listAllStream();
+    Stream<List<Device>>? devicesStream = _diretoDaNuvemAPI
+        .deviceResource.listAllStream();
 
     _devicesSubscription?.cancel();
-    _devicesSubscription = _devicesStream?.listen((updatedDevices) {
+    _devicesSubscription = devicesStream.listen((updatedDevices) {
       devices = updatedDevices;
       notifyListeners();
     });

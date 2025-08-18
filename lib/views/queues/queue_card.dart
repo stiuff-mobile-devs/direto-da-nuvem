@@ -11,19 +11,15 @@ class QueueCard extends StatelessWidget {
   final Queue queue;
   final bool isActive;
 
-  pushUpdateQueuePage(BuildContext context) {
+  _pushUpdateQueuePage(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => QueueCreateUpdatePage(
           queue: queue,
           onSave: (queue) {
-            context
-                .read<QueueController>()
-                .updateQueue(
-                  queue,
-                )
-                .then((message) {
-              ScaffoldMessenger.of(context).showSnackBar(
+            final messenger = ScaffoldMessenger.of(context);
+            context.read<QueueController>().updateQueue(queue).then((message) {
+              messenger.showSnackBar(
                 SnackBar(
                   content: Text(message),
                 ),
@@ -36,40 +32,38 @@ class QueueCard extends StatelessWidget {
     );
   }
 
-  show(BuildContext context, String numberOfPhotos) {
+  _showDialog(BuildContext context, String numberOfPhotos) {
     showDialog(
-        context: context,
-        builder: (_) {
-          return AlertDialog(
-            title: const Text("Dejesa tornar esta fila ativa?"),
-            content: Text("Esta fila possui $numberOfPhotos."),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text("Fechar"),
-              ),
-              TextButton(
-                onPressed: () async {
-                  String message = await context
-                      .read<GroupController>()
-                      .makeQueueCurrent(queue.id);
-                  if (!context.mounted) {
-                    return;
-                  }
-                  ScaffoldMessenger.of(context).showSnackBar(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text("Dejesa tornar esta fila ativa?"),
+          content: Text("Esta fila possui $numberOfPhotos."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Fechar"),
+            ),
+            TextButton(
+              onPressed: () {
+                final messenger = ScaffoldMessenger.of(context);
+                context.read<GroupController>()
+                    .makeQueueCurrent(queue.id).then((message) {
+                  messenger.showSnackBar(
                     SnackBar(
                       content: Text(message),
                     ),
                   );
-                  Navigator.pop(context);
-                },
-                child: const Text("Sim"),
-              ),
-            ],
-          );
-        });
+                });
+                Navigator.pop(context);
+              },
+              child: const Text("Sim"),
+            ),
+          ],
+        );
+      });
   }
 
   @override
@@ -77,8 +71,9 @@ class QueueCard extends StatelessWidget {
     String numberOfPhotos = queue.images.length == 1
         ? "${queue.images.length} foto"
         : "${queue.images.length} fotos";
+
     return GestureDetector(
-      onTap: () => !isActive ? show(context, numberOfPhotos) : null,
+      onTap: () => !isActive ? _showDialog(context, numberOfPhotos) : null,
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -112,7 +107,7 @@ class QueueCard extends StatelessWidget {
               ),
               IconButton(
                 onPressed: () {
-                  pushUpdateQueuePage(context);
+                  _pushUpdateQueuePage(context);
                 },
                 icon: const Icon(Icons.edit),
               ),

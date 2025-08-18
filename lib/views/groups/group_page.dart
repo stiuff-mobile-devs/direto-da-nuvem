@@ -12,20 +12,18 @@ import 'package:provider/provider.dart';
 class GroupPage extends StatelessWidget {
   const GroupPage({super.key});
 
-  pushCreatePage(BuildContext context) {
+  _pushCreatePage(BuildContext context) {
+    GroupController groupController = context.read<GroupController>();
+    QueueController queueController = context.read<QueueController>();
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => QueueCreateUpdatePage(
           queue: Queue.empty(),
           onSave: (queue) {
             final messenger = ScaffoldMessenger.of(context);
-            queue.groupId = context.read<GroupController>().selectedGroup!.id;
-            context
-                .read<QueueController>()
-                .saveQueue(
-                  queue,
-                )
-                .then((message) {
+            queue.groupId = groupController.selectedGroup!.id;
+            queueController.saveQueue(queue).then((message) {
               messenger.showSnackBar(
                 SnackBar(
                   content: Text(message),
@@ -37,6 +35,12 @@ class GroupPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<String> _onCreateGroup(group, userController, groupController) async {
+    String message = await groupController.updateGroup(group);
+    await userController.updateGroupAdmins(group.admins);
+    return message;
   }
 
   @override
@@ -53,22 +57,21 @@ class GroupPage extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (context) {
                         return GroupCreatePage(
-                            group: Group.copy(groupController.selectedGroup!),
-                            onSave: (group) async {
-                              final messenger = ScaffoldMessenger.of(context);
-                              groupController
-                                  .updateGroup(group)
-                                  .then((message) async {
-                                await userController
-                                    .updateGroupAdmins(group.admins);
+                          group: Group.copy(groupController.selectedGroup!),
+                          onSave: (group) {
+                            final messenger = ScaffoldMessenger.of(context);
+                            _onCreateGroup(
+                                group, userController, groupController).then(
+                              (message) {
                                 messenger.showSnackBar(
                                   SnackBar(
                                     content: Text(message),
                                   ),
                                 );
                               });
-                              Navigator.pop(context);
-                            });
+                            Navigator.pop(context);
+                          }
+                        );
                       },
                     ),
                   );
@@ -78,7 +81,7 @@ class GroupPage extends StatelessWidget {
             ],
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () => pushCreatePage(context),
+            onPressed: () => _pushCreatePage(context),
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Colors.white,
             child: const Icon(Icons.add),

@@ -12,11 +12,11 @@ class GroupCreatePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    UserController userController = Provider
-        .of<UserController>(context, listen: false);
+    UserController userController = context.read<UserController>();
     String titleAction = group.id.isEmpty ? "Criar" : "Editar";
+
     return ChangeNotifierProvider(
-      create: (context) => GroupCreateController(context, group),
+      create: (context) => GroupCreateController(userController, group),
       builder: (context, _) {
         GroupCreateController groupCreateController =
             context.read<GroupCreateController>();
@@ -37,6 +37,7 @@ class GroupCreatePage extends StatelessWidget {
                       groupCreateController.descriptionController.text;
                   groupCreateController.group.admins =
                       groupCreateController.admins;
+
                   onSave(groupCreateController.group);
                   Navigator.of(context).pop();
                 },
@@ -89,27 +90,25 @@ class GroupCreatePage extends StatelessWidget {
                                   .validate()) {
                                 return;
                               }
-                              context.read<GroupCreateController>().addAdmin(
-                                    value,
-                                  );
-                              groupCreateController.adminEmailController
-                                  .clear();
+                              groupCreateController.addAdmin(value);
+                              groupCreateController
+                                  .adminEmailController.clear();
                             },
                             decoration: const InputDecoration(
                               labelText: "Admins do Grupo",
-                              hintText: "Adicione o email do admin",
+                              hintText: "Adicione o e-mail do admin",
                             ),
                             validator: (value) {
                               if (value != null
                                   && groupCreateController.admins.contains(value)) {
-                                return "Email já adicionado";
+                                return "E-mail já adicionado";
                               }
                               if (value == null || value.isEmpty) {
                                 return "Campo obrigatório";
                               }
                               final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
                               if (!emailRegex.hasMatch(value)) {
-                                return "Email inválido";
+                                return "E-mail inválido";
                               }
                               return null;
                             },
@@ -123,10 +122,9 @@ class GroupCreatePage extends StatelessWidget {
                                 .validate()) {
                               return;
                             }
-                            context.read<GroupCreateController>().addAdmin(
+                            groupCreateController.addAdmin(
                                   groupCreateController
-                                      .adminEmailController.text,
-                                );
+                                      .adminEmailController.text);
                             groupCreateController.adminEmailController.clear();
                           },
                         )

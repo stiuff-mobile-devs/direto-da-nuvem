@@ -8,7 +8,6 @@ class QueueController extends ChangeNotifier {
 
   List<Queue> queues = [];
 
-  Stream<List<Queue>>? _queuesStream;
   StreamSubscription<List<Queue>>? _queuesSubscription;
 
   QueueController(this._diretoDaNuvemAPI);
@@ -26,10 +25,11 @@ class QueueController extends ChangeNotifier {
 
   _loadQueues() async {
     queues = await _diretoDaNuvemAPI.queueResource.listAll();
-    _queuesStream = _diretoDaNuvemAPI.queueResource.listAllStream();
+    Stream<List<Queue>>? queuesStream = _diretoDaNuvemAPI
+        .queueResource.listAllStream();
 
     _queuesSubscription?.cancel();
-    _queuesSubscription = _queuesStream?.listen((updatedQueues) {
+    _queuesSubscription = queuesStream.listen((updatedQueues) {
       queues = updatedQueues;
       notifyListeners();
     });

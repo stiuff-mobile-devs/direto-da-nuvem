@@ -10,26 +10,29 @@ class UserCard extends StatelessWidget {
 
   const UserCard({super.key, required this.user});
 
-  _pushUpdateUserPage(BuildContext context, UserController controller) {
+  _pushUpdateUserPage(BuildContext context) {
+    UserController userController = context.read<UserController>();
     GroupController groupController = context.read<GroupController>();
 
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => UserCreatePage(
           user: User.copy(user),
-          onSave: (updatedUser) {
+          onSave: (updatedUser) async {
             final messenger = ScaffoldMessenger.of(context);
-            controller.updateUser(updatedUser).then((message) async {
-              if (user.privileges.isAdmin && !updatedUser.privileges.isAdmin) {
-                await groupController
-                    .removeAdministeredGroups(updatedUser.email, updatedUser.updatedBy);
-              }
+            userController.updateUser(updatedUser).then((message) {
               messenger.showSnackBar(
                 SnackBar(
                   content: Text(message),
                 ),
               );
             });
+
+            if (user.privileges.isAdmin && !updatedUser.privileges.isAdmin) {
+              await groupController
+                  .removeAdministeredGroups(updatedUser.email,
+                  updatedUser.updatedBy);
+            }
           },
         ),
       ),
@@ -38,10 +41,9 @@ class UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    UserController userController = context.read<UserController>();
     return GestureDetector(
       onTap: () {
-        _pushUpdateUserPage(context, userController);
+        _pushUpdateUserPage(context);
       },
       child: Card(
         elevation: 4,

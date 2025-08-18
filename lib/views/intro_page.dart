@@ -2,7 +2,6 @@ import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/local_storage/booleans.dart';
 import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_button/sign_in_button.dart';
