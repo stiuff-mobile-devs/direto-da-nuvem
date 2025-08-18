@@ -11,6 +11,28 @@ import 'package:provider/provider.dart';
 class PeoplePage extends StatelessWidget {
   const PeoplePage({super.key});
 
+  _pushCreateUserPage(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) {
+          return UserCreatePage(
+            user: User.empty(),
+            onSave: (user) {
+              final messenger = ScaffoldMessenger.of(context);
+              context.read<UserController>().createUser(user).then((message) {
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text(message),
+                  ),
+                );
+              });
+            }
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +72,7 @@ class PeoplePage extends StatelessWidget {
                   return UserCard(user: users[index]);
                 }
               );
-            }, 
+            },
             childCount: context.watch<UserController>().users.length)
           ),
         ],

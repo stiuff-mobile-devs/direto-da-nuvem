@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
-import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,6 @@ class GroupController extends ChangeNotifier {
   List<Group> groups = [];
   bool isAdmin = false;
 
-  Stream<List<Group>>? _groupsStream;
   StreamSubscription<List<Group>>? _groupsSubscription;
 
   GroupController(this._diretoDaNuvemAPI);
@@ -47,10 +45,10 @@ class GroupController extends ChangeNotifier {
 
   _fetchAllGroups() async {
     groups = await _diretoDaNuvemAPI.groupResource.listAll();
-    _groupsStream = _diretoDaNuvemAPI.groupResource.listAllStream();
+    Stream<List<Group>>? groupsStream = _diretoDaNuvemAPI.groupResource.listAllStream();
 
     _groupsSubscription?.cancel();
-    _groupsSubscription = _groupsStream?.listen((updatedGroups) {
+    _groupsSubscription = groupsStream.listen((updatedGroups) {
       groups = updatedGroups;
 
       if (selectedGroup != null) {

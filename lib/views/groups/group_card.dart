@@ -12,7 +12,7 @@ class GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    GroupController groupController = Provider.of<GroupController>(context, listen: false);
+    GroupController groupController = context.read<GroupController>();
     return InkWell(
       onTap: () {
         groupController.selectGroup(group);
@@ -50,7 +50,7 @@ class GroupCard extends StatelessWidget {
               Consumer<DeviceController>(
                 builder: (context, controller, _) {
                   return Text(
-                    '${controller.numberOfDevicesOnGroup(group.id??"")} Dispositivos',
+                    '${controller.numberOfDevicesOnGroup(group.id)} Dispositivos',
                     style: Theme.of(context).textTheme.bodyLarge,
                   );
                 }
@@ -62,7 +62,7 @@ class GroupCard extends StatelessWidget {
               const Icon(Icons.group, color: Colors.green),
               const SizedBox(width: 8),
               Text(
-                '${group.admins?.length ?? 0} Admins',
+                '${group.admins.length} Admins',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               ],

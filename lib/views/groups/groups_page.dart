@@ -1,7 +1,6 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
-import 'package:ddnuvem/utils/connection_utils.dart';
 import 'package:ddnuvem/views/groups/group_card.dart';
 import 'package:ddnuvem/views/groups/group_create_page.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +12,8 @@ class GroupsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserController userController = context.read<UserController>();
+    bool isSuperAdmin = userController.currentUser!.privileges.isSuperAdmin;
+
     return Stack(
       children: [
         SafeArea(
@@ -24,8 +25,7 @@ class GroupsPage extends StatelessWidget {
               return ListView(
                 padding: const EdgeInsets.only(bottom: 80),
                 children: [
-                  ...controller.getAdminGroups(userController
-                      .currentUser!.privileges.isSuperAdmin).map(
+                  ...controller.getAdminGroups(isSuperAdmin).map(
                     (e) => GroupCard(
                       group: e,
                     ),
@@ -35,8 +35,7 @@ class GroupsPage extends StatelessWidget {
             }),
           ),
         ),
-        !userController.currentUser!
-            .privileges.isSuperAdmin ? const SizedBox.shrink() :
+        isSuperAdmin ? const SizedBox.shrink() :
         Positioned(
           bottom: 16,
           right: 16,
@@ -47,19 +46,17 @@ class GroupsPage extends StatelessWidget {
                   builder: (context) {
                     return GroupCreatePage(
                       group: Group.empty(),
-                      onSave: (group) {
+                      onSave: (group) async {
                         final messenger = ScaffoldMessenger.of(context);
-                        context
-                            .read<GroupController>()
-                            .createGroup(group).then((message) async {
-                              await userController
-                                  .updateGroupAdmins(group.admins);
-                          messenger.showSnackBar(
-                            SnackBar(
-                              content: Text(message),
-                            ),
-                          );
+                        context.read<GroupController>()
+                            .createGroup(group).then((message) {
+                              messenger.showSnackBar(
+                              SnackBar(
+                                content: Text(message),
+                              ),
+                            );
                         });
+                        await userController.updateGroupAdmins(group.admins);
                       }
                     );
                   },

@@ -1,20 +1,16 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class GroupCreateController extends ChangeNotifier {
-  GroupCreateController(this.context, this.group) {
-    UserController userController = Provider
-        .of<UserController>(context, listen: false);
-
+  GroupCreateController(this.userController, this.group) {
     nameController.text = group.name;
     descriptionController.text = group.description;
     admins = group.admins;
-    group.updatedBy = userController.currentUser!.uid ?? "";
+    group.updatedBy = userController.currentUser!.uid;
 
     if (group.id.isEmpty) {
-      group.createdBy = userController.currentUser!.uid ?? "";
+      group.createdBy = userController.currentUser!.uid;
     } else {
       group.updatedAt = DateTime.now();
     }
@@ -28,8 +24,8 @@ class GroupCreateController extends ChangeNotifier {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController adminEmailController = TextEditingController();
   final GlobalKey<FormState> adminFormKey = GlobalKey<FormState>();
+  final UserController userController;
   final Group group;
-  final BuildContext context;
 
   void addAdmin(String admin) {
     admin = admin.trim();

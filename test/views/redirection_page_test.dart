@@ -7,7 +7,6 @@ import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
 import 'package:ddnuvem/views/intro_page.dart';
 import 'package:ddnuvem/views/redirection_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';

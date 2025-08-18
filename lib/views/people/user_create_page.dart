@@ -13,11 +13,10 @@ class UserCreatePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserController userController = context.read<UserController>();
-    bool isSuperAdmin = userController.currentUser!.privileges.isSuperAdmin;
-
     String titleAction = user.id.isEmpty ? "Criar" : "Editar";
+
     return ChangeNotifierProvider(
-      create: (context) => UserCreateController(context, user),
+      create: (context) => UserCreateController(userController, user),
       builder: (context, _) {
         UserCreateController userCreateController =
         context.read<UserCreateController>();
@@ -32,9 +31,8 @@ class UserCreatePage extends StatelessWidget {
                     return;
                   }
 
-                  if (!userCreateController.validPrivileges()) {
-                    final messenger = ScaffoldMessenger.of(context);
-                    messenger.showSnackBar(
+                  if (!userCreateController.privilegesNotEmpty()) {
+                    ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Selecione pelo menos um privilégio."),
                         backgroundColor: Colors.red,
@@ -49,10 +47,8 @@ class UserCreatePage extends StatelessWidget {
                       userCreateController.isInstaller.value;
                   userCreateController.user.privileges.isAdmin =
                       userCreateController.isAdmin.value;
-
                   userCreateController.user.privileges.isSuperAdmin =
-                  !isSuperAdmin ? false
-                      : userCreateController.isSuperAdmin.value;
+                      userCreateController.isSuperAdmin.value;
 
                   onSave(userCreateController.user);
                   Navigator.of(context).pop();
@@ -93,7 +89,7 @@ class UserCreatePage extends StatelessWidget {
                     valueListenable: userCreateController.isInstaller,
                     builder: (context, value, _) {
                       return CheckboxListTile(
-                        title: Text("Instalador"),
+                        title: const Text("Instalador"),
                         value: value,
                         onChanged: (v) {
                           userCreateController.isInstaller.value = v ?? false;
@@ -105,7 +101,7 @@ class UserCreatePage extends StatelessWidget {
                     valueListenable: userCreateController.isAdmin,
                     builder: (context, value, _) {
                       return CheckboxListTile(
-                        title: Text("Administrador"),
+                        title: const Text("Administrador"),
                         value: value,
                         onChanged: (v) {
                           userCreateController.isAdmin.value = v ?? false;
@@ -113,12 +109,11 @@ class UserCreatePage extends StatelessWidget {
                       );
                     },
                   ),
-                  !isSuperAdmin ? const SizedBox.shrink() :
                   ValueListenableBuilder<bool>(
                     valueListenable: userCreateController.isSuperAdmin,
                     builder: (context, value, _) {
                       return CheckboxListTile(
-                        title: Text("Super Administrador"),
+                        title: const Text("Super Administrador"),
                         value: value,
                         onChanged: (v) {
                           userCreateController.isSuperAdmin.value = v ?? false;

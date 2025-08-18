@@ -74,7 +74,7 @@ class Group extends HiveObject {
       updatedAt: group.updatedAt,
       createdBy: group.createdBy,
       updatedBy: group.updatedBy,
-      admins: [...group.admins ?? []],
+      admins: [...group.admins],
     );
   }
 

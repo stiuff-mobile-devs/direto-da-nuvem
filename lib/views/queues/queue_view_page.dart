@@ -74,7 +74,7 @@ class _QueueViewPageState extends State<QueueViewPage> {
           ) :
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.pop(context);
             },
             child: const Text("Voltar"),
           ),

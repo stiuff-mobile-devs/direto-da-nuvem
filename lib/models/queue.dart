@@ -53,7 +53,7 @@ class Queue extends HiveObject {
       createdAt: (data["created_at"] as Timestamp).toDate(),
       createdBy: data["created_by"],
       updatedBy: data["updated_by"] ?? "",
-      updatedAt: (data["updated_at"] as Timestamp).toDate() ?? DateTime.now(),
+      updatedAt: (data["updated_at"] as Timestamp).toDate(),
       images: (data["images"] as List)
           .map((e) => ImageUI(path: "$e", data: null))
           .toList());
