@@ -57,7 +57,7 @@ class UserController extends ChangeNotifier {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const RedirectionPage()),
-            (Route<dynamic> route) => false,
+        (Route<dynamic> route) => false,
       );
     }
   }
@@ -89,8 +89,8 @@ class UserController extends ChangeNotifier {
         currentUser!.privileges.isAdmin) {
       users = await _diretoDaNuvemAPI.userResource.listAll();
 
-      Stream<List<User>>? usersStream = _diretoDaNuvemAPI
-          .userResource.listAllStream();
+      Stream<List<User>>? usersStream =
+          _diretoDaNuvemAPI.userResource.listAllStream();
 
       _usersSubscription?.cancel();
       _usersSubscription = usersStream.listen((updatedUsers) {
@@ -148,5 +148,15 @@ class UserController extends ChangeNotifier {
       };
       return userPrivs.intersection(privileges).isNotEmpty;
     }).toList();
+  }
+
+  List<User> getUsersByPrivilegeAndQuery(Set<String> privileges, String query) {
+    final filtered = getUsersByPrivilege(privileges);
+    final q = query.trim().toLowerCase();
+    if (q.isEmpty) return filtered;
+    return filtered.where((u) => 
+      u.name.toLowerCase().contains(q) ||
+      u.email.toLowerCase().contains(q)
+    ).toList();
   }
 }
