@@ -35,7 +35,7 @@ class GroupsPage extends StatelessWidget {
             }),
           ),
         ),
-        isSuperAdmin ? const SizedBox.shrink() :
+        !isSuperAdmin ? const SizedBox.shrink() :
         Positioned(
           bottom: 16,
           right: 16,
