@@ -28,6 +28,27 @@ class UserResource {
     return users;
   }
 
+  Stream<List<User>> listAllStream() {
+    final snapshots = _firestore.collection(collection).snapshots();
+
+    return snapshots.asyncMap((event) async {
+      List<User> users = [];
+      for (var doc in event.docs) {
+        var privilegesDoc = await _firestore
+            .doc('$collection/${doc.id}/privileges/privileges')
+            .get();
+        UserPrivileges privileges = privilegesDoc.exists
+            ? UserPrivileges.fromMap(privilegesDoc.data()!)
+            : UserPrivileges(isAdmin: false, isSuperAdmin: false, isInstaller: false);
+
+        User user = User.fromMap(doc.data(), doc.id, privileges);
+        users.add(user);
+        _hiveBox.put(user.id, user);
+      }
+      return users;
+    });
+  }
+
   Future<bool> create(User user) async {
     if (await checkAuthorizedLogin(user.email) != null) {
       return false;

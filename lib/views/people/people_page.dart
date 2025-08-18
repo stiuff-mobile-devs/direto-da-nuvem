@@ -37,35 +37,38 @@ class PeoplePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child: CustomScrollView(
+        child: CustomScrollView(
         slivers: [
           SliverAppBar(title: const Text("Pessoas"), actions: [
             IconButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                      context: context,
-                      builder: (context) {
-                        return const PeopleFilterDrawer();
-                      });
-                },
-                icon: const Icon(Icons.filter_list))
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) {
+                    return const PeopleFilterDrawer();
+                  }
+                );
+              },
+              icon: const Icon(Icons.filter_list)
+            )
           ]),
           SliverToBoxAdapter(child: Consumer<PeopleFilterController>(
-              builder: (context, value, child) {
+            builder: (context, value, child) {
             return Wrap(
-                alignment: WrapAlignment.center,
-                children: value.filters
-                    .map((e) => PrivilegeFilterBadge(
-                        filter: e,
-                        onAdd: value.addFilter,
-                        onRemove: value.removeFilter))
-                    .toList());
-          })),
+              alignment: WrapAlignment.center,
+              children: value.filters
+                  .map((e) => PrivilegeFilterBadge(
+                      filter: e,
+                      onAdd: value.addFilter,
+                      onRemove: value.removeFilter))
+                  .toList());
+            })),
           SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
               return Consumer2<UserController, PeopleFilterController>(
                 builder: (context, userController, filterController, _) {
-                  final users = userController.getUsersByPrivilege(filterController.filters);
+                  final users = userController
+                      .getUsersByPrivilege(filterController.filters);
                   if (index >= users.length) {
                     return const SizedBox.shrink();
                   }
@@ -80,25 +83,10 @@ class PeoplePage extends StatelessWidget {
     ),
     floatingActionButton: FloatingActionButton(
       onPressed: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) {
-              return UserCreatePage(
-                user: User.empty(),
-                onSave: (user) {
-                  final messenger = ScaffoldMessenger.of(context);
-                  context.read<UserController>().createUser(user).then((msg) {
-                    messenger.showSnackBar(SnackBar(content: Text(msg)));
-                  });
-                },
-              );
-            },
-          ),
-        );
+        _pushCreateUserPage(context);
       },
       backgroundColor: Theme.of(context).colorScheme.primary,
       child: const Icon(Icons.add, color: Colors.white),
-    ),
-    );
+    ));
   }
 }

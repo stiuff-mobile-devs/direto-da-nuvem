@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
@@ -12,6 +14,7 @@ class UserController extends ChangeNotifier {
   User? currentUser;
   String? profileImageUrl;
 
+  StreamSubscription<List<User>>? _usersSubscription;
   bool isLoggedIn = false;
   bool loadingInitialState = true;
 
@@ -32,6 +35,12 @@ class UserController extends ChangeNotifier {
 
     loadingInitialState = false;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _usersSubscription?.cancel();
+    super.dispose();
   }
 
   login(BuildContext context) async {
@@ -79,6 +88,15 @@ class UserController extends ChangeNotifier {
     if (currentUser!.privileges.isSuperAdmin ||
         currentUser!.privileges.isAdmin) {
       users = await _diretoDaNuvemAPI.userResource.listAll();
+
+      Stream<List<User>>? usersStream = _diretoDaNuvemAPI
+          .userResource.listAllStream();
+
+      _usersSubscription?.cancel();
+      _usersSubscription = usersStream.listen((updatedUsers) {
+        users = updatedUsers;
+        notifyListeners();
+      });
     }
   }
 
@@ -117,15 +135,6 @@ class UserController extends ChangeNotifier {
         }
       }
     }
-  }
-
-  Future<bool> verifyAdminPrivilege(List<String> emails) async {
-    for (var e in emails) {
-      if (!await _diretoDaNuvemAPI.userResource.userIsAdmin(e)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   List<User> getUsersByPrivilege(Set<String> privileges) {
