@@ -27,6 +27,8 @@ class PeoplePage extends StatelessWidget {
                   ),
                 );
               });
+            }
+          );
         },
       ),
     );
@@ -35,58 +37,62 @@ class PeoplePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-            child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-                title: const Text("Pessoas"),
-                actions: [
-                  IconButton(
-                      onPressed: () {
-                        showModalBottomSheet(
-                            context: context,
-                            builder: (context) {
-                              return const PeopleFilterDrawer();
-                            });
-                      },
-                      icon: const Icon(Icons.filter_list))
-                ],
-                bottom: const PreferredSize(
-                    preferredSize: Size.fromHeight(56),
-                    child: PeopleSearchBar()
-                )
-              ),
-            SliverToBoxAdapter(child: Consumer<PeopleFilterController>(
-                builder: (context, value, child) {
-              return Wrap(
-                  alignment: WrapAlignment.center,
-                  children: value.filters
-                      .map((e) => PrivilegeFilterBadge(
-                          filter: e,
-                          onAdd: value.addFilter,
-                          onRemove: value.removeFilter))
-                      .toList());
-            })),
-            SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-              return Consumer2<UserController, PeopleFilterController>(
+      body: SafeArea(
+        child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            title: const Text("Pessoas"),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (context) {
+                      return const PeopleFilterDrawer();
+                    });
+                },
+                icon: const Icon(Icons.filter_list))
+            ],
+            bottom: const PreferredSize(
+              preferredSize: Size.fromHeight(56),
+              child: PeopleSearchBar()
+            )
+          ),
+          SliverToBoxAdapter(child: Consumer<PeopleFilterController>(
+            builder: (context, value, child) {
+            return Wrap(
+              alignment: WrapAlignment.center,
+              children: value.filters
+                .map((e) => PrivilegeFilterBadge(
+                  filter: e,
+                  onAdd: value.addFilter,
+                  onRemove: value.removeFilter))
+                .toList());
+          })),
+          SliverPadding(
+            padding: const EdgeInsets.only(bottom: 80),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return Consumer2<UserController, PeopleFilterController>(
                   builder: (context, userController, filterController, _) {
-                final users = userController.getUsersByPrivilegeAndQuery(
-                    filterController.filters, filterController.searchQuery);
-                if (index >= users.length) {
-                  return const SizedBox.shrink();
-                }
-                return UserCard(user: users[index]);
-              });
-            }, childCount: context.watch<UserController>().users.length)),
-          ],
-        )),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            _pushCreateUserPage(context);
-          },
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          child: const Icon(Icons.add, color: Colors.white),
-        ));
+                    final users = userController.getUsersByPrivilegeAndQuery(
+                        filterController.filters, filterController.searchQuery);
+                    if (index >= users.length) {
+                      return const SizedBox.shrink();
+                    }
+                    return UserCard(user: users[index]);
+                  });
+              }, childCount: context.watch<UserController>().users.length)
+            )
+          ),
+        ],
+      )),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _pushCreateUserPage(context);
+        },
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Icons.add, color: Colors.white),
+      ));
   }
 }
