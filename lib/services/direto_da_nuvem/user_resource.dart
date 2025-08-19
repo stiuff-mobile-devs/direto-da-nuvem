@@ -163,19 +163,4 @@ class UserResource {
       "uid": doc.data()['uid'] ?? ""
     };
   }
-
-  Future<bool> userIsAdmin(String email) async {
-    var query = await _firestore
-        .collection(collection)
-        .where('email', isEqualTo: email)
-        .get();
-
-    if (query.docs.isEmpty) {
-      return false;
-    }
-
-    final doc = query.docs.first;
-    UserPrivileges privileges = await _getUserPrivileges(doc.id);
-    return privileges.isAdmin || privileges.isSuperAdmin;
-  }
 }

@@ -11,14 +11,11 @@ class SignInService {
   final auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
-  Future<bool> signInWithGoogle() async {
+  Future signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
-    final validUser = await _diretoDaNuvemAPI.userResource
-        .checkAuthorizedLogin(googleUser!.email);
-    if (validUser == null) {
-      await googleSignIn.disconnect();
-      return false;
+    if (googleUser == null) {
+      return;
     }
 
     final GoogleSignInAuthentication googleAuth =
@@ -31,6 +28,13 @@ class SignInService {
 
     await auth.signInWithCredential(credential);
 
+    final validUser = await _diretoDaNuvemAPI.userResource
+        .checkAuthorizedLogin(googleUser.email);
+
+    if (validUser == null) {
+      return;
+    }
+
     // Usuário está logando pela primeira vez, registrar uid no Firestore
     if (validUser['uid']!.isEmpty) {
       await _diretoDaNuvemAPI.userResource
@@ -39,8 +43,6 @@ class SignInService {
           googleUser.displayName ?? ""
       );
     }
-
-    return true;
   }
 
   Future signOut() async {

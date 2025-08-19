@@ -44,12 +44,8 @@ class UserController extends ChangeNotifier {
   }
 
   login(BuildContext context) async {
-    if (await _signInService.signInWithGoogle()) {
-      await _loadUserData();
-    } else {
-      currentUser = User.empty();
-    }
-
+    await _signInService.signInWithGoogle();
+    await _loadUserData();
     isLoggedIn = true;
     notifyListeners();
 
@@ -57,15 +53,13 @@ class UserController extends ChangeNotifier {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const RedirectionPage()),
-        (Route<dynamic> route) => false,
+            (Route<dynamic> route) => false,
       );
     }
   }
 
   logout() async {
-    if (currentUser!.id.isNotEmpty) {
-      await _signInService.signOut();
-    }
+    await _signInService.signOut();
     currentUser = null;
     profileImageUrl = null;
     users = [];
@@ -81,12 +75,12 @@ class UserController extends ChangeNotifier {
   _getCurrentUserInfo() async {
     final fbAuthUser = _signInService.getFirebaseAuthUser();
     profileImageUrl = fbAuthUser?.photoURL;
-    currentUser = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.uid);
+    User? user = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.uid);
+    currentUser = user ?? User.empty();
   }
 
   _loadAllUsers() async {
-    if (currentUser!.privileges.isSuperAdmin ||
-        currentUser!.privileges.isAdmin) {
+    if (currentUser!.privileges.isSuperAdmin) {
       users = await _diretoDaNuvemAPI.userResource.listAll();
 
       Stream<List<User>>? usersStream =
