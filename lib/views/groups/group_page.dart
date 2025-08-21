@@ -12,37 +12,6 @@ import 'package:provider/provider.dart';
 class GroupPage extends StatelessWidget {
   const GroupPage({super.key});
 
-  _pushCreatePage(BuildContext context) {
-    GroupController groupController = context.read<GroupController>();
-    QueueController queueController = context.read<QueueController>();
-
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => QueueCreateUpdatePage(
-          queue: Queue.empty(),
-          onSave: (queue) {
-            final messenger = ScaffoldMessenger.of(context);
-            queue.groupId = groupController.selectedGroup!.id;
-            queueController.saveQueue(queue).then((message) {
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                ),
-              );
-            });
-            Navigator.pop(context);
-          },
-        ),
-      ),
-    );
-  }
-
-  Future<String> _onCreateGroup(group, userController, groupController) async {
-    String message = await groupController.updateGroup(group);
-    await userController.updateGroupAdmins(group.admins);
-    return message;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer2<GroupController, UserController>(
@@ -53,35 +22,20 @@ class GroupPage extends StatelessWidget {
             actions: [
               IconButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return GroupCreatePage(
-                          group: Group.copy(groupController.selectedGroup!),
-                          onSave: (group) {
-                            final messenger = ScaffoldMessenger.of(context);
-                            _onCreateGroup(
-                                group, userController, groupController).then(
-                              (message) {
-                                messenger.showSnackBar(
-                                  SnackBar(
-                                    content: Text(message),
-                                  ),
-                                );
-                              });
-                            Navigator.pop(context);
-                          }
-                        );
-                      },
-                    ),
-                  );
+                  _showDeleteDialog(context, groupController);
+                },
+                icon: const Icon(Icons.delete),
+              ),
+              IconButton(
+                onPressed: () {
+                  _pushEditGroupPage(context);
                 },
                 icon: const Icon(Icons.edit),
               ),
             ],
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () => _pushCreatePage(context),
+            onPressed: () => _pushCreateQueuePage(context),
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Colors.white,
             child: const Icon(Icons.add),
@@ -142,6 +96,91 @@ class GroupPage extends StatelessWidget {
 
     return Column(
       children: otherQueues.toList(),
+    );
+  }
+
+  _pushEditGroupPage(BuildContext context) {
+    GroupController groupController = context.read<GroupController>();
+    UserController userController = context.read<UserController>();
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) {
+          return GroupCreatePage(
+            group: Group.copy(groupController.selectedGroup!),
+            onSave: (group) {
+              final messenger = ScaffoldMessenger.of(context);
+              _onCreateGroup(
+                group, userController, groupController).then(
+                    (message) {
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(message),
+                    ),
+                  );
+                });
+              Navigator.pop(context);
+            }
+          );
+        },
+      ),
+    );
+  }
+
+  _pushCreateQueuePage(BuildContext context) {
+    GroupController groupController = context.read<GroupController>();
+    QueueController queueController = context.read<QueueController>();
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => QueueCreateUpdatePage(
+          queue: Queue.empty(),
+          onSave: (queue) {
+            final messenger = ScaffoldMessenger.of(context);
+            queue.groupId = groupController.selectedGroup!.id;
+            queueController.saveQueue(queue).then((message) {
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(message),
+                ),
+              );
+            });
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<String> _onCreateGroup(group, userController, groupController) async {
+    String message = await groupController.updateGroup(group);
+    await userController.updateGroupAdmins(group.admins);
+    return message;
+  }
+
+  _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Excluir grupo"),
+          content: const Text("Você deseja excluir este grupo?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () {
+                context.read<QueueController>().deleteQueuesByGroupId(.selectedGroup!.id);
+                groupController.deleteGroup(groupController.selectedGroup!.id);
+                Navigator.pop(context);
+              },
+              child: const Text("Excluir"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

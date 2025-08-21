@@ -44,8 +44,12 @@ class UserController extends ChangeNotifier {
   }
 
   login(BuildContext context) async {
-    await _signInService.signInWithGoogle();
-    await _loadUserData();
+    if (await _signInService.signInWithGoogle()) {
+      await _loadUserData();
+    } else {
+      currentUser = User.empty();
+    }
+
     isLoggedIn = true;
     notifyListeners();
 
@@ -56,10 +60,16 @@ class UserController extends ChangeNotifier {
             (Route<dynamic> route) => false,
       );
     }
+    await _loadUserData();
+    isLoggedIn = true;
+    loadingInitialState = false;
+    notifyListeners();
   }
 
   logout() async {
-    await _signInService.signOut();
+    if (currentUser!.id.isNotEmpty) {
+      await _signInService.signOut();
+    }
     currentUser = null;
     profileImageUrl = null;
     users = [];

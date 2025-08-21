@@ -11,6 +11,10 @@ class RegisterDeviceController extends ChangeNotifier {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController localeController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final FocusNode descriptionFocus = FocusNode();
+  final FocusNode localeFocus = FocusNode();
+  final FocusNode groupFocus = FocusNode();
+  final FocusNode buttonFocus = FocusNode();
   UserController? userController;
   final BuildContext context;
 

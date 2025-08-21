@@ -1,3 +1,4 @@
+import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/views/queues/image_list_tile.dart';
 import 'package:ddnuvem/views/queues/queue_edit_controller.dart';
@@ -23,6 +24,13 @@ class QueueCreateUpdatePage extends StatelessWidget {
         appBar: AppBar(
           title: Text("$titleAction fila"),
           actions: [
+            queue.id.isNotEmpty ?
+            IconButton(
+              onPressed: () {
+                _showDeleteDialog(context);
+              },
+              icon: const Icon(Icons.delete),
+            ) : const SizedBox.shrink(),
             IconButton(
               icon: const Icon(Icons.save),
               onPressed: () {
@@ -104,6 +112,32 @@ class QueueCreateUpdatePage extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+
+  _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Excluir fila"),
+          content: const Text("Você deseja excluir esta fila?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                Navigator.pop(context);
+                await context.read<QueueController>().deleteQueue(queue.id);
+              },
+              child: const Text("Excluir"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

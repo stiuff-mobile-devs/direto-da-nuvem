@@ -34,13 +34,7 @@ class UserResource {
     return snapshots.asyncMap((event) async {
       List<User> users = [];
       for (var doc in event.docs) {
-        var privilegesDoc = await _firestore
-            .doc('$collection/${doc.id}/privileges/privileges')
-            .get();
-        UserPrivileges privileges = privilegesDoc.exists
-            ? UserPrivileges.fromMap(privilegesDoc.data()!)
-            : UserPrivileges(isAdmin: false, isSuperAdmin: false, isInstaller: false);
-
+        var privileges = await _getUserPrivileges(doc.id);
         User user = User.fromMap(doc.data(), doc.id, privileges);
         users.add(user);
         _hiveBox.put(user.id, user);
@@ -50,7 +44,7 @@ class UserResource {
   }
 
   Future<bool> create(User user) async {
-    if (await checkAuthorizedLogin(user.email) != null) {
+    if (await get(user.email) != null) {
       return false;
     }
 
@@ -61,13 +55,13 @@ class UserResource {
     return true;
   }
 
-  Future<User?> get(String uid) async {
+  Future<User?> get(String email) async {
     User? user;
 
     if (await hasInternetConnection()) {
       final query = await _firestore
           .collection(collection)
-          .where('uid', isEqualTo: uid)
+          .where('email', isEqualTo: email)
           .get();
 
       if (query.docs.isEmpty) {
@@ -80,7 +74,7 @@ class UserResource {
       _hiveBox.put(user.id, user);
     } else {
       try {
-        user = _hiveBox.values.firstWhere((u) => u.uid == uid);
+        user = _hiveBox.values.firstWhere((u) => u.email == email);
       } catch (e) {
         return null;
       }
