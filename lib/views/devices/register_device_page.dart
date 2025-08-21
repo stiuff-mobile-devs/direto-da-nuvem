@@ -10,28 +10,33 @@ class RegisterDevicePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     return ChangeNotifierProvider<RegisterDeviceController>(
       create: (_) => RegisterDeviceController(context),
       builder: (context, _) {
         final controller = Provider.of<RegisterDeviceController>(context);
         final deviceController = Provider.of<DeviceController>(context);
         return Scaffold(
-          body: Container(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Cadastro de novo dispositivo",
-                    style: Theme.of(context).textTheme.headlineSmall),
-                const SizedBox(
-                  height: 16,
-                ),
-                Form(
+          body: FocusTraversalGroup (
+            child: Container(
+              padding: isLandscape
+                  ? const EdgeInsets.only(left: 100, right: 100, top: 8, bottom: 8)
+                  : const EdgeInsets.all(8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Cadastro de novo dispositivo",
+                      style: Theme.of(context).textTheme.headlineSmall),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Form(
                     key: controller.formKey,
                     child: Column(
                       children: [
                         TextFormField(
+                          focusNode: controller.descriptionFocus,
                           controller: controller.descriptionController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -39,11 +44,15 @@ class RegisterDevicePage extends StatelessWidget {
                             }
                             return null;
                           },
-                          decoration:
-                              const InputDecoration(hintText: "Descrição"),
+                          decoration: const InputDecoration(
+                              labelText: "Descrição",
+                              border: OutlineInputBorder(),
+                              hintText: "Descrição do dispositivo"
+                          ),
                         ),
                         const SizedBox(height: 12),
                         TextFormField(
+                          focusNode: controller.localeFocus,
                           controller: controller.localeController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -51,13 +60,17 @@ class RegisterDevicePage extends StatelessWidget {
                             }
                             return null;
                           },
-                          decoration:
-                              const InputDecoration(hintText: "Localização"),
+                          decoration: const InputDecoration(
+                            hintText: "Local do dispositivo",
+                            labelText: 'Localização',
+                            border: OutlineInputBorder(),
+                          ),
                         ),
                         const SizedBox(height: 12),
                         choseGroup(controller),
                         const SizedBox(height: 12),
                         ElevatedButton(
+                          focusNode: controller.buttonFocus,
                           onPressed: () async {
                             Device? device = controller.validate();
                             if (device != null) {
@@ -70,10 +83,12 @@ class RegisterDevicePage extends StatelessWidget {
                           child: const Text("Cadastrar"),
                         ),
                       ],
-                    ))
-              ],
+                    )
+                  )
+                ],
+              ),
             ),
-          ),
+          )
         );
       },
     );
@@ -89,6 +104,7 @@ class RegisterDevicePage extends StatelessWidget {
         ).toList();
 
         return DropdownMenu<String>(
+          focusNode: controller.groupFocus,
           width: MediaQuery.of(context).size.width - 16,
           dropdownMenuEntries: entries,
           onSelected: controller.selectGroup,

@@ -66,6 +66,7 @@ class UserCreatePage extends StatelessWidget {
                     enabled: user.uid.isEmpty,
                     controller: userCreateController.emailController,
                     decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
                       labelText: "E-mail",
                       hintText: "Digite o e-mail iduff do usuário",
                     ),
