@@ -1,4 +1,5 @@
 import 'package:ddnuvem/models/image_ui.dart';
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/queues/queue_edit_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -26,13 +27,16 @@ class ImageListTile extends StatelessWidget {
           ),
         ),
         Positioned(
-            top: -8,
-            right: -8,
-            child: IconButton.filled(
-                onPressed: () {
-                  context.read<QueueEditController>().removeQueueImage(image);
-                },
-                icon: const Icon(Icons.close)))
+          top: -8,
+          right: -8,
+          child: IconButton.filled(
+            style: IconButton.styleFrom(
+              backgroundColor: AppTheme.primaryRed,
+            ),
+            onPressed: () {
+              context.read<QueueEditController>().removeQueueImage(image);
+            },
+            icon: const Icon(Icons.close)))
       ],
     );
   }

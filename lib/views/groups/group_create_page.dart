@@ -2,6 +2,8 @@ import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
+import 'package:ddnuvem/routes/route_paths.dart';
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/groups/group_create_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +32,7 @@ class GroupCreatePage extends StatelessWidget {
             actions: [
               group.id.isNotEmpty && isSuperAdmin
                   ? IconButton(
+                      color: AppTheme.primaryRed,
                       onPressed: () {
                         _showDeleteDialog(context);
                       },
@@ -38,6 +41,7 @@ class GroupCreatePage extends StatelessWidget {
                   : const SizedBox.shrink(),
               IconButton(
                 icon: const Icon(Icons.save),
+                color: AppTheme.primaryBlue,
                 onPressed: () async {
                   if (!groupCreateController.formKey.currentState!.validate()) {
                     return;
@@ -65,8 +69,12 @@ class GroupCreatePage extends StatelessWidget {
                   TextFormField(
                     controller: groupCreateController.nameController,
                     decoration: const InputDecoration(
+                      floatingLabelStyle: TextStyle(color: Colors.blueGrey),
                       labelText: "Nome do Grupo",
                       hintText: "Digite o nome do grupo",
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey, width: 2),
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -78,8 +86,12 @@ class GroupCreatePage extends StatelessWidget {
                   TextFormField(
                     controller: groupCreateController.descriptionController,
                     decoration: const InputDecoration(
+                      floatingLabelStyle: TextStyle(color: Colors.blueGrey),
                       labelText: "Descrição do Grupo",
                       hintText: "Digite a descrição do grupo",
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey, width: 2),
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -108,7 +120,11 @@ class GroupCreatePage extends StatelessWidget {
                             },
                             decoration: const InputDecoration(
                               labelText: "Admins do Grupo",
+                              floatingLabelStyle: TextStyle(color: Colors.blueGrey),
                               hintText: "Adicione o e-mail do admin",
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey, width: 2),
+                              ),
                             ),
                             validator: (value) {
                               if (value != null
@@ -180,7 +196,8 @@ class GroupCreatePage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancelar"),
+              child: const Text("Fechar", style: TextStyle(
+                  color: AppTheme.primaryBlue)),
             ),
             TextButton(
               onPressed: () {
@@ -190,11 +207,14 @@ class GroupCreatePage extends StatelessWidget {
                   messenger.showSnackBar(SnackBar(content: Text(message)));
                 });
 
-                Navigator.popUntil(context,
-                        (route) => route.settings.name == "/");
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    RoutePaths.admin,
+                    (route) => false,
+                    arguments: {'startIndex': 1}
+                );
               },
               child: const Text("Excluir",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+                  style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryRed)),
             ),
           ],
         );

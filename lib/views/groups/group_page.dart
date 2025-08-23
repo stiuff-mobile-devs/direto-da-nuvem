@@ -4,6 +4,7 @@ import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/groups/group_create_page.dart';
 import 'package:ddnuvem/views/queues/queue_card.dart';
 import 'package:ddnuvem/views/queues/queue_create_update_page.dart';
@@ -35,7 +36,7 @@ class GroupPage extends StatelessWidget {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () => _pushCreateQueuePage(context, groupController),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: AppTheme.primaryBlue,
             foregroundColor: Colors.white,
             child: const Icon(Icons.add),
           ),

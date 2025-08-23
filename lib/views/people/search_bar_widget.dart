@@ -54,6 +54,9 @@ class _PeopleSearchBarState extends State<PeopleSearchBar> {
                       },
                     ),
               border: const OutlineInputBorder(),
+              focusedBorder: const OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey, width: 2),
+              ),
               isDense: true,
             ),
           );

@@ -1,6 +1,7 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/queues/image_list_tile.dart';
 import 'package:ddnuvem/views/queues/queue_edit_controller.dart';
 import 'package:ddnuvem/views/queues/queue_view_page.dart';
@@ -48,12 +49,14 @@ class QueueCreateUpdatePage extends StatelessWidget {
                 : const SizedBox.shrink(),
             queue.id.isNotEmpty && !isActive ?
             IconButton(
+              color: AppTheme.primaryRed,
               onPressed: () {
                 _showDeleteDialog(context);
               },
               icon: const Icon(Icons.delete),
             ) : const SizedBox.shrink(),
             IconButton(
+              color: AppTheme.primaryBlue,
               icon: const Icon(Icons.save),
               onPressed: () {
                 var controller =
@@ -84,7 +87,7 @@ class QueueCreateUpdatePage extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: context.read<QueueEditController>().pickImage,
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: AppTheme.primaryBlue,
           foregroundColor: Theme.of(context).colorScheme.onPrimary,
           tooltip: "Adicionar Imagem",
           child: const Icon(Icons.add),
@@ -106,8 +109,12 @@ class QueueCreateUpdatePage extends StatelessWidget {
                       },
                       controller: controller.nameController,
                       decoration: const InputDecoration(
+                        floatingLabelStyle: TextStyle(color: Colors.blueGrey),
                         labelText: 'Nome da Fila',
                         border: OutlineInputBorder(),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey, width: 2),
+                        ),
                       ),
                     ),
                   ),
@@ -147,7 +154,8 @@ class QueueCreateUpdatePage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancelar"),
+              child: const Text("Fechar", style: TextStyle(
+                  color: AppTheme.primaryBlue)),
             ),
             TextButton(
               onPressed: () async {
@@ -157,7 +165,9 @@ class QueueCreateUpdatePage extends StatelessWidget {
                 }
               },
               child: const Text("Excluir",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryRed)),
             ),
           ],
         );

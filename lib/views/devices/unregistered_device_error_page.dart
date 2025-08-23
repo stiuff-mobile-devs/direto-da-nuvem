@@ -1,4 +1,5 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -79,14 +80,16 @@ class _UnregisteredDeviceErrorPageState
                 });
                 Navigator.of(context).pop();
               },
-              child: const Text("Tocar demonstração"),
+              child: const Text("Tocar demonstração", style: TextStyle(
+                  color: AppTheme.primaryBlue)),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 context.read<UserController>().logout();
               },
-              child: const Text("Sair"),
+              child: const Text("Sair", style: TextStyle(
+                  color: AppTheme.primaryBlue)),
             ),
           ],
         ),

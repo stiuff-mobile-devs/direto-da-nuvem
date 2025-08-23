@@ -1,3 +1,4 @@
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:flutter/material.dart';
 
 class PrivilegeFilterBadge extends StatelessWidget {
@@ -17,7 +18,7 @@ class PrivilegeFilterBadge extends StatelessWidget {
         padding: const EdgeInsets.all(4.0),
         child: Container(
             decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
+                color: AppTheme.primaryBlue,
                 borderRadius: BorderRadius.circular(8)),
             child: Padding(
                 padding: const EdgeInsets.all(4.0),

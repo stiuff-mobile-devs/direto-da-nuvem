@@ -1,6 +1,7 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/groups/group_card.dart';
 import 'package:ddnuvem/views/groups/group_create_page.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +64,7 @@ class GroupsPage extends StatelessWidget {
                 ),
               );
             },
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: AppTheme.primaryBlue,
             child: const Icon(
               Icons.add,
               color: Colors.white,

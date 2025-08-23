@@ -4,6 +4,7 @@ import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/local_storage/booleans.dart';
 import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/admin/admin_page.dart';
 import 'package:ddnuvem/views/devices/register_device_page.dart';
 import 'package:ddnuvem/views/devices/unregistered_device_error_page.dart';
@@ -112,7 +113,9 @@ class _RedirectionPageState extends State<RedirectionPage> {
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: const Center(
-        child: CircularProgressIndicator.adaptive(),
+        child: CircularProgressIndicator.adaptive(
+          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
+        ),
       ),
     );
   }

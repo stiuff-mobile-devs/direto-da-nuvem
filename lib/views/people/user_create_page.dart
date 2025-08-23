@@ -1,5 +1,6 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/people/user_create_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -28,12 +29,14 @@ class UserCreatePage extends StatelessWidget {
             actions: [
               user.id.isNotEmpty ?
               IconButton(
+                color: AppTheme.primaryRed,
                 onPressed: () {
                   _showDeleteDialog(context);
                 },
                 icon: const Icon(Icons.delete),
               ) : const SizedBox.shrink(),
               IconButton(
+                color: AppTheme.primaryBlue,
                 icon: const Icon(Icons.save),
                 onPressed: () async {
                   if (!userCreateController.formKey.currentState!.validate()) {
@@ -75,9 +78,13 @@ class UserCreatePage extends StatelessWidget {
                     enabled: user.uid.isEmpty,
                     controller: userCreateController.emailController,
                     decoration: const InputDecoration(
+                      floatingLabelStyle: TextStyle(color: Colors.blueGrey),
                       border: OutlineInputBorder(),
                       labelText: "E-mail",
-                      hintText: "Digite o e-mail iduff do usuário",
+                      hintText: "Digite o e-mail do usuário",
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey, width: 2),
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -99,6 +106,7 @@ class UserCreatePage extends StatelessWidget {
                     valueListenable: userCreateController.isInstaller,
                     builder: (context, value, _) {
                       return CheckboxListTile(
+                        activeColor: AppTheme.primaryBlue,
                         title: const Text("Instalador"),
                         value: value,
                         onChanged: (v) {
@@ -111,6 +119,7 @@ class UserCreatePage extends StatelessWidget {
                     valueListenable: userCreateController.isAdmin,
                     builder: (context, value, _) {
                       return CheckboxListTile(
+                        activeColor: AppTheme.primaryBlue,
                         title: const Text("Administrador"),
                         value: value,
                         onChanged: (v) {
@@ -123,6 +132,7 @@ class UserCreatePage extends StatelessWidget {
                     valueListenable: userCreateController.isSuperAdmin,
                     builder: (context, value, _) {
                       return CheckboxListTile(
+                        activeColor: AppTheme.primaryBlue,
                         title: const Text("Super Administrador"),
                         value: value,
                         onChanged: (v) {
@@ -144,12 +154,13 @@ class UserCreatePage extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Remover usuário"),
-          content: const Text("Você deseja remover este usuário?"),
+          title: const Text("Excluir usuário"),
+          content: const Text("Você deseja excluir este usuário?"),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancelar"),
+              child: const Text("Fechar", style: TextStyle(
+                  color: AppTheme.primaryBlue)),
             ),
             TextButton(
               onPressed: () {
@@ -158,9 +169,10 @@ class UserCreatePage extends StatelessWidget {
                   onDelete!(user);
                 }
               },
-              child: const Text("Remover",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-            ),
+              child: const Text("Excluir",
+                  style: TextStyle(fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryRed),
+            )),
           ],
         );
       },

@@ -1,4 +1,5 @@
 import 'package:ddnuvem/models/group.dart';
+import 'package:ddnuvem/utils/theme.dart' show AppTheme;
 import 'package:flutter/material.dart';
 
 class FilterBadge extends StatelessWidget {
@@ -19,7 +20,7 @@ class FilterBadge extends StatelessWidget {
       padding: const EdgeInsets.all(4.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor,
+          color: AppTheme.primaryBlue,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Padding(

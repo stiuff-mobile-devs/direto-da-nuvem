@@ -3,6 +3,7 @@ import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/queues/queue_create_update_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -69,14 +70,15 @@ class QueueCard extends StatelessWidget {
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: const Text("Dejesa tornar esta fila ativa?"),
+          title: const Text("Tornar esta fila ativa?"),
           content: Text("Esta fila possui $numberOfPhotos."),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text("Fechar"),
+              child: const Text("Fechar",
+                  style: TextStyle(color: AppTheme.primaryRed)),
             ),
             TextButton(
               onPressed: () {
@@ -91,7 +93,9 @@ class QueueCard extends StatelessWidget {
                 });
                 Navigator.pop(context);
               },
-              child: const Text("Sim"),
+              child: const Text("Sim", style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryBlue)),
             ),
           ],
         );
@@ -163,7 +167,7 @@ class QueueCard extends StatelessWidget {
       case QueueStatus.approved:
         return const Icon(Icons.check_circle, color: Colors.green);
       case QueueStatus.rejected:
-        return const Icon(Icons.cancel, color: Colors.red);
+        return const Icon(Icons.cancel, color: AppTheme.primaryRed);
       case QueueStatus.pending:
         return const Icon(Icons.hourglass_empty, color: Colors.orange);
     }

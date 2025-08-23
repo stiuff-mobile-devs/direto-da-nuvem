@@ -113,7 +113,7 @@ class UserController extends ChangeNotifier {
   Future<String> deleteUser(User user) async {
     await _diretoDaNuvemAPI.userResource.delete(user);
     notifyListeners();
-    return "Usuário deletado com sucesso!";
+    return "Usuário excluído com sucesso!";
   }
 
   Future<String> updateUser(User user) async {

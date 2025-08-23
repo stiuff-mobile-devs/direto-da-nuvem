@@ -1,5 +1,6 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/people/people_filter_controller.dart';
 import 'package:ddnuvem/views/people/people_filter_drawer.dart';
 import 'package:ddnuvem/views/people/privilege_filter_badge.dart';
@@ -91,7 +92,7 @@ class PeoplePage extends StatelessWidget {
         onPressed: () {
           _pushCreateUserPage(context);
         },
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: AppTheme.primaryBlue,
         child: const Icon(Icons.add, color: Colors.white),
       ));
   }

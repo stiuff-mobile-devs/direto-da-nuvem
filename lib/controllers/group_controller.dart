@@ -78,7 +78,7 @@ class GroupController extends ChangeNotifier {
   Future<String> deleteGroup(String groupId) async {
     await _diretoDaNuvemAPI.groupResource.delete(selectedGroup!.id);
     notifyListeners();
-    return "Grupo deletado com sucesso!";
+    return "Grupo excluído com sucesso!";
   }
 
   Future<String> updateGroup(Group group) async {

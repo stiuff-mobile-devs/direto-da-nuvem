@@ -1,6 +1,7 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/models/device.dart';
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/devices/register_device_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -45,9 +46,13 @@ class RegisterDevicePage extends StatelessWidget {
                             return null;
                           },
                           decoration: const InputDecoration(
-                              labelText: "Descrição",
-                              border: OutlineInputBorder(),
-                              hintText: "Descrição do dispositivo"
+                            floatingLabelStyle: TextStyle(color: Colors.blueGrey),
+                            labelText: "Descrição",
+                            border: OutlineInputBorder(),
+                            hintText: "Descrição do dispositivo",
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey, width: 2),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -61,9 +66,13 @@ class RegisterDevicePage extends StatelessWidget {
                             return null;
                           },
                           decoration: const InputDecoration(
+                            floatingLabelStyle: TextStyle(color: Colors.blueGrey),
                             hintText: "Local do dispositivo",
                             labelText: 'Localização',
                             border: OutlineInputBorder(),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey, width: 2),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -80,7 +89,8 @@ class RegisterDevicePage extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 50),
                           ),
-                          child: const Text("Cadastrar"),
+                          child: const Text("Cadastrar", style: TextStyle(
+                              color: AppTheme.primaryBlue)),
                         ),
                       ],
                     )
@@ -108,7 +118,14 @@ class RegisterDevicePage extends StatelessWidget {
           width: MediaQuery.of(context).size.width - 16,
           dropdownMenuEntries: entries,
           onSelected: controller.selectGroup,
-          label: const Text("Selectionar Grupo"),
+          label: const Text("Selecionar Grupo"),
+          inputDecorationTheme: const InputDecorationTheme(
+            floatingLabelStyle: TextStyle(color: Colors.blueGrey),
+            border: OutlineInputBorder(),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey, width: 2),
+            ),
+          ),
         );
       },
     );

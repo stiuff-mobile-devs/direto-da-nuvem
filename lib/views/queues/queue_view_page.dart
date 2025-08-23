@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -63,20 +64,23 @@ class _QueueViewPageState extends State<QueueViewPage> {
                 showView = true;
               });
             },
-            child: const Text("Play"),
+            child: const Text("Play", style: TextStyle(
+                color: AppTheme.primaryBlue)),
           ),
           !admin ?
           ElevatedButton(
             onPressed: () {
               context.read<UserController>().logout();
             },
-            child: const Text("Sair"),
+            child: const Text("Sair", style: TextStyle(
+                color: AppTheme.primaryBlue)),
           ) :
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: const Text("Voltar"),
+            child: const Text("Voltar", style: TextStyle(
+                color: AppTheme.primaryBlue)),
           ),
         ],
       );
