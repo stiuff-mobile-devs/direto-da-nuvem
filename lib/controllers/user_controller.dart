@@ -44,13 +44,11 @@ class UserController extends ChangeNotifier {
   }
 
   login(BuildContext context) async {
-    if (await _signInService.signInWithGoogle()) {
-      await _loadUserData();
-    } else {
-      currentUser = User.empty();
+    if (!await _signInService.signInWithGoogle()) {
+      return;
     }
 
-    isLoggedIn = true;
+    loadingInitialState = true;
     notifyListeners();
 
     if (context.mounted) {
@@ -67,9 +65,7 @@ class UserController extends ChangeNotifier {
   }
 
   logout() async {
-    if (currentUser!.id.isNotEmpty) {
-      await _signInService.signOut();
-    }
+    await _signInService.signOut();
     currentUser = null;
     profileImageUrl = null;
     users = [];
@@ -85,7 +81,7 @@ class UserController extends ChangeNotifier {
   _getCurrentUserInfo() async {
     final fbAuthUser = _signInService.getFirebaseAuthUser();
     profileImageUrl = fbAuthUser?.photoURL;
-    User? user = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.uid);
+    User? user = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.email!);
     currentUser = user ?? User.empty();
   }
 
@@ -114,6 +110,12 @@ class UserController extends ChangeNotifier {
     return "Usuário já existe.";
   }
 
+  Future<String> deleteUser(User user) async {
+    await _diretoDaNuvemAPI.userResource.delete(user);
+    notifyListeners();
+    return "Usuário deletado com sucesso!";
+  }
+
   Future<String> updateUser(User user) async {
     await _diretoDaNuvemAPI.userResource.update(user);
     notifyListeners();
@@ -122,7 +124,7 @@ class UserController extends ChangeNotifier {
 
   Future updateGroupAdmins(List<String> emails) async {
     for (var e in emails) {
-      User? user = await _diretoDaNuvemAPI.userResource.getByEmail(e);
+      User? user = await _diretoDaNuvemAPI.userResource.get(e);
       if (user == null) {
         user = User.empty();
         user.email = e;

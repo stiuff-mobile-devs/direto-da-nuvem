@@ -13,13 +13,13 @@ class UserCard extends StatelessWidget {
   _pushUpdateUserPage(BuildContext context) {
     UserController userController = context.read<UserController>();
     GroupController groupController = context.read<GroupController>();
+    final messenger = ScaffoldMessenger.of(context);
 
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => UserCreatePage(
           user: User.copy(user),
           onSave: (updatedUser) async {
-            final messenger = ScaffoldMessenger.of(context);
             userController.updateUser(updatedUser).then((message) {
               messenger.showSnackBar(
                 SnackBar(
@@ -33,6 +33,20 @@ class UserCard extends StatelessWidget {
                   .removeAdministeredGroups(updatedUser.email,
                   updatedUser.updatedBy);
             }
+          },
+          onDelete: (user) {
+            if (user.privileges.isAdmin) {
+              groupController.removeAdministeredGroups(user.email,
+                  userController.currentUser!.uid);
+            }
+            userController.deleteUser(user).then((message) {
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(message),
+                ),
+              );
+            });
+            Navigator.pop(context);
           },
         ),
       ),

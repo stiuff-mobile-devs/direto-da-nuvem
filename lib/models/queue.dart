@@ -16,6 +16,7 @@ class Queue extends HiveObject {
   int duration;
   @HiveField(4)
   String animation;
+
   @HiveField(5)
   DateTime createdAt;
   @HiveField(6)

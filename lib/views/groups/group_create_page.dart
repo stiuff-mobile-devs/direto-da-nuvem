@@ -1,3 +1,5 @@
+import 'package:ddnuvem/controllers/group_controller.dart';
+import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/views/groups/group_create_controller.dart';
@@ -5,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class GroupCreatePage extends StatelessWidget {
-  const GroupCreatePage({super.key, required this.group, required this.onSave});
+  const GroupCreatePage({super.key,
+    required this.group, required this.onSave});
 
   final Group group;
   final Function(Group) onSave;
@@ -24,6 +27,14 @@ class GroupCreatePage extends StatelessWidget {
           appBar: AppBar(
             title: Text("$titleAction grupo"),
             actions: [
+              group.id.isNotEmpty
+                  ? IconButton(
+                      onPressed: () {
+                        _showDeleteDialog(context);
+                      },
+                      icon: const Icon(Icons.delete),
+                    )
+                  : const SizedBox.shrink(),
               IconButton(
                 icon: const Icon(Icons.save),
                 onPressed: () async {
@@ -151,6 +162,40 @@ class GroupCreatePage extends StatelessWidget {
               ),
             ),
           ),
+        );
+      },
+    );
+  }
+
+  _showDeleteDialog(BuildContext context) {
+    QueueController queueController = context.read<QueueController>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Excluir grupo"),
+          content: const Text("Você deseja excluir este grupo e todas as suas filas e dispositivos?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () {
+                final messenger = ScaffoldMessenger.of(context);
+                context.read<GroupController>().deleteGroup(group.id).then((message) async {
+                  await queueController.deleteQueuesByGroup(group.id);
+                  messenger.showSnackBar(SnackBar(content: Text(message)));
+                });
+
+                Navigator.popUntil(context,
+                        (route) => route.settings.name == "/");
+              },
+              child: const Text("Excluir",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
         );
       },
     );

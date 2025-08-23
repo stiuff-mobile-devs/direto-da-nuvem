@@ -55,7 +55,7 @@ class Group extends HiveObject {
       id: "",
       name: "",
       description: "",
-      currentQueue: "init",
+      currentQueue: "",
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       createdBy: "",

@@ -1,5 +1,6 @@
+import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -8,41 +9,42 @@ class SignInService {
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
   SignInService(this.context, this._diretoDaNuvemAPI);
 
-  final auth = FirebaseAuth.instance;
+  final auth = fb_auth.FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
-  Future signInWithGoogle() async {
+  Future<bool> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
     if (googleUser == null) {
-      return;
+      return false;
     }
 
     final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
 
-    final credential = GoogleAuthProvider.credential(
+    final credential = fb_auth.GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
 
     await auth.signInWithCredential(credential);
 
-    final validUser = await _diretoDaNuvemAPI.userResource
-        .checkAuthorizedLogin(googleUser.email);
+    User? user = await _diretoDaNuvemAPI.userResource.get(googleUser.email);
 
-    if (validUser == null) {
-      return;
+    if (user == null) {
+      return true;
     }
 
     // Usuário está logando pela primeira vez, registrar uid no Firestore
-    if (validUser['uid']!.isEmpty) {
-      await _diretoDaNuvemAPI.userResource
-          .updateAuthenticatedUser(validUser['id']!,
-          auth.currentUser!.uid,
-          googleUser.displayName ?? ""
-      );
+    if (user.uid.isEmpty) {
+      user.uid = auth.currentUser!.uid;
+      user.name = googleUser.displayName ?? "";
+      user.updatedAt = DateTime.now();
+      user.updatedBy = auth.currentUser!.uid;
+      await _diretoDaNuvemAPI.userResource.update(user);
     }
+
+    return true;
   }
 
   Future signOut() async {
@@ -60,7 +62,7 @@ class SignInService {
     return user == null ? false : true;
   }
 
-  User? getFirebaseAuthUser() {
+  fb_auth.User? getFirebaseAuthUser() {
     return auth.currentUser;
   }
 }

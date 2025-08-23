@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AdminPage extends StatelessWidget {
-  const AdminPage({super.key});
+  const AdminPage({super.key, this.startIndex = 0});
+
+  final int startIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,7 @@ class AdminPage extends StatelessWidget {
     ].whereType<Tab>().toList();
 
     return DefaultTabController(
+      initialIndex: startIndex,
       length: pages.length,
       child: Scaffold(
         body: TabBarView(children: pages),

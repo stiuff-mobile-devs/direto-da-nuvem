@@ -55,6 +55,13 @@ class UserResource {
     return true;
   }
 
+  Future delete(User user) async {
+    await _firestore
+        .doc("$collection/${user.id}/privileges/privileges").delete();
+    await _firestore.doc("$collection/${user.id}").delete();
+    _hiveBox.delete(user.id);
+  }
+
   Future<User?> get(String email) async {
     User? user;
 
@@ -96,21 +103,6 @@ class UserResource {
         .update(user.privileges.toMap());
   }
 
-  Future updateAuthenticatedUser(String id, String uid, String name) async {
-    var doc = await _firestore.doc("$collection/$id").get();
-
-    if (!doc.exists) {
-      return;
-    }
-
-    await _firestore.doc("$collection/$id").update({
-      "uid": uid,
-      "name": name,
-      "updated_at": DateTime.now(),
-      "updated_by": uid,
-    });
-  }
-
   Future<UserPrivileges> _getUserPrivileges(String id) async {
     var doc = await _firestore
         .doc('$collection/$id/privileges/privileges').get();
@@ -124,37 +116,5 @@ class UserResource {
         isSuperAdmin: false,
         isInstaller: false
     );
-  }
-
-  Future<User?> getByEmail(String email) async {
-    var query = await _firestore
-        .collection(collection)
-        .where('email', isEqualTo: email)
-        .get();
-
-    if (query.docs.isEmpty) {
-      return null;
-    }
-
-    final doc = query.docs.first;
-    UserPrivileges privileges = await _getUserPrivileges(doc.id);
-    return User.fromMap(doc.data(), doc.id, privileges);
-  }
-
-  Future<Map<String,String>?> checkAuthorizedLogin(String email) async {
-    var query = await _firestore
-        .collection(collection)
-        .where('email', isEqualTo: email)
-        .get();
-
-    if (query.docs.isEmpty) {
-      return null;
-    }
-
-    final doc = query.docs.first;
-    return {
-      "id": doc.id,
-      "uid": doc.data()['uid'] ?? ""
-    };
   }
 }

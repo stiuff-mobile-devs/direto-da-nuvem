@@ -1,4 +1,3 @@
-import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/views/queues/image_list_tile.dart';
 import 'package:ddnuvem/views/queues/queue_edit_controller.dart';
@@ -8,9 +7,16 @@ import 'package:provider/provider.dart';
 
 class QueueCreateUpdatePage extends StatelessWidget {
   const QueueCreateUpdatePage(
-      {super.key, required this.queue, required this.onSave});
+      {super.key, required this.queue,
+        required this.onSave,
+        this.onDelete,
+        this.isActive = false
+      });
+
   final Queue queue;
-  final void Function(Queue queue) onSave;
+  final bool isActive;
+  final void Function(Queue) onSave;
+  final void Function(Queue)? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +30,7 @@ class QueueCreateUpdatePage extends StatelessWidget {
         appBar: AppBar(
           title: Text("$titleAction fila"),
           actions: [
-            queue.id.isNotEmpty ?
+            queue.id.isNotEmpty && !isActive ?
             IconButton(
               onPressed: () {
                 _showDeleteDialog(context);
@@ -130,10 +136,12 @@ class QueueCreateUpdatePage extends StatelessWidget {
             TextButton(
               onPressed: () async {
                 Navigator.pop(context);
-                Navigator.pop(context);
-                await context.read<QueueController>().deleteQueue(queue.id);
+                if (onDelete != null) {
+                  onDelete!(queue);
+                }
               },
-              child: const Text("Excluir"),
+              child: const Text("Excluir",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
         );

@@ -12,13 +12,16 @@ class QueueCard extends StatelessWidget {
   final bool isActive;
 
   _pushUpdateQueuePage(BuildContext context) {
+    final messenger = ScaffoldMessenger.of(context);
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => QueueCreateUpdatePage(
           queue: queue,
+          isActive: isActive,
           onSave: (queue) {
-            final messenger = ScaffoldMessenger.of(context);
-            context.read<QueueController>().updateQueue(queue).then((message) {
+            context.read<QueueController>()
+                .updateQueue(queue).then((message) {
               messenger.showSnackBar(
                 SnackBar(
                   content: Text(message),
@@ -27,6 +30,16 @@ class QueueCard extends StatelessWidget {
             });
             Navigator.pop(context);
           },
+          onDelete: (queue) {
+            context.read<QueueController>().deleteQueue(queue.id).then((message) {
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(message),
+                ),
+              );
+            });
+            Navigator.pop(context);
+          }
         ),
       ),
     );

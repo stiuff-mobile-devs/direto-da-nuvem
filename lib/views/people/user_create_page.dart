@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class UserCreatePage extends StatelessWidget {
-  const UserCreatePage({super.key, required this.user, required this.onSave});
+  const UserCreatePage({super.key,
+    required this.user, required this.onSave, this.onDelete});
 
   final User user;
   final Function(User) onSave;
+  final Function(User)? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +26,13 @@ class UserCreatePage extends StatelessWidget {
           appBar: AppBar(
             title: Text("$titleAction usuário"),
             actions: [
+              user.id.isNotEmpty ?
+              IconButton(
+                onPressed: () {
+                  _showDeleteDialog(context);
+                },
+                icon: const Icon(Icons.delete),
+              ) : const SizedBox.shrink(),
               IconButton(
                 icon: const Icon(Icons.save),
                 onPressed: () async {
@@ -130,4 +139,32 @@ class UserCreatePage extends StatelessWidget {
       },
     );
   }
+  _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Remover usuário"),
+          content: const Text("Você deseja remover este usuário?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () {
+                if (onDelete != null) {
+                  Navigator.pop(context);
+                  onDelete!(user);
+                }
+              },
+              child: const Text("Remover",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }

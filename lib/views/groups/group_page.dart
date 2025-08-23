@@ -14,6 +14,10 @@ class GroupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final groupController = context.watch<GroupController>();
+    if (groupController.selectedGroup == null) {
+      return const SizedBox.shrink();
+    }
     return Consumer2<GroupController, UserController>(
       builder: (context, groupController, userController,_) {
         return Scaffold(
@@ -22,20 +26,14 @@ class GroupPage extends StatelessWidget {
             actions: [
               IconButton(
                 onPressed: () {
-                  _showDeleteDialog(context, groupController);
-                },
-                icon: const Icon(Icons.delete),
-              ),
-              IconButton(
-                onPressed: () {
-                  _pushEditGroupPage(context);
+                  _pushEditGroupPage(context, groupController);
                 },
                 icon: const Icon(Icons.edit),
               ),
             ],
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () => _pushCreateQueuePage(context),
+            onPressed: () => _pushCreateQueuePage(context, groupController),
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Colors.white,
             child: const Icon(Icons.add),
@@ -99,9 +97,9 @@ class GroupPage extends StatelessWidget {
     );
   }
 
-  _pushEditGroupPage(BuildContext context) {
-    GroupController groupController = context.read<GroupController>();
+  _pushEditGroupPage(BuildContext context, GroupController groupController) {
     UserController userController = context.read<UserController>();
+    final messenger = ScaffoldMessenger.of(context);
 
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -109,26 +107,19 @@ class GroupPage extends StatelessWidget {
           return GroupCreatePage(
             group: Group.copy(groupController.selectedGroup!),
             onSave: (group) {
-              final messenger = ScaffoldMessenger.of(context);
               _onCreateGroup(
-                group, userController, groupController).then(
-                    (message) {
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text(message),
-                    ),
-                  );
+                group, userController, groupController).then((message) {
+                  messenger.showSnackBar(SnackBar(content: Text(message)));
                 });
               Navigator.pop(context);
-            }
+            },
           );
         },
       ),
     );
   }
 
-  _pushCreateQueuePage(BuildContext context) {
-    GroupController groupController = context.read<GroupController>();
+  _pushCreateQueuePage(BuildContext context, GroupController groupController) {
     QueueController queueController = context.read<QueueController>();
 
     Navigator.of(context).push(
@@ -139,11 +130,7 @@ class GroupPage extends StatelessWidget {
             final messenger = ScaffoldMessenger.of(context);
             queue.groupId = groupController.selectedGroup!.id;
             queueController.saveQueue(queue).then((message) {
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                ),
-              );
+              messenger.showSnackBar(SnackBar(content: Text(message)));
             });
             Navigator.pop(context);
           },
@@ -156,31 +143,5 @@ class GroupPage extends StatelessWidget {
     String message = await groupController.updateGroup(group);
     await userController.updateGroupAdmins(group.admins);
     return message;
-  }
-
-  _showDeleteDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Excluir grupo"),
-          content: const Text("Você deseja excluir este grupo?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancelar"),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<QueueController>().deleteQueuesByGroupId(.selectedGroup!.id);
-                groupController.deleteGroup(groupController.selectedGroup!.id);
-                Navigator.pop(context);
-              },
-              child: const Text("Excluir"),
-            ),
-          ],
-        );
-      },
-    );
   }
 }
