@@ -16,6 +16,7 @@ class GroupCreatePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserController userController = context.read<UserController>();
+    bool isSuperAdmin = userController.currentUser!.privileges.isSuperAdmin;
     String titleAction = group.id.isEmpty ? "Criar" : "Editar";
 
     return ChangeNotifierProvider(
@@ -27,7 +28,7 @@ class GroupCreatePage extends StatelessWidget {
           appBar: AppBar(
             title: Text("$titleAction grupo"),
             actions: [
-              group.id.isNotEmpty
+              group.id.isNotEmpty && isSuperAdmin
                   ? IconButton(
                       onPressed: () {
                         _showDeleteDialog(context);

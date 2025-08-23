@@ -36,9 +36,10 @@ class QueueController extends ChangeNotifier {
   }
 
   Future<String> updateQueue(Queue queue) async {
-    Queue oldqueue = queues.firstWhere((element) => element.id == queue.id);
-    oldqueue.updated = false;
+    Queue oldQueue = queues.firstWhere((element) => element.id == queue.id);
+    oldQueue.updated = false;
     notifyListeners();
+
     try {
       List<Future> imagesFutures = [];
       for (var image in queue.images.where((q) => !q.uploaded)) {
@@ -48,7 +49,7 @@ class QueueController extends ChangeNotifier {
               .uploadImage(image.path, image.data!)
               .then(
                 (_) => image.uploaded = true,
-              ));
+          ));
         }
       }
 
@@ -56,13 +57,13 @@ class QueueController extends ChangeNotifier {
 
       await _diretoDaNuvemAPI.queueResource.update(queue);
       queue.updated = true;
-      queues[queues.indexOf(oldqueue)] = queue;
       notifyListeners();
     } catch (e) {
       debugPrint("Error updating queue: $e");
       notifyListeners();
       return "Erro ao atualizar fila.";
     }
+
     return "Fila atualizada com sucesso!";
   }
 

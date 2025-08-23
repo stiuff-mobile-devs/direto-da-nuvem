@@ -17,6 +17,7 @@ class DeviceController extends ChangeNotifier {
   Device? device;
   bool isRegistered = false;
   Queue? currentQueue;
+  Queue? defaultQueue;
   List<Device> devices = [];
 
   StreamSubscription<Queue?>? _currentQueueSubscription;
@@ -67,7 +68,6 @@ class DeviceController extends ChangeNotifier {
     isRegistered = created;
     if (isRegistered) {
       this.device = device;
-      devices.add(device);
       await _fetchGroupAndQueue();
 
       if (context.mounted) {
@@ -90,7 +90,9 @@ class DeviceController extends ChangeNotifier {
   }
 
   _fetchCurrentQueue() async {
-    if (group == null) {
+    defaultQueue = await _diretoDaNuvemAPI.queueResource.getDefaultQueue();
+
+    if (group == null || group!.currentQueue.isEmpty) {
       return;
     }
 

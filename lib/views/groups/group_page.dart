@@ -3,6 +3,7 @@ import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
+import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/views/groups/group_create_page.dart';
 import 'package:ddnuvem/views/queues/queue_card.dart';
 import 'package:ddnuvem/views/queues/queue_create_update_page.dart';
@@ -121,12 +122,18 @@ class GroupPage extends StatelessWidget {
 
   _pushCreateQueuePage(BuildContext context, GroupController groupController) {
     QueueController queueController = context.read<QueueController>();
+    final isSuperAdmin = context.read<UserController>()
+        .currentUser!.privileges.isSuperAdmin;
 
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => QueueCreateUpdatePage(
           queue: Queue.empty(),
           onSave: (queue) {
+            queue.status = isSuperAdmin
+                ? QueueStatus.approved
+                : QueueStatus.pending;
+
             final messenger = ScaffoldMessenger.of(context);
             queue.groupId = groupController.selectedGroup!.id;
             queueController.saveQueue(queue).then((message) {

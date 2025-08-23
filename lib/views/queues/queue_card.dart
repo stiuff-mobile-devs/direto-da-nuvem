@@ -1,6 +1,8 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
+import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/views/queues/queue_create_update_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +15,8 @@ class QueueCard extends StatelessWidget {
 
   _pushUpdateQueuePage(BuildContext context) {
     final messenger = ScaffoldMessenger.of(context);
+    final isSuperAdmin = context.read<UserController>()
+        .currentUser!.privileges.isSuperAdmin;
 
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -20,6 +24,10 @@ class QueueCard extends StatelessWidget {
           queue: queue,
           isActive: isActive,
           onSave: (queue) {
+            queue.status = isSuperAdmin
+                ? QueueStatus.approved
+                : QueueStatus.pending;
+
             context.read<QueueController>()
                 .updateQueue(queue).then((message) {
               messenger.showSnackBar(
@@ -39,7 +47,18 @@ class QueueCard extends StatelessWidget {
               );
             });
             Navigator.pop(context);
-          }
+          },
+          onModerate: (queue) {
+            context.read<QueueController>()
+                .updateQueue(queue).then((message) {
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(message),
+                ),
+              );
+            });
+            Navigator.pop(context);
+          },
         ),
       ),
     );
@@ -86,7 +105,10 @@ class QueueCard extends StatelessWidget {
         : "${queue.images.length} fotos";
 
     return GestureDetector(
-      onTap: () => !isActive ? _showDialog(context, numberOfPhotos) : null,
+      onTap: () => {
+        !isActive && queue.status == QueueStatus.approved
+            ? _showDialog(context, numberOfPhotos) : null,
+      },
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -118,16 +140,32 @@ class QueueCard extends StatelessWidget {
                   ),
                 ],
               ),
-              IconButton(
-                onPressed: () {
-                  _pushUpdateQueuePage(context);
-                },
-                icon: const Icon(Icons.edit),
-              ),
+              Row(
+                children: [
+                  _queueStatusIcon(queue.status),
+                  IconButton(
+                    onPressed: () {
+                      _pushUpdateQueuePage(context);
+                    },
+                    icon: const Icon(Icons.edit),
+                  ),
+                ],
+              )
             ],
           ),
         ),
       ),
     );
+  }
+  
+  _queueStatusIcon(QueueStatus status) {
+    switch (status) {
+      case QueueStatus.approved:
+        return const Icon(Icons.check_circle, color: Colors.green);
+      case QueueStatus.rejected:
+        return const Icon(Icons.cancel, color: Colors.red);
+      case QueueStatus.pending:
+        return const Icon(Icons.hourglass_empty, color: Colors.orange);
+    }
   }
 }

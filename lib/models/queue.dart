@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/image_ui.dart';
+import 'package:ddnuvem/models/queue_status.dart';
 import 'package:hive/hive.dart';
 
 part 'queue.g.dart';
@@ -16,7 +17,6 @@ class Queue extends HiveObject {
   int duration;
   @HiveField(4)
   String animation;
-
   @HiveField(5)
   DateTime createdAt;
   @HiveField(6)
@@ -29,7 +29,8 @@ class Queue extends HiveObject {
   String updatedBy;
   @HiveField(10)
   DateTime updatedAt;
-  // List<Uint8List>? imagesData;
+  @HiveField(11)
+  QueueStatus status;
 
   Queue({
     required this.id,
@@ -37,6 +38,7 @@ class Queue extends HiveObject {
     required this.groupId,
     required this.duration,
     required this.animation,
+    required this.status,
     required this.createdAt,
     required this.createdBy,
     required this.images,
@@ -51,6 +53,7 @@ class Queue extends HiveObject {
       groupId: data["group_id"],
       duration: data["duration"],
       animation: data["animation"],
+      status: queueStatusFromMap(data["status"]),
       createdAt: (data["created_at"] as Timestamp).toDate(),
       createdBy: data["created_by"],
       updatedBy: data["updated_by"] ?? "",
@@ -67,6 +70,7 @@ class Queue extends HiveObject {
       groupId: other.groupId,
       duration: other.duration,
       animation: other.animation,
+      status: other.status,
       createdAt: other.createdAt,
       createdBy: other.createdBy,
       updatedBy: other.updatedBy,
@@ -79,6 +83,7 @@ class Queue extends HiveObject {
       id: "",
       name: "",
       groupId: "",
+      status: QueueStatus.pending,
       duration: 0,
       animation: "",
       createdAt: DateTime.now(),
@@ -97,6 +102,7 @@ class Queue extends HiveObject {
       "created_at": createdAt,
       "updated_by": updatedBy,
       "updated_at": updatedAt,
+      "status": queueStatusToMap(status),
       "animation": animation,
       "duration": duration,
       "group_id": groupId,

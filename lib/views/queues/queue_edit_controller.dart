@@ -1,16 +1,17 @@
 import 'dart:typed_data';
-
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/image_ui.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class QueueEditController extends ChangeNotifier {
-  DiretoDaNuvemAPI diretoDaNuvemAPI;
+  late DiretoDaNuvemAPI diretoDaNuvemAPI;
+  BuildContext context;
   Queue queue;
   // List<ImageUI> images = [];
   Uint8List? imageBytes;
@@ -21,11 +22,15 @@ class QueueEditController extends ChangeNotifier {
   TextEditingController nameController = TextEditingController();
   bool imagesLoaded = false;
 
-  QueueEditController({required this.diretoDaNuvemAPI, required this.queue}) {
-    final currentUser = FirebaseAuth.instance.currentUser!;
+  QueueEditController({required this.context, required this.queue}) {
+    final currentUser = context.read<UserController>().currentUser!;
+    diretoDaNuvemAPI = context.read();
+
     nameController.text = queue.name;
     queue.updatedBy = currentUser.uid;
-    queue.id.isEmpty ? queue.createdBy = currentUser.uid : queue.updatedAt = DateTime.now();
+    queue.id.isEmpty ? queue.createdBy = currentUser.uid
+        : queue.updatedAt = DateTime.now();
+
     fetchImages();
   }
 
