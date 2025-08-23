@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:ddnuvem/models/queue.dart';
+import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:flutter/material.dart';
 
@@ -111,5 +112,18 @@ class QueueController extends ChangeNotifier {
     for (var queue in filteredQueues) {
       await deleteQueue(queue.id);
     }
+  }
+
+  bool checkPendingQueuesByGroup(String groupId) {
+    final filteredQueues = queues.where(
+            (queue) => queue.groupId == groupId).toList();
+
+    for (var queue in filteredQueues) {
+      if (queue.status == QueueStatus.pending) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

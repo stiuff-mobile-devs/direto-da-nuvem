@@ -2,7 +2,6 @@ import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
-import 'package:ddnuvem/routes/route_paths.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/groups/group_create_controller.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +54,7 @@ class GroupCreatePage extends StatelessWidget {
                       groupCreateController.admins;
 
                   onSave(groupCreateController.group);
-                  Navigator.of(context).pop();
+                  Navigator.pop(context);
                 },
               )
             ],
@@ -208,7 +207,7 @@ class GroupCreatePage extends StatelessWidget {
                 });
 
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                    RoutePaths.admin,
+                    '/',
                     (route) => false,
                     arguments: {'startIndex': 1}
                 );

@@ -1,5 +1,6 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
+import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/routes/route_paths.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,9 @@ class GroupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     GroupController groupController = context.read<GroupController>();
+    bool pendingQueues = context.read<QueueController>()
+        .checkPendingQueuesByGroup(group.id);
+
     return InkWell(
       onTap: () {
         groupController.selectGroup(group);
@@ -28,12 +32,20 @@ class GroupCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          Text(
-            group.name,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              ),
-          ),
+            Row (
+              children: [
+                Text(
+                  group.name,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                pendingQueues
+                  ? const Icon(Icons.error, color: Colors.orange)
+                  : const SizedBox.shrink()
+              ]
+            ),
           const SizedBox(height: 8),
           Text(
             group.description,
@@ -49,8 +61,12 @@ class GroupCard extends StatelessWidget {
               const SizedBox(width: 8),
               Consumer<DeviceController>(
                 builder: (context, controller, _) {
-                  return Text(
-                    '${controller.numberOfDevicesOnGroup(group.id)} Dispositivos',
+                  int total = controller.numberOfDevicesOnGroup(group.id);
+                  String numberOfDispositives = total == 1
+                      ? '$total Dispositivo'
+                      : '$total Dispositivos';
+
+                  return Text(numberOfDispositives,
                     style: Theme.of(context).textTheme.bodyLarge,
                   );
                 }

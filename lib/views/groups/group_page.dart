@@ -113,7 +113,6 @@ class GroupPage extends StatelessWidget {
                 group, userController, groupController).then((message) {
                   messenger.showSnackBar(SnackBar(content: Text(message)));
                 });
-              Navigator.pop(context);
             },
           );
         },

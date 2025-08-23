@@ -1,4 +1,5 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
+import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/utils/theme.dart';
@@ -22,11 +23,12 @@ class GroupsPage extends StatelessWidget {
             appBar: AppBar(
               title: const Text("Grupos"),
             ),
-            body: Consumer<GroupController>(builder: (context, controller, _) {
+            body: Consumer2<GroupController, QueueController>(
+                builder: (context, groupController, queueController, _) {
               return ListView(
                 padding: const EdgeInsets.only(bottom: 80),
                 children: [
-                  ...controller.getAdminGroups(isSuperAdmin).map(
+                  ...groupController.getAdminGroups(isSuperAdmin).map(
                     (e) => GroupCard(
                       group: e,
                     ),
