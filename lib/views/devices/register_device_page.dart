@@ -6,12 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class RegisterDevicePage extends StatelessWidget {
-  const RegisterDevicePage({super.key});
+  final Device? device;
+  const RegisterDevicePage({super.key, this.device});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<RegisterDeviceController>(
-      create: (_) => RegisterDeviceController(context),
+      create: (_) => RegisterDeviceController(context, device),
       builder: (context, _) {
         final controller = Provider.of<RegisterDeviceController>(context);
         final deviceController = Provider.of<DeviceController>(context);
@@ -22,7 +23,10 @@ class RegisterDevicePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Cadastro de novo dispositivo",
+                Text(
+                    deviceController.isRegistered
+                        ? "Editar dispositivo"
+                        : "Cadastro de novo dispositivo",
                     style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(
                   height: 16,
@@ -39,7 +43,7 @@ class RegisterDevicePage extends StatelessWidget {
                             }
                             return null;
                           },
-                          decoration:
+                          decoration: 
                               const InputDecoration(hintText: "Descrição"),
                         ),
                         const SizedBox(height: 12),
@@ -67,7 +71,9 @@ class RegisterDevicePage extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 50),
                           ),
-                          child: const Text("Cadastrar"),
+                          child: Text(deviceController.isRegistered
+                              ? "Atualizar"
+                              : "Cadastrar"),
                         ),
                       ],
                     ))
@@ -89,6 +95,7 @@ class RegisterDevicePage extends StatelessWidget {
         ).toList();
 
         return DropdownMenu<String>(
+          initialSelection: controller.device?.groupId,
           width: MediaQuery.of(context).size.width - 16,
           dropdownMenuEntries: entries,
           onSelected: controller.selectGroup,
