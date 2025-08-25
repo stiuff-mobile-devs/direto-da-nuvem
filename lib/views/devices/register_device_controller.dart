@@ -31,14 +31,19 @@ class RegisterDeviceController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Device? validate() {
+  bool validate() {
     bool? v = formKey.currentState?.validate();
     if (v != true) {
-      return null;
+      return false;
     }
     if (_groupId == null) {
-      return null;
+      return false;
     }
+
+    return true;
+  }
+
+  Device newDevice() {
     String description = descriptionController.text;
     String locale = localeController.text;
     final currentUser = userController?.currentUser;
@@ -53,5 +58,15 @@ class RegisterDeviceController extends ChangeNotifier {
       updatedAt: DateTime.now(),
       createdAt: DateTime.now(),
     );
+  }
+
+  Device updatedDevice(Device device) {
+    final currentUser = userController?.currentUser;
+    device.description = descriptionController.text;
+    device.locale = localeController.text;
+    device.groupId = _groupId!;
+    device.updatedAt = DateTime.now();
+    device.updatedBy = currentUser?.uid ?? "";
+    return device;
   }
 }

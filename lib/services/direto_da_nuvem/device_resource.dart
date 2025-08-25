@@ -18,6 +18,17 @@ class DeviceResource {
     return true;
   }
 
+  Future update(Device device) async {
+    var doc = await _firestore
+        .doc("$collection/${device.id}").get();
+
+    if (!doc.exists) {
+      return;
+    }
+
+    await _firestore.doc("$collection/${device.id}").update(device.toMap());
+  }
+
   Future<Device?> get(String id) async {
     Device? device;
 

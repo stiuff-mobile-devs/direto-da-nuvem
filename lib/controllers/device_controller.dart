@@ -33,7 +33,6 @@ class DeviceController extends ChangeNotifier {
     await _checkIsRegistered(androidInfo!.id);
     await _fetchGroupAndQueue();
     _groupController.addListener(_updateCurrentQueueAndGroup);
-    await _loadDevices();
     loadingInitialState = false;
     notifyListeners();
   }
@@ -53,6 +52,10 @@ class DeviceController extends ChangeNotifier {
   Future<void> _checkIsRegistered(String id) async {
     device = await _diretoDaNuvemAPI.deviceResource.checkIfRegistered(id);
     isRegistered = device != null;
+
+    if (isRegistered) {
+      await _loadDevices();
+    }
   }
 
   Future<void> register(Device device, BuildContext context) async {
@@ -69,12 +72,23 @@ class DeviceController extends ChangeNotifier {
     if (isRegistered) {
       this.device = device;
       await _fetchGroupAndQueue();
+      await _loadDevices();
 
       if (context.mounted) {
         Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
       }
     }
     notifyListeners();
+  }
+
+  Future<String> update(Device device) async {
+    try {
+      await _diretoDaNuvemAPI.deviceResource.update(device);
+      notifyListeners();
+      return "Dispositivo atualizado com sucesso!";
+    } catch (e) {
+      return "Erro ao atualizar dispositivo";
+    }
   }
 
   _fetchGroupAndQueue() async {
@@ -108,13 +122,15 @@ class DeviceController extends ChangeNotifier {
     });
   }
 
-  _loadDevices() async {
+  Future _loadDevices() async {
     devices = await _diretoDaNuvemAPI.deviceResource.listAll();
     Stream<List<Device>>? devicesStream = _diretoDaNuvemAPI
         .deviceResource.listAllStream();
 
     _devicesSubscription?.cancel();
-    _devicesSubscription = devicesStream.listen((updatedDevices) {
+    _devicesSubscription = devicesStream.listen((updatedDevices) async {
+      device = updatedDevices.firstWhere((d) => d.id == device!.id);
+      _updateCurrentQueueAndGroup();
       devices = updatedDevices;
       notifyListeners();
     });

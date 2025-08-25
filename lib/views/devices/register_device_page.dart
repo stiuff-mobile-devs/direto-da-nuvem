@@ -28,27 +28,12 @@ class RegisterDevicePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Cadastro de novo dispositivo",
+                  Text(device != null
+                      ? "Editar dispositivo"
+                      : "Cadastro de novo dispositivo",
                       style: Theme.of(context).textTheme.headlineSmall),
-                  const SizedBox(
-                    height: 16,
-                  ),
+                  const SizedBox(height: 16),
                   Form(
-          body: Container(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                    deviceController.isRegistered
-                        ? "Editar dispositivo"
-                        : "Cadastro de novo dispositivo",
-                    style: Theme.of(context).textTheme.headlineSmall),
-                const SizedBox(
-                  height: 16,
-                ),
-                Form(
                     key: controller.formKey,
                     child: Column(
                       children: [
@@ -97,17 +82,31 @@ class RegisterDevicePage extends StatelessWidget {
                         ElevatedButton(
                           focusNode: controller.buttonFocus,
                           onPressed: () async {
-                            Device? device = controller.validate();
-                            if (device != null) {
-                              deviceController.register(device, context);
+                            if (!controller.validate()) {
+                              return;
+                            }
+
+                            Device newDevice;
+                            if (device == null) {
+                              newDevice = controller.newDevice();
+                              deviceController.register(newDevice, context);
+                            } else {
+                              newDevice = controller.updatedDevice(device!);
+                              final messenger = ScaffoldMessenger.of(context);
+                              deviceController.update(newDevice).then((message) {
+                                messenger.showSnackBar(SnackBar(
+                                    content: Text(message)));
+                              });
+                              Navigator.pop(context);
                             }
                           },
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 50),
                           ),
-                          child: Text(deviceController.isRegistered
+                          child: Text(device != null
                               ? "Atualizar"
-                              : "Cadastrar"),
+                              : "Cadastrar",
+                          style: const TextStyle(color: AppTheme.primaryBlue)),
                         ),
                       ],
                     )
