@@ -1,4 +1,5 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/utils/data_utils.dart';
 import 'package:ddnuvem/views/devices/register_device_page.dart';
@@ -19,7 +20,10 @@ class DeviceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        _pushUpdateDevicePage(context);
+        if (context.read<UserController>().currentUser!
+            .privileges.isSuperAdmin) {
+          _pushUpdateDevicePage(context);
+        }
       },
       child: Card(
         elevation: 4,
