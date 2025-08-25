@@ -38,15 +38,6 @@ class QueueCreateUpdatePage extends StatelessWidget {
         appBar: AppBar(
           title: Text("$titleAction fila"),
           actions: [
-            isSuperAdmin && queue.id.isNotEmpty
-            && queue.status == QueueStatus.pending
-                ? IconButton(
-                  onPressed: () {
-                    _showModerationDialog(context);
-                  },
-                  icon: const Icon(Icons.hourglass_empty, color: Colors.orange),
-                  )
-                : const SizedBox.shrink(),
             queue.id.isNotEmpty && !isActive ?
             IconButton(
               color: AppTheme.primaryRed,
@@ -85,12 +76,29 @@ class QueueCreateUpdatePage extends StatelessWidget {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: context.read<QueueEditController>().pickImage,
-          backgroundColor: AppTheme.primaryBlue,
-          foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          tooltip: "Adicionar Imagem",
-          child: const Icon(Icons.add),
+        floatingActionButton: Column (
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            isSuperAdmin && queue.id.isNotEmpty
+                && queue.status == QueueStatus.pending ?
+            FloatingActionButton(
+              onPressed: () {
+                _showModerationDialog(context);
+              },
+              backgroundColor: Colors.orange,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              tooltip: "Moderar fila",
+              child: const Icon(Icons.error),
+            ) : const SizedBox.shrink(),
+            const SizedBox(height: 5),
+            FloatingActionButton(
+              onPressed: context.read<QueueEditController>().pickImage,
+              backgroundColor: AppTheme.primaryBlue,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              tooltip: "Adicionar Imagem",
+              child: const Icon(Icons.add),
+            ),
+          ]
         ),
         body: Consumer<QueueEditController>(
           builder: (context, controller, _) {
@@ -121,7 +129,7 @@ class QueueCreateUpdatePage extends StatelessWidget {
                 ),
                 Expanded(
                   child: controller.imagesLoaded ? ReorderableListView(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 70),
                     onReorder: controller.reorderQueue,
                     children: controller.queue.images.map((image) {
                       if (image.data == null) {
@@ -187,7 +195,8 @@ class QueueCreateUpdatePage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancelar"),
+              child: const Text("Fechar", style: TextStyle(
+                  color: AppTheme.primaryBlue)),
             ),
             TextButton(
               onPressed: () async {

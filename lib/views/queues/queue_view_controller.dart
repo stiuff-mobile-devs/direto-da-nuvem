@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
+import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +11,12 @@ class QueueViewController extends ChangeNotifier {
   DeviceController deviceController;
   Queue? queue;
   QueueViewController(this.diretoDaNuvemAPI, this.deviceController) {
-    queue = deviceController.currentQueue ?? deviceController.defaultQueue;
+    final currentQueue = deviceController.currentQueue;
+    if (currentQueue != null && currentQueue.status == QueueStatus.approved) {
+      queue = currentQueue;
+    } else {
+      queue = deviceController.defaultQueue;
+    }
     deviceController.addListener(_updateQueue);
     fetchImages();
   }
@@ -26,8 +32,14 @@ class QueueViewController extends ChangeNotifier {
 
   void _updateQueue() {
     final newQueue = deviceController.currentQueue;
-    if (queue != newQueue) {
+    if (queue != newQueue && newQueue!.status == QueueStatus.approved) {
       queue = newQueue;
+      fetchImages();
+      notifyListeners();
+    }
+
+    if (newQueue == null) {
+      queue = deviceController.defaultQueue;
       fetchImages();
       notifyListeners();
     }

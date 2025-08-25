@@ -112,6 +112,7 @@ class DeviceController extends ChangeNotifier {
 
     currentQueue =
         await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
+
     Stream<Queue?>? currentQueueStream =
         _diretoDaNuvemAPI.queueResource.getStream(group!.currentQueue);
 
