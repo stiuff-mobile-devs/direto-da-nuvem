@@ -48,6 +48,24 @@ class Device extends HiveObject {
     this.device,
   });
 
+  factory Device.copy(Device device) {
+    return Device(
+      id: device.id,
+      locale: device.locale,
+      description: device.description,
+      groupId: device.groupId,
+      registeredBy: device.registeredBy,
+      registeredByEmail: device.registeredByEmail,
+      createdAt: device.createdAt,
+      updatedAt: device.updatedAt,
+      updatedBy: device.updatedBy,
+      brand: device.brand,
+      model: device.model,
+      product: device.product,
+      device: device.device,
+    );
+  }
+
   factory Device.fromMap(String id, Map<String, dynamic> map) {
     return Device(
       id: id,

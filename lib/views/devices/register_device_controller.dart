@@ -4,8 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class RegisterDeviceController extends ChangeNotifier {
-  RegisterDeviceController(this.context) {
+  final Device? device;
+  RegisterDeviceController(this.context, this.device) {
     userController = Provider.of<UserController>(context, listen: false);
+    if (device != null) {
+      descriptionController.text = device!.description;
+      localeController.text = device!.locale;
+      _groupId = device!.groupId;
+    }
   }
 
   final TextEditingController descriptionController = TextEditingController();
