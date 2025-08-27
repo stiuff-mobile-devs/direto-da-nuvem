@@ -44,11 +44,9 @@ class UserController extends ChangeNotifier {
   }
 
   login(BuildContext context) async {
-    if (!await _signInService.signInWithGoogle()) {
-      return;
-    }
-
-    loadingInitialState = true;
+    await _signInService.signInWithGoogle();
+    await _loadUserData();
+    isLoggedIn = true;
     notifyListeners();
 
     if (context.mounted) {
@@ -58,10 +56,6 @@ class UserController extends ChangeNotifier {
             (Route<dynamic> route) => false,
       );
     }
-    await _loadUserData();
-    isLoggedIn = true;
-    loadingInitialState = false;
-    notifyListeners();
   }
 
   logout() async {
