@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/utils/connection_utils.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 class QueueResource {
@@ -41,16 +42,21 @@ class QueueResource {
   }
 
   Future<Queue?> get(String id) async {
-    if (await hasInternetConnection()) {
-      var doc = await _firestore.doc("$collection/$id").get();
-      if (!doc.exists) {
-        return null;
+    try {
+      if (await hasInternetConnection()) {
+        var doc = await _firestore.doc("$collection/$id").get();
+        if (!doc.exists) {
+          return null;
+        }
+        final queue = Queue.fromMap(doc.id, doc.data()!);
+        _hiveBox.put(queue.id, queue);
+        return queue;
+      } else {
+        return _hiveBox.get(id);
       }
-      final queue = Queue.fromMap(doc.id, doc.data()!);
-      _hiveBox.put(queue.id, queue);
-      return queue;
-    } else {
-      return _hiveBox.get(id);
+    } catch (e) {
+      debugPrint("Error on get queue $id.");
+      return null;
     }
   }
 
@@ -79,9 +85,14 @@ class QueueResource {
   Stream<Queue?> getStream(String id) {
     var doc = _firestore.doc("$collection/$id").snapshots();
     return doc.map((event) {
-      Queue queue = Queue.fromMap(event.id, event.data()!);
-      _hiveBox.put(queue.id, queue);
-      return queue;
+      try {
+        Queue queue = Queue.fromMap(event.id, event.data()!);
+        _hiveBox.put(queue.id, queue);
+        return queue;
+      } catch (e) {
+        debugPrint("Error on get queue stream $id.");
+        return null;
+      }
     });
   }
 

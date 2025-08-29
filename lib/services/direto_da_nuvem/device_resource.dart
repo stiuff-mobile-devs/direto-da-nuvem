@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/utils/connection_utils.dart';
 import 'package:hive/hive.dart';
+import 'package:flutter/material.dart';
 
 class DeviceResource {
   static const String collection = "devices";
@@ -9,77 +10,123 @@ class DeviceResource {
   final Box<Device> _hiveBox = Hive.box<Device>(collection);
 
   Future<bool> create(Device device) async {
-    if (await checkIfRegistered(device.id) != null) {
+    try {
+      if (await get(device.id) != null) {
+        throw Exception("Dispositivo já existe.");
+      }
+
+      await _firestore.doc("$collection/${device.id}").set(device.toMap());
+      _saveToLocalDB(device);
+      return true;
+    } catch (e) {
+      debugPrint("Error on create device: $e");
       return false;
     }
-
-    await _firestore.doc("$collection/${device.id}").set(device.toMap());
-    _hiveBox.put(device.id, device);
-    return true;
   }
 
-  Future update(Device device) async {
-    var doc = await _firestore
-        .doc("$collection/${device.id}").get();
+  update(Device device) async {
+    try {
+      var doc = await _firestore.doc("$collection/${device.id}").get();
 
-    if (!doc.exists) {
-      return;
+      if (!doc.exists) {
+        return;
+      }
+
+      await _firestore.doc("$collection/${device.id}").update(device.toMap());
+    } catch (e) {
+      debugPrint("Error on update device: $e");
     }
-
-    await _firestore.doc("$collection/${device.id}").update(device.toMap());
   }
 
   Future<Device?> get(String id) async {
     Device? device;
 
-    if (await hasInternetConnection()) {
-      final doc = await _firestore.doc("$collection/$id").get();
+    try {
+      if (await hasInternetConnection()) {
+        final doc = await _firestore.doc("$collection/$id").get();
 
-      if (!doc.exists) {
-        return null;
+        if (!doc.exists) {
+          return null;
+        }
+
+        device = Device.fromMap(doc.id, doc.data()!);
+        _saveToLocalDB(device);
+      } else {
+        device = _getFromLocalDB(id);
       }
-
-      device = Device.fromMap(doc.id, doc.data()!);
-      _hiveBox.put(device.id, device);
-    } else {
-      device = _hiveBox.get(id);
+    } catch (e) {
+      debugPrint("Error on get device: $e");
+      return null;
     }
 
     return device;
   }
 
-  Future<Device?> checkIfRegistered(String id) async {
-    return await get(id);
-  }
-
-  Future<List<Device>> listAll() async {
+  Future<List<Device>> getAll() async {
     List<Device> devices = [];
 
-    if (await hasInternetConnection()) {
-      final docs = await _firestore.collection(collection).get();
-      devices = docs.docs.map((e) => Device.fromMap(e.id, e.data())).toList();
+    try {
+      if (await hasInternetConnection()) {
+        final docs = await _firestore.collection(collection).get();
+        devices = docs.docs.map((e) => Device.fromMap(e.id, e.data())).toList();
 
-      for (var device in devices) {
-        _hiveBox.put(device.id, device);
+        for (var device in devices) {
+          _saveToLocalDB(device);
+        }
+      } else {
+        devices = _getAllFromLocalDB();
       }
-    } else {
-      devices = _hiveBox.values.toList();
+    } catch (e) {
+      debugPrint("Error on list all devices: $e");
     }
 
     return devices;
   }
 
-  Stream<List<Device>> listAllStream() {
+  Stream<List<Device>> getAllStream() {
     var l = _firestore.collection(collection).snapshots();
-    return l.map((event) {
-      List<Device> devices = [];
 
-      for (var doc in event.docs) {
-        Device device = Device.fromMap(doc.id, doc.data());
-        devices.add(device);
-        _hiveBox.put(device.id, device);
+    return l.map((event) {
+      try {
+        List<Device> devices = [];
+
+        for (var doc in event.docs) {
+          Device device = Device.fromMap(doc.id, doc.data());
+          devices.add(device);
+          _saveToLocalDB(device);
+        }
+        return devices;
+      } catch (e) {
+        debugPrint("Error on list all devices stream: $e");
+        return [];
       }
-      return devices;
     });
+  }
+
+  // Hive
+  _saveToLocalDB(Device device) {
+    try {
+      _hiveBox.put(device.id, device);
+    } catch (e) {
+      debugPrint("Error on save device ${device.id} to Hive.");
+    }
+  }
+
+  Device? _getFromLocalDB(String id) {
+    try {
+      return _hiveBox.get(id);
+    } catch (e) {
+      debugPrint("Error on get device $id from Hive.");
+      return null;
+    }
+  }
+
+  List<Device> _getAllFromLocalDB() {
+    try {
+      return _hiveBox.values.toList();
+    } catch (e) {
+      debugPrint("Error on list all devices from Hive.");
+      return [];
+    }
   }
 }

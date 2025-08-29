@@ -12,27 +12,33 @@ class SignInService {
   final auth = fb_auth.FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
-  signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+  Future<bool> signInWithGoogle() async {
+    final GoogleSignInAccount? googleUser;
 
-    if (googleUser == null) {
-      return;
+    try {
+      googleUser = await googleSignIn.signIn();
+
+      if (googleUser == null) {
+        return false;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+      await googleUser.authentication;
+
+      final credential = fb_auth.GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await auth.signInWithCredential(credential);
+    } catch (e) {
+      return false;
     }
-
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-
-    final credential = fb_auth.GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    await auth.signInWithCredential(credential);
 
     User? user = await _diretoDaNuvemAPI.userResource.get(googleUser.email);
 
     if (user == null) {
-      return;
+      return false;
     }
 
     // Usuário está logando pela primeira vez, registrar uid no Firestore
@@ -43,6 +49,8 @@ class SignInService {
       user.updatedBy = auth.currentUser!.uid;
       await _diretoDaNuvemAPI.userResource.update(user);
     }
+
+    return true;
   }
 
   Future signOut() async {
@@ -57,7 +65,7 @@ class SignInService {
 
   bool checkIfLoggedIn() {
     final user = getFirebaseAuthUser();
-    return user == null ? false : true;
+    return user != null;
   }
 
   fb_auth.User? getFirebaseAuthUser() {

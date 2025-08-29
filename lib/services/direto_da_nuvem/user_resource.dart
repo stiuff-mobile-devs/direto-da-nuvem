@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/models/user_privileges.dart';
@@ -9,112 +10,182 @@ class UserResource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final Box<User> _hiveBox = Hive.box<User>(collection);
 
-  Future<List<User>> listAll() async {
+  Future<List<User>> getAll() async {
     List<User> users = [];
 
-    if (await hasInternetConnection()) {
-      final list = await _firestore.collection(collection).get();
+    try {
+      if (await hasInternetConnection()) {
+        final list = await _firestore.collection(collection).get();
 
-      for (var doc in list.docs) {
-        UserPrivileges privileges = await _getUserPrivileges(doc.id);
-        User user = User.fromMap(doc.data(), doc.id, privileges);
-        users.add(user);
-        _hiveBox.put(user.id, user);
+        for (var doc in list.docs) {
+          UserPrivileges privileges = await _getUserPrivileges(doc.id);
+          User user = User.fromMap(doc.data(), doc.id, privileges);
+          users.add(user);
+          _saveToLocalDB(user);
+        }
+      } else {
+        users = _getAllFromLocalDB();
       }
-    } else {
-      users = _hiveBox.values.toList();
+    } catch (e) {
+      debugPrint("Error on list all users: $e");
     }
 
     return users;
   }
 
-  Stream<List<User>> listAllStream() {
+  Stream<List<User>> getAllStream() {
     final snapshots = _firestore.collection(collection).snapshots();
 
     return snapshots.asyncMap((event) async {
-      List<User> users = [];
-      for (var doc in event.docs) {
-        var privileges = await _getUserPrivileges(doc.id);
-        User user = User.fromMap(doc.data(), doc.id, privileges);
-        users.add(user);
-        _hiveBox.put(user.id, user);
+      try {
+        List<User> users = [];
+        for (var doc in event.docs) {
+          try {
+            var privileges = await _getUserPrivileges(doc.id);
+            User user = User.fromMap(doc.data(), doc.id, privileges);
+            users.add(user);
+            _saveToLocalDB(user);
+          } catch (e) {
+            debugPrint("Error on user doc ${doc.id}: $e");
+          }
+        }
+        return users;
+      } catch (e) {
+        debugPrint("Error on list all users stream: $e");
+        return [];
       }
-      return users;
     });
   }
 
   Future<bool> create(User user) async {
-    if (await get(user.email) != null) {
+    try {
+      if (await get(user.email) != null) {
+        throw Exception("Usuário já existe.");
+      }
+
+      var doc = await _firestore.collection(collection).add(user.toMap());
+      await _firestore
+          .doc("$collection/${doc.id}/privileges/privileges")
+          .set(user.privileges.toMap());
+      _saveToLocalDB(user);
+      return true;
+    } catch (e) {
+      debugPrint("Error on create user: $e");
       return false;
     }
-
-    var doc = await _firestore.collection(collection).add(user.toMap());
-    await _firestore.doc("$collection/${doc.id}/privileges/privileges")
-        .set(user.privileges.toMap());
-    _hiveBox.put(user.id, user);
-    return true;
   }
 
   Future delete(User user) async {
-    await _firestore
-        .doc("$collection/${user.id}/privileges/privileges").delete();
-    await _firestore.doc("$collection/${user.id}").delete();
-    _hiveBox.delete(user.id);
+    try {
+      await _firestore
+          .doc("$collection/${user.id}/privileges/privileges")
+          .delete();
+
+      await _firestore.doc("$collection/${user.id}").delete();
+      _deleteFromLocalDB(user.id);
+    } catch (e) {
+      debugPrint("Error on delete user: $e");
+    }
   }
 
   Future<User?> get(String email) async {
     User? user;
 
-    if (await hasInternetConnection()) {
-      final query = await _firestore
-          .collection(collection)
-          .where('email', isEqualTo: email)
-          .get();
+    try {
+      if (await hasInternetConnection()) {
+        final query = await _firestore
+            .collection(collection)
+            .where('email', isEqualTo: email)
+            .get();
 
-      if (query.docs.isEmpty) {
-        return null;
-      }
+        if (query.docs.isEmpty) {
+          return null;
+        }
 
-      final doc = query.docs.first;
-      UserPrivileges privileges = await _getUserPrivileges(doc.id);
-      user = User.fromMap(doc.data(), doc.id, privileges);
-      _hiveBox.put(user.id, user);
-    } else {
-      try {
-        user = _hiveBox.values.firstWhere((u) => u.email == email);
-      } catch (e) {
-        return null;
+        final doc = query.docs.first;
+        UserPrivileges privileges = await _getUserPrivileges(doc.id);
+        user = User.fromMap(doc.data(), doc.id, privileges);
+        _saveToLocalDB(user);
+      } else {
+        user = _getFromLocalDB(email);
       }
+    } catch (e) {
+      debugPrint("Error on get user: $e");
+      return null;
     }
 
     return user;
   }
 
-  Future<void> update(User user) async {
-    var doc = await _firestore
-        .doc("$collection/${user.id}").get();
+  update(User user) async {
+    try {
+      var doc = await _firestore.doc("$collection/${user.id}").get();
 
-    if (!doc.exists) {
-      return;
+      if (!doc.exists) {
+        return;
+      }
+
+      await _firestore.doc("$collection/${user.id}").update(user.toMap());
+      await _firestore
+          .doc("$collection/${user.id}/privileges/privileges")
+          .update(user.privileges.toMap());
+    } catch (e) {
+      debugPrint("Error on update user: $e");
     }
-
-    await _firestore.doc("$collection/${user.id}").update(user.toMap());
-    await _firestore.doc("$collection/${user.id}/privileges/privileges")
-        .update(user.privileges.toMap());
   }
 
   Future<UserPrivileges> _getUserPrivileges(String id) async {
-    var doc = await _firestore
-        .doc('$collection/$id/privileges/privileges').get();
+    try {
+      final doc =
+          await _firestore.doc('$collection/$id/privileges/privileges').get();
 
-    if (doc.exists) {
-      return UserPrivileges.fromMap(doc.data()!);
+      if (doc.exists) {
+        return UserPrivileges.fromMap(doc.data()!);
+      }
+
+      throw Exception("Privilégios não encontrados ou não definidos.");
+    } catch (e) {
+      debugPrint("Error on get privileges: $e");
+      return UserPrivileges(
+          isAdmin: false,
+          isSuperAdmin: false,
+          isInstaller: false
+      );
     }
+  }
 
-    return UserPrivileges(
-        isAdmin: false,
-        isSuperAdmin: false,
-        isInstaller: false
-    );
+  // Hive
+  _saveToLocalDB(User user) {
+    try {
+      _hiveBox.put(user.id, user);
+    } catch (e) {
+      debugPrint("Error on save user ${user.id} to Hive.");
+    }
+  }
+
+  _deleteFromLocalDB(String id) {
+    try {
+      _hiveBox.delete(id);
+    } catch (e) {
+      debugPrint("Error on delete user $id from Hive.");
+    }
+  }
+
+  User? _getFromLocalDB(String email) {
+    try {
+      return _hiveBox.values.firstWhere((u) => u.email == email);
+    } catch (e) {
+      debugPrint("Error on get user $email from Hive.");
+      return null;
+    }
+  }
+
+  List<User> _getAllFromLocalDB() {
+    try {
+      return _hiveBox.values.toList();
+    } catch (e) {
+      debugPrint("Error on list all users from Hive.");
+      return [];
+    }
   }
 }

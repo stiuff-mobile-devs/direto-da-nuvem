@@ -42,14 +42,10 @@ class RedirectionPage extends StatefulWidget {
 class _RedirectionPageState extends State<RedirectionPage> {
   late LocalStorageService localStorageService;
   late DiretoDaNuvemAPI diretoDaNuvemAPI;
-  Future<bool>? isFirstTime;
-
-  int i = 0;
 
   getDependencies() {
-    localStorageService =
-        Provider.of<LocalStorageService>(context, listen: false);
-    diretoDaNuvemAPI = Provider.of<DiretoDaNuvemAPI>(context, listen: false);
+    localStorageService = context.read<LocalStorageService>();
+    diretoDaNuvemAPI =  context.read<DiretoDaNuvemAPI>();
   }
 
   Future<bool> getIsFirstTime() async {
@@ -60,13 +56,15 @@ class _RedirectionPageState extends State<RedirectionPage> {
     return firstTime;
   }
 
+  Future<bool> loadIsFirstTime() async {
+    return getIsFirstTime()
+        .timeout(const Duration(seconds: 5), onTimeout: () => true);
+  }
+
   @override
   void initState() {
     super.initState();
     getDependencies();
-    setState(() {
-      isFirstTime = getIsFirstTime();
-    });
   }
 
   @override
@@ -79,20 +77,18 @@ class _RedirectionPageState extends State<RedirectionPage> {
         redirectionData.loggedIn = userController.isLoggedIn;
 
         if (redirectionData.loggedIn) {
-          final userPrivileges = userController.currentUser!.privileges;
+          final privileges = userController.currentUser!.privileges;
           redirectionData.isAdmin =
-              userPrivileges.isSuperAdmin || userPrivileges.isAdmin;
-          redirectionData.isInstaller = userPrivileges.isInstaller;
-        } else {
-          redirectionData.isAdmin = false;
-          redirectionData.isInstaller = false;
+              privileges.isSuperAdmin || privileges.isAdmin;
+          redirectionData.isInstaller = privileges.isInstaller;
         }
 
         redirectionData.isDeviceRegistered = deviceController.isRegistered;
         redirectionData.isLoading = deviceController.loadingInitialState ||
             userController.loadingInitialState;
+
         return FutureBuilder(
-          future: isFirstTime,
+          future: loadIsFirstTime(),
           builder: (c, s) => redirectionBuilder(c, s, redirectionData),
         );
       },
@@ -101,10 +97,17 @@ class _RedirectionPageState extends State<RedirectionPage> {
 
   Widget redirectionBuilder(BuildContext c, AsyncSnapshot<bool> snapshot,
       RedirectionData redirectionData) {
-    if (snapshot.data == null || redirectionData.isLoading) {
+    if (snapshot.connectionState == ConnectionState.waiting
+        || redirectionData.isLoading ) {
       return loading();
     }
-    redirectionData.firstTime = snapshot.data ?? true;
+
+    if (snapshot.hasError || !snapshot.hasData) {
+      redirectionData.firstTime = true;
+    } else {
+      redirectionData.firstTime = snapshot.data ?? true;
+    }
+
     return handleRedirection(redirectionData);
   }
 
@@ -139,6 +142,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
     if (redirectionData.isAdmin) {
       return const AdminPage();
     }
+
     var deviceController = context.read<DeviceController>();
     return ChangeNotifierProvider(
       create: (context) => QueueViewController(

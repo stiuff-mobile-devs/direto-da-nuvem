@@ -25,7 +25,7 @@ class UserController extends ChangeNotifier {
     notifyListeners();
 
     if (_signInService.checkIfLoggedIn()) {
-      await _loadUserData();
+      await _getCurrentUserInfo();
       isLoggedIn = true;
     } else {
       isLoggedIn = false;
@@ -44,8 +44,12 @@ class UserController extends ChangeNotifier {
   }
 
   login(BuildContext context) async {
-    await _signInService.signInWithGoogle();
-    await _loadUserData();
+    if (!await _signInService.signInWithGoogle()) {
+      isLoggedIn = false;
+      return;
+    }
+
+    await _getCurrentUserInfo();
     isLoggedIn = true;
     notifyListeners();
 
@@ -67,11 +71,6 @@ class UserController extends ChangeNotifier {
     notifyListeners();
   }
 
-  _loadUserData() async {
-    await _getCurrentUserInfo();
-    await _loadAllUsers();
-  }
-
   _getCurrentUserInfo() async {
     final fbAuthUser = _signInService.getFirebaseAuthUser();
     profileImageUrl = fbAuthUser?.photoURL;
@@ -79,24 +78,26 @@ class UserController extends ChangeNotifier {
     currentUser = user ?? User.empty();
   }
 
-  _loadAllUsers() async {
+  loadAllUsers() async {
     if (currentUser!.privileges.isSuperAdmin) {
-      users = await _diretoDaNuvemAPI.userResource.listAll();
+      users = await _diretoDaNuvemAPI.userResource.getAll();
 
       Stream<List<User>>? usersStream =
-          _diretoDaNuvemAPI.userResource.listAllStream();
+          _diretoDaNuvemAPI.userResource.getAllStream();
 
       _usersSubscription?.cancel();
       _usersSubscription = usersStream.listen((updatedUsers) {
         users = updatedUsers;
         notifyListeners();
+      },
+      onError: (e) {
+        debugPrint("Erro ao escutar stream de usuários: $e");
       });
     }
   }
 
   Future<String> createUser(User user) async {
     if (await _diretoDaNuvemAPI.userResource.create(user)) {
-      await _loadAllUsers();
       notifyListeners();
       return "Usuário criado com sucesso!";
     }

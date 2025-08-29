@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/utils/connection_utils.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 class GroupResource {
@@ -43,17 +44,22 @@ class GroupResource {
   Future<Group?> get(String id) async {
     Group? group;
 
-    if (await hasInternetConnection()) {
-      var doc = await _firestore.doc("$collection/$id").get();
+    try {
+      if (await hasInternetConnection()) {
+        var doc = await _firestore.doc("$collection/$id").get();
 
-      if (!doc.exists) {
-        return null;
+        if (!doc.exists) {
+          return null;
+        }
+
+        group = Group.fromMap(doc.id, doc.data()!);
+        //_hiveBox.put(group.id, group);
+      } else {
+        group = _hiveBox.get(id);
       }
-
-      group = Group.fromMap(doc.id, doc.data()!);
-      _hiveBox.put(group.id, group);
-    } else {
-      group = _hiveBox.get(id);
+    } catch (e) {
+      debugPrint("Error on get group $id.");
+      return null;
     }
 
     return group;

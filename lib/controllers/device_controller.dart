@@ -30,7 +30,7 @@ class DeviceController extends ChangeNotifier {
     loadingInitialState = true;
     notifyListeners();
     await _getAndroidInfo();
-    await _checkIsRegistered(androidInfo!.id);
+    await _checkIsRegistered();
     await _fetchGroupAndQueue();
     _groupController.addListener(_updateCurrentQueueAndGroup);
     loadingInitialState = false;
@@ -46,15 +46,17 @@ class DeviceController extends ChangeNotifier {
   }
 
   Future<void> _getAndroidInfo() async {
-    androidInfo = await _deviceInfoPlugin.androidInfo;
+    try {
+      androidInfo = await _deviceInfoPlugin.androidInfo;
+    } catch (e) {
+      debugPrint("Erro ao obter dados do android: $e");
+    }
   }
 
-  Future<void> _checkIsRegistered(String id) async {
-    device = await _diretoDaNuvemAPI.deviceResource.checkIfRegistered(id);
-    isRegistered = device != null;
-
-    if (isRegistered) {
-      await _loadDevices();
+  Future<void> _checkIsRegistered() async {
+    if (androidInfo != null) {
+      device = await _diretoDaNuvemAPI.deviceResource.get(androidInfo!.id);
+      isRegistered = (device != null);
     }
   }
 
@@ -72,7 +74,6 @@ class DeviceController extends ChangeNotifier {
     if (isRegistered) {
       this.device = device;
       await _fetchGroupAndQueue();
-      await _loadDevices();
 
       if (context.mounted) {
         Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
@@ -104,8 +105,6 @@ class DeviceController extends ChangeNotifier {
   }
 
   _fetchCurrentQueue() async {
-    defaultQueue = await _diretoDaNuvemAPI.queueResource.getDefaultQueue();
-
     if (group == null || group!.currentQueue.isEmpty) {
       return;
     }
@@ -120,13 +119,16 @@ class DeviceController extends ChangeNotifier {
     _currentQueueSubscription = currentQueueStream.listen((queue) {
       currentQueue = queue;
       notifyListeners();
+    },
+    onError: (e) {
+      debugPrint("Erro ao escutar stream de fila ativa: $e");
     });
   }
 
-  Future _loadDevices() async {
-    devices = await _diretoDaNuvemAPI.deviceResource.listAll();
+  Future loadDevices() async {
+    devices = await _diretoDaNuvemAPI.deviceResource.getAll();
     Stream<List<Device>>? devicesStream = _diretoDaNuvemAPI
-        .deviceResource.listAllStream();
+        .deviceResource.getAllStream();
 
     _devicesSubscription?.cancel();
     _devicesSubscription = devicesStream.listen((updatedDevices) async {
