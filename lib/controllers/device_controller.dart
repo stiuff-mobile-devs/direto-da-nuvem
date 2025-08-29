@@ -18,7 +18,7 @@ class DeviceController extends ChangeNotifier {
   bool isRegistered = false;
   Queue? currentQueue;
   Queue? defaultQueue;
-  List<Device> devices = [];
+  List<Device> _devices = [];
 
   StreamSubscription<Queue?>? _currentQueueSubscription;
   StreamSubscription<List<Device>>? _devicesSubscription;
@@ -35,6 +35,8 @@ class DeviceController extends ChangeNotifier {
     _groupController.addListener(_updateCurrentQueueAndGroup);
     loadingInitialState = false;
     notifyListeners();
+    await _loadDevices();
+    notifyListeners();
   }
 
   @override
@@ -50,13 +52,17 @@ class DeviceController extends ChangeNotifier {
       androidInfo = await _deviceInfoPlugin.androidInfo;
     } catch (e) {
       debugPrint("Erro ao obter dados do android: $e");
+      androidInfo = null;
     }
   }
 
-  Future<void> _checkIsRegistered() async {
+  _checkIsRegistered() async {
     if (androidInfo != null) {
       device = await _diretoDaNuvemAPI.deviceResource.get(androidInfo!.id);
       isRegistered = (device != null);
+    } else {
+      device = null;
+      isRegistered = false;
     }
   }
 
@@ -99,13 +105,20 @@ class DeviceController extends ChangeNotifier {
 
   _fetchGroup() async {
     if (device == null) {
+      group = null;
       return;
     }
     group = await _groupController.fetchDeviceGroup(device!);
   }
 
   _fetchCurrentQueue() async {
-    if (group == null || group!.currentQueue.isEmpty) {
+    defaultQueue = await _diretoDaNuvemAPI.queueResource.getDefaultQueue();
+
+    if (group == null) {
+      return;
+    }
+
+    if (group!.currentQueue.isEmpty) {
       return;
     }
 
@@ -125,17 +138,25 @@ class DeviceController extends ChangeNotifier {
     });
   }
 
-  Future loadDevices() async {
-    devices = await _diretoDaNuvemAPI.deviceResource.getAll();
+  Future _loadDevices() async {
+    _devices = await _diretoDaNuvemAPI.deviceResource.getAll();
     Stream<List<Device>>? devicesStream = _diretoDaNuvemAPI
         .deviceResource.getAllStream();
 
     _devicesSubscription?.cancel();
     _devicesSubscription = devicesStream.listen((updatedDevices) async {
-      device = updatedDevices.firstWhere((d) => d.id == device!.id);
+      try {
+        device = updatedDevices.firstWhere((d) => d.id == device!.id);
+      } catch (e) {
+        device = null;
+        debugPrint("Erro ao atualizar dispositivo atual na stream: $e");
+      }
       _updateCurrentQueueAndGroup();
-      devices = updatedDevices;
+      _devices = updatedDevices;
       notifyListeners();
+    },
+    onError: (e) {
+      debugPrint("Erro ao escutar stream de dispositivos: $e");
     });
   }
 
@@ -146,7 +167,7 @@ class DeviceController extends ChangeNotifier {
 
   int numberOfDevicesOnGroup(String groupId) {
     int count = 0;
-    for (var device in devices) {
+    for (var device in _devices) {
       if (device.groupId == groupId) {
         count++;
       }
@@ -156,10 +177,10 @@ class DeviceController extends ChangeNotifier {
 
   List<Device> listDevicesInGroups(Set<String> groupIds) {
     if (groupIds.isEmpty) {
-      return devices;
+      return _devices;
     }
     List<Device> devicesInGroups = [];
-    for (var device in devices) {
+    for (var device in _devices) {
       if (groupIds.contains(device.groupId)) {
         devicesInGroups.add(device);
       }

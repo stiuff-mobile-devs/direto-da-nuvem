@@ -61,16 +61,21 @@ class QueueResource {
   }
 
   Future<Queue?> getDefaultQueue() async {
-    if (await hasInternetConnection()) {
-      var doc = await _firestore.doc("$collection/init").get();
-      if (!doc.exists) {
-        return null;
+    try {
+      if (await hasInternetConnection()) {
+        var doc = await _firestore.doc("$collection/init").get();
+        if (!doc.exists) {
+          return null;
+        }
+        final queue = Queue.fromMap(doc.id, doc.data()!);
+        _hiveBox.put(queue.id, queue);
+        return queue;
+      } else {
+        return _hiveBox.get("init");
       }
-      final queue = Queue.fromMap(doc.id, doc.data()!);
-      _hiveBox.put(queue.id, queue);
-      return queue;
-    } else {
-      return _hiveBox.get("init");
+    } catch (e) {
+      debugPrint("Error on get default queue: $e");
+      return null;
     }
   }
 

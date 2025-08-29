@@ -42,6 +42,7 @@ class RedirectionPage extends StatefulWidget {
 class _RedirectionPageState extends State<RedirectionPage> {
   late LocalStorageService localStorageService;
   late DiretoDaNuvemAPI diretoDaNuvemAPI;
+  Future<bool>? isFirstTime;
 
   getDependencies() {
     localStorageService = context.read<LocalStorageService>();
@@ -56,15 +57,19 @@ class _RedirectionPageState extends State<RedirectionPage> {
     return firstTime;
   }
 
-  Future<bool> loadIsFirstTime() async {
-    return getIsFirstTime()
-        .timeout(const Duration(seconds: 5), onTimeout: () => true);
-  }
+  //
+  // Future<bool> loadIsFirstTime() async {
+  //   return getIsFirstTime()
+  //        .timeout(const Duration(seconds: 5), onTimeout: () => true);
+  // }
 
   @override
   void initState() {
     super.initState();
     getDependencies();
+    setState(() {
+      isFirstTime = getIsFirstTime();
+    });
   }
 
   @override
@@ -88,7 +93,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
             userController.loadingInitialState;
 
         return FutureBuilder(
-          future: loadIsFirstTime(),
+          future: isFirstTime,
           builder: (c, s) => redirectionBuilder(c, s, redirectionData),
         );
       },
@@ -97,17 +102,21 @@ class _RedirectionPageState extends State<RedirectionPage> {
 
   Widget redirectionBuilder(BuildContext c, AsyncSnapshot<bool> snapshot,
       RedirectionData redirectionData) {
-    if (snapshot.connectionState == ConnectionState.waiting
-        || redirectionData.isLoading ) {
+    if (redirectionData.isLoading) {
       return loading();
     }
 
-    if (snapshot.hasError || !snapshot.hasData) {
-      redirectionData.firstTime = true;
-    } else {
-      redirectionData.firstTime = snapshot.data ?? true;
-    }
+    // if (snapshot.connectionState == ConnectionState.waiting
+    //     || redirectionData.isLoading ) {
+    //   return loading();
+    // }
+    // if (snapshot.hasError || !snapshot.hasData) {
+    //   redirectionData.firstTime = true;
+    // } else {
+    //   redirectionData.firstTime = snapshot.data ?? true;
+    // }
 
+    redirectionData.firstTime = false;
     return handleRedirection(redirectionData);
   }
 

@@ -76,6 +76,7 @@ class UserController extends ChangeNotifier {
     profileImageUrl = fbAuthUser?.photoURL;
     User? user = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.email!);
     currentUser = user ?? User.empty();
+    await loadAllUsers();
   }
 
   loadAllUsers() async {
