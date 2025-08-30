@@ -104,7 +104,7 @@ class _QueueViewPageState extends State<QueueViewPage> {
       color: Theme.of(context).colorScheme.surface,
       child: const Center(
         child: CircularProgressIndicator.adaptive(
-          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
+          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryRed),
         ),
       ),
     );
