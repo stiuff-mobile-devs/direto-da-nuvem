@@ -9,35 +9,44 @@ class GroupResource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final Box<Group> _hiveBox = Hive.box<Group>(collection);
 
-  Future<List<Group>> listAll() async {
+  Future<List<Group>> getAll() async {
     List<Group> groups = [];
 
-    if (await hasInternetConnection()) {
-      final list = await _firestore.collection(collection).get();
+    try {
+      if (await hasInternetConnection()) {
+        final list = await _firestore.collection(collection).get();
 
-      for (var doc in list.docs) {
-        Group group = Group.fromMap(doc.id, doc.data());
-        groups.add(group);
-        _hiveBox.put(group.id, group);
-      }
-    } else {
-      groups = _hiveBox.values.toList();
-    }
-
-    return groups;
-  }
-
-  Stream<List<Group>> listAllStream() {
-    var l = _firestore.collection(collection).snapshots();
-    return l.map((event) {
-      List<Group> groups = [];
-
-      for (var doc in event.docs) {
-        Group group = Group.fromMap(doc.id, doc.data());
-        groups.add(group);
-        _hiveBox.put(group.id, group);
+        for (var doc in list.docs) {
+          Group group = Group.fromMap(doc.id, doc.data());
+          groups.add(group);
+          _saveToLocalDB(group);
+        }
+      } else {
+        groups = _getAllFromLocalDB();
       }
       return groups;
+    } catch (e) {
+      debugPrint("Error on get all groups: $e");
+      return [];
+    }
+  }
+
+  Stream<List<Group>> getAllStream() {
+    var l = _firestore.collection(collection).snapshots();
+    return l.map((event) {
+      try {
+        List<Group> groups = [];
+
+        for (var doc in event.docs) {
+          Group group = Group.fromMap(doc.id, doc.data());
+          groups.add(group);
+          _saveToLocalDB(group);
+        }
+        return groups;
+      } catch (e) {
+        debugPrint("Error on get all groups stream: $e");
+        return [];
+      }
     });
   }
 
@@ -53,47 +62,84 @@ class GroupResource {
         }
 
         group = Group.fromMap(doc.id, doc.data()!);
-        //_hiveBox.put(group.id, group);
+        _saveToLocalDB(group);
       } else {
-        group = _hiveBox.get(id);
+        group = _getFromLocalDB(id);
       }
+
+      return group;
     } catch (e) {
-      debugPrint("Error on get group $id.");
+      debugPrint("Error on get group $id: $e.");
       return null;
     }
-
-    return group;
   }
 
-  Future<void> create(Group group) async {
-    var doc = await _firestore.collection(collection).add(group.toMap());
-    group.id = doc.id;
-    _hiveBox.put(group.id, group);
+  create(Group group) async {
+    try {
+      await _firestore.collection(collection).add(group.toMap());
+    } catch (e) {
+      debugPrint("Error on create group ${group.id}: $e.");
+    }
   }
 
   Future<bool> update(Group group) async {
-    final docReference = _firestore.doc("$collection/${group.id}");
-    final doc = await docReference.get();
+    try {
+      final docReference = _firestore.doc("$collection/${group.id}");
+      final doc = await docReference.get();
 
-    if (!doc.exists) {
+      if (!doc.exists) {
+        return false;
+      }
+
+      await docReference.update(group.toMap());
+      return true;
+    } catch (e) {
+      debugPrint("Error on update group ${group.id}: $e.");
       return false;
     }
-
-    await docReference.update(group.toMap());
-    _hiveBox.put(group.id, group);
-    return true;
   }
 
-  Future<void> delete(String id) async {
-    await _firestore.doc("$collection/$id").delete();
-    _hiveBox.delete(id);
+  delete(String id) async {
+    try {
+      await _firestore.doc("$collection/$id").delete();
+      _deleteFromLocalDB(id);
+    } catch (e) {
+      debugPrint("Error on delete group $id: $e.");
+    }
   }
 
-  // Future<List<String>> _getGroupAdmins(String groupId) async {
-  //   var adminsDoc =
-  //       await _firestore.doc("$collection/$groupId/admins/admins").get();
+  // Hive
+  _saveToLocalDB(Group group) {
+    try {
+      _hiveBox.put(group.id, group);
+    } catch (e) {
+      debugPrint("Error on save group ${group.id} to Hive: $e.");
+    }
+  }
 
-  //   var admins = (adminsDoc.data()!["admins"]).map((e) => "$e").toList();
-  //   return List<String>.from(admins);
-  // }
+  _deleteFromLocalDB(String id) {
+    try {
+      _hiveBox.delete(id);
+    } catch (e) {
+      debugPrint("Error on delete group $id from Hive: $e.");
+    }
+  }
+
+  Group? _getFromLocalDB(String id) {
+    try {
+      return _hiveBox.values.firstWhere((g) => g.id == id);
+    } catch (e) {
+      debugPrint("Error on get group $id from Hive: $e.");
+      return null;
+    }
+  }
+
+  List<Group> _getAllFromLocalDB() {
+    try {
+      return _hiveBox.values.toList();
+    } catch (e) {
+      debugPrint("Error on list all groups from Hive: $e.");
+      return [];
+    }
+  }
 }

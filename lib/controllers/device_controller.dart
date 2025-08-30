@@ -32,10 +32,9 @@ class DeviceController extends ChangeNotifier {
     await _getAndroidInfo();
     await _checkIsRegistered();
     await _fetchGroupAndQueue();
+    await _loadDevices();
     _groupController.addListener(_updateCurrentQueueAndGroup);
     loadingInitialState = false;
-    notifyListeners();
-    await _loadDevices();
     notifyListeners();
   }
 
@@ -119,6 +118,8 @@ class DeviceController extends ChangeNotifier {
     }
 
     if (group!.currentQueue.isEmpty) {
+      currentQueue = null;
+      _currentQueueSubscription?.cancel();
       return;
     }
 
@@ -148,7 +149,6 @@ class DeviceController extends ChangeNotifier {
       try {
         device = updatedDevices.firstWhere((d) => d.id == device!.id);
       } catch (e) {
-        device = null;
         debugPrint("Erro ao atualizar dispositivo atual na stream: $e");
       }
       _updateCurrentQueueAndGroup();

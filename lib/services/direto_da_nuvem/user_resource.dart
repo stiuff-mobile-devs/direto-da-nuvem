@@ -26,11 +26,11 @@ class UserResource {
       } else {
         users = _getAllFromLocalDB();
       }
+      return users;
     } catch (e) {
       debugPrint("Error on list all users: $e");
+      return [];
     }
-
-    return users;
   }
 
   Stream<List<User>> getAllStream() {
@@ -67,7 +67,6 @@ class UserResource {
       await _firestore
           .doc("$collection/${doc.id}/privileges/privileges")
           .set(user.privileges.toMap());
-      _saveToLocalDB(user);
       return true;
     } catch (e) {
       debugPrint("Error on create user: $e");
@@ -75,7 +74,7 @@ class UserResource {
     }
   }
 
-  Future delete(User user) async {
+  delete(User user) async {
     try {
       await _firestore
           .doc("$collection/${user.id}/privileges/privileges")
@@ -109,12 +108,11 @@ class UserResource {
       } else {
         user = _getFromLocalDB(email);
       }
+      return user;
     } catch (e) {
       debugPrint("Error on get user: $e");
       return null;
     }
-
-    return user;
   }
 
   update(User user) async {
@@ -129,6 +127,7 @@ class UserResource {
       await _firestore
           .doc("$collection/${user.id}/privileges/privileges")
           .update(user.privileges.toMap());
+      _saveToLocalDB(user);
     } catch (e) {
       debugPrint("Error on update user: $e");
     }
@@ -159,7 +158,7 @@ class UserResource {
     try {
       _hiveBox.put(user.id, user);
     } catch (e) {
-      debugPrint("Error on save user ${user.id} to Hive.");
+      debugPrint("Error on save user ${user.id} to Hive: $e.");
     }
   }
 
@@ -167,7 +166,7 @@ class UserResource {
     try {
       _hiveBox.delete(id);
     } catch (e) {
-      debugPrint("Error on delete user $id from Hive.");
+      debugPrint("Error on delete user $id from Hive: $e.");
     }
   }
 
@@ -175,7 +174,7 @@ class UserResource {
     try {
       return _hiveBox.values.firstWhere((u) => u.email == email);
     } catch (e) {
-      debugPrint("Error on get user $email from Hive.");
+      debugPrint("Error on get user $email from Hive: $e.");
       return null;
     }
   }
@@ -184,7 +183,7 @@ class UserResource {
     try {
       return _hiveBox.values.toList();
     } catch (e) {
-      debugPrint("Error on list all users from Hive.");
+      debugPrint("Error on list all users from Hive: $e.");
       return [];
     }
   }

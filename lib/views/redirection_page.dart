@@ -2,34 +2,31 @@ import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
-import 'package:ddnuvem/services/local_storage/booleans.dart';
 import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/admin/admin_page.dart';
 import 'package:ddnuvem/views/devices/register_device_page.dart';
 import 'package:ddnuvem/views/devices/unregistered_device_error_page.dart';
 import 'package:ddnuvem/views/intro_page.dart';
-import 'package:ddnuvem/views/login_page.dart';
 import 'package:ddnuvem/views/queues/queue_view_controller.dart';
 import 'package:ddnuvem/views/queues/queue_view_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class RedirectionData {
-  bool firstTime;
   bool loggedIn;
   bool isInstaller;
   bool isDeviceRegistered;
   bool isAdmin;
   bool isLoading;
 
-  RedirectionData(
-      {this.firstTime = false,
-      this.loggedIn = false,
-      this.isInstaller = false,
-      this.isDeviceRegistered = false,
-      this.isAdmin = false,
-      this.isLoading = true});
+  RedirectionData({
+    this.loggedIn = false,
+    this.isInstaller = false,
+    this.isDeviceRegistered = false,
+    this.isAdmin = false,
+    this.isLoading = true
+  });
 }
 
 class RedirectionPage extends StatefulWidget {
@@ -42,34 +39,16 @@ class RedirectionPage extends StatefulWidget {
 class _RedirectionPageState extends State<RedirectionPage> {
   late LocalStorageService localStorageService;
   late DiretoDaNuvemAPI diretoDaNuvemAPI;
-  Future<bool>? isFirstTime;
 
   getDependencies() {
     localStorageService = context.read<LocalStorageService>();
     diretoDaNuvemAPI =  context.read<DiretoDaNuvemAPI>();
   }
 
-  Future<bool> getIsFirstTime() async {
-    bool firstTime =
-        await localStorageService.readBool(LocalStorageBooleans.firstTime) ??
-            true;
-    debugPrint("getIsFirstTime completed: $firstTime");
-    return firstTime;
-  }
-
-  //
-  // Future<bool> loadIsFirstTime() async {
-  //   return getIsFirstTime()
-  //        .timeout(const Duration(seconds: 5), onTimeout: () => true);
-  // }
-
   @override
   void initState() {
     super.initState();
     getDependencies();
-    setState(() {
-      isFirstTime = getIsFirstTime();
-    });
   }
 
   @override
@@ -92,31 +71,18 @@ class _RedirectionPageState extends State<RedirectionPage> {
         redirectionData.isLoading = deviceController.loadingInitialState ||
             userController.loadingInitialState;
 
-        return FutureBuilder(
-          future: isFirstTime,
-          builder: (c, s) => redirectionBuilder(c, s, redirectionData),
+        return Builder(
+          builder: (c) => redirectionBuilder(c, redirectionData),
         );
       },
     );
   }
 
-  Widget redirectionBuilder(BuildContext c, AsyncSnapshot<bool> snapshot,
-      RedirectionData redirectionData) {
+  Widget redirectionBuilder(BuildContext c, RedirectionData redirectionData) {
     if (redirectionData.isLoading) {
       return loading();
     }
 
-    // if (snapshot.connectionState == ConnectionState.waiting
-    //     || redirectionData.isLoading ) {
-    //   return loading();
-    // }
-    // if (snapshot.hasError || !snapshot.hasData) {
-    //   redirectionData.firstTime = true;
-    // } else {
-    //   redirectionData.firstTime = snapshot.data ?? true;
-    // }
-
-    redirectionData.firstTime = false;
     return handleRedirection(redirectionData);
   }
 
@@ -133,11 +99,8 @@ class _RedirectionPageState extends State<RedirectionPage> {
   }
 
   Widget handleRedirection(RedirectionData redirectionData) {
-    if (redirectionData.firstTime) {
-      return const IntroPage();
-    }
     if (!redirectionData.loggedIn) {
-      return const LoginPage();
+      return const IntroPage();
     }
     if (!redirectionData.isDeviceRegistered) {
       if (redirectionData.isInstaller) {
@@ -152,11 +115,10 @@ class _RedirectionPageState extends State<RedirectionPage> {
       return const AdminPage();
     }
 
-    var deviceController = context.read<DeviceController>();
     return ChangeNotifierProvider(
       create: (context) => QueueViewController(
         diretoDaNuvemAPI,
-        deviceController,
+        context.read<DeviceController>(),
       ),
       child: Consumer<QueueViewController>(
         builder: (context, controller, _) {

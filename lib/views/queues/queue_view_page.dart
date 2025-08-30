@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/utils/theme.dart';
+import 'package:ddnuvem/views/queues/queue_view_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -16,9 +17,20 @@ class QueueViewPage extends StatefulWidget {
 
 class _QueueViewPageState extends State<QueueViewPage> {
   bool showView = true;
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
+    try {
+      loading = context.read<QueueViewController>().loadingImages;
+    } catch (e) {
+      loading = false;
+    }
+
+    if (loading) {
+      return _loading();
+    }
+
     UserController userController = context.read<UserController>();
     final admin = userController.currentUser!.privileges.isAdmin
         || userController.currentUser!.privileges.isSuperAdmin;
@@ -86,4 +98,16 @@ class _QueueViewPageState extends State<QueueViewPage> {
       );
     }
   }
+
+  Widget _loading() {
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: const Center(
+        child: CircularProgressIndicator.adaptive(
+          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
+        ),
+      ),
+    );
+  }
+
 }

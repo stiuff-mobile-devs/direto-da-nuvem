@@ -82,6 +82,7 @@ class QueueCreateUpdatePage extends StatelessWidget {
             isSuperAdmin && queue.id.isNotEmpty
                 && queue.status == QueueStatus.pending ?
             FloatingActionButton(
+              heroTag: "moderate",
               onPressed: () {
                 _showModerationDialog(context);
               },
@@ -92,6 +93,7 @@ class QueueCreateUpdatePage extends StatelessWidget {
             ) : const SizedBox.shrink(),
             const SizedBox(height: 5),
             FloatingActionButton(
+              heroTag: "addImage",
               onPressed: context.read<QueueEditController>().pickImage,
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -141,7 +143,10 @@ class QueueCreateUpdatePage extends StatelessWidget {
                       );
                     }).toList(),
                   ) : const Center(
-                      child: CircularProgressIndicator.adaptive(),
+                      child: CircularProgressIndicator.adaptive(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              AppTheme.primaryBlue)
+                      ),
                   ),
                 ),
               ],

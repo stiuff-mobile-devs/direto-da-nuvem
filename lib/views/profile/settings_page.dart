@@ -11,14 +11,16 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isRegistered = context.read<DeviceController>().isRegistered;
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Configurações"),
         ),
         body: Consumer<UserController>(builder: (context, controller, _) {
-          final photoUrl = controller.profileImageUrl;
           final email = controller.currentUser!.email;
+          final photoUrl = controller.profileImageUrl;
 
           return Column(
             children: [
@@ -42,6 +44,7 @@ class SettingsPage extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.play_arrow),
                 title: const Text("Tocar fila"),
+                enabled: isRegistered,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(

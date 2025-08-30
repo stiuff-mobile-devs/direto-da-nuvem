@@ -9,35 +9,45 @@ class QueueResource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final Box<Queue> _hiveBox = Hive.box<Queue>(collection);
 
-  Future<List<Queue>> listAll() async {
+  Future<List<Queue>> getAll() async {
     List<Queue> queues = [];
 
-    if (await hasInternetConnection()) {
-      final list = await _firestore.collection(collection).get();
+    try {
+      if (await hasInternetConnection()) {
+        final list = await _firestore.collection(collection).get();
 
-      for (var doc in list.docs) {
-        Queue queue = Queue.fromMap(doc.id, doc.data());
-        queues.add(queue);
-        _hiveBox.put(queue.id, queue);
+        for (var doc in list.docs) {
+          Queue queue = Queue.fromMap(doc.id, doc.data());
+          queues.add(queue);
+          _saveToLocalDB(queue);
+        }
+      } else {
+        queues = _getAllFromLocalDB();
       }
-    } else {
-      queues = _hiveBox.values.toList();
-    }
 
-    return queues;
+      return queues;
+    } catch (e) {
+      debugPrint("Error on get all queues: $e");
+      return [];
+    }
   }
 
-  Stream<List<Queue>> listAllStream() {
+  Stream<List<Queue>> getAllStream() {
     var l = _firestore.collection(collection).snapshots();
     return l.map((event) {
-      List<Queue> queues = [];
+      try {
+        List<Queue> queues = [];
 
-      for (var doc in event.docs) {
-        Queue queue = Queue.fromMap(doc.id, doc.data());
-        queues.add(queue);
-        _hiveBox.put(queue.id, queue);
+        for (var doc in event.docs) {
+          Queue queue = Queue.fromMap(doc.id, doc.data());
+          queues.add(queue);
+          _saveToLocalDB(queue);
+        }
+        return queues;
+      } catch (e) {
+        debugPrint("Error on get all queues stream: $e");
+        return [];
       }
-      return queues;
     });
   }
 
@@ -49,13 +59,13 @@ class QueueResource {
           return null;
         }
         final queue = Queue.fromMap(doc.id, doc.data()!);
-        _hiveBox.put(queue.id, queue);
+        _saveToLocalDB(queue);
         return queue;
       } else {
-        return _hiveBox.get(id);
+        return _getFromLocalDB(id);
       }
     } catch (e) {
-      debugPrint("Error on get queue $id.");
+      debugPrint("Error on get queue $id: $e.");
       return null;
     }
   }
@@ -68,10 +78,10 @@ class QueueResource {
           return null;
         }
         final queue = Queue.fromMap(doc.id, doc.data()!);
-        _hiveBox.put(queue.id, queue);
+        _saveToLocalDB(queue);
         return queue;
       } else {
-        return _hiveBox.get("init");
+        return _getFromLocalDB("init");
       }
     } catch (e) {
       debugPrint("Error on get default queue: $e");
@@ -79,11 +89,12 @@ class QueueResource {
     }
   }
 
-
-  Future delete(String id) async {
-    if (await hasInternetConnection()) {
+  delete(String id) async {
+    try {
       await _firestore.doc("$collection/$id").delete();
-      _hiveBox.delete(id);
+      _deleteFromLocalDB(id);
+    } catch (e) {
+      debugPrint("Error on delete queue: $e");
     }
   }
 
@@ -92,24 +103,67 @@ class QueueResource {
     return doc.map((event) {
       try {
         Queue queue = Queue.fromMap(event.id, event.data()!);
-        _hiveBox.put(queue.id, queue);
+        _saveToLocalDB(queue);
         return queue;
       } catch (e) {
-        debugPrint("Error on get queue stream $id.");
+        debugPrint("Error on get queue stream $id: $e.");
         return null;
       }
     });
   }
 
-  Future create(Queue queue) async {
-    var doc = await _firestore.collection(collection).add(queue.toMap());
-    queue.id = doc.id;
-    _hiveBox.put(queue.id, queue);
+  create(Queue queue) async {
+    try {
+      var doc = await _firestore.collection(collection).add(queue.toMap());
+      queue.id = doc.id;
+      _saveToLocalDB(queue);
+    } catch (e) {
+      debugPrint("Error on create queue: $e");
+    }
   }
 
-  Future update(Queue queue) async {
-    var doc = _firestore.collection(collection).doc(queue.id);
-    await doc.update(queue.toMap());
-    _hiveBox.put(queue.id, queue);
+  update(Queue queue) async {
+    try {
+      var doc = _firestore.collection(collection).doc(queue.id);
+      await doc.update(queue.toMap());
+      _saveToLocalDB(queue);
+    } catch (e) {
+      debugPrint("Error on update queue: $e");
+    }
+  }
+
+  // Hive
+  _saveToLocalDB(Queue queue) {
+    try {
+      _hiveBox.put(queue.id, queue);
+    } catch (e) {
+      debugPrint("Error on save queue ${queue.id} to Hive: $e.");
+    }
+  }
+
+  _deleteFromLocalDB(String id) {
+    try {
+      _hiveBox.delete(id);
+    } catch (e) {
+      debugPrint("Error on delete queue $id from Hive: $e.");
+    }
+  }
+
+  Queue? _getFromLocalDB(String id) {
+    try {
+      return _hiveBox.values.firstWhere((q) => q.id == id);
+    } catch (e) {
+      debugPrint("Error on get queue $id from Hive: $e.");
+      return null;
+    }
+  }
+
+  List<Queue> _getAllFromLocalDB() {
+    try {
+      return _hiveBox.values.toList();
+    } catch (e) {
+      debugPrint("Error on list all queues from Hive: $e.");
+      return [];
+    }
   }
 }

@@ -14,12 +14,20 @@ class SignInService {
 
   Future<bool> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser;
+    User? user;
 
     try {
       googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
         return false;
+      }
+
+      user = await _diretoDaNuvemAPI.userResource.get(googleUser.email);
+
+      if (user == null) {
+        debugPrint("Usuário não autorizado");
+        return true;
       }
 
       final GoogleSignInAuthentication googleAuth =
@@ -32,12 +40,7 @@ class SignInService {
 
       await auth.signInWithCredential(credential);
     } catch (e) {
-      return false;
-    }
-
-    User? user = await _diretoDaNuvemAPI.userResource.get(googleUser.email);
-
-    if (user == null) {
+      debugPrint("ERRO ao logar: $e");
       return false;
     }
 

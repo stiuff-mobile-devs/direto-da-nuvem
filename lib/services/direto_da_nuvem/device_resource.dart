@@ -54,12 +54,11 @@ class DeviceResource {
       } else {
         device = _getFromLocalDB(id);
       }
+      return device;
     } catch (e) {
       debugPrint("Error on get device: $e");
       return null;
     }
-
-    return device;
   }
 
   Future<List<Device>> getAll() async {
@@ -76,11 +75,11 @@ class DeviceResource {
       } else {
         devices = _getAllFromLocalDB();
       }
+      return devices;
     } catch (e) {
       debugPrint("Error on list all devices: $e");
+      return [];
     }
-
-    return devices;
   }
 
   Stream<List<Device>> getAllStream() {
@@ -108,7 +107,7 @@ class DeviceResource {
     try {
       _hiveBox.put(device.id, device);
     } catch (e) {
-      debugPrint("Error on save device ${device.id} to Hive.");
+      debugPrint("Error on save device ${device.id} to Hive: $e.");
     }
   }
 
@@ -116,7 +115,7 @@ class DeviceResource {
     try {
       return _hiveBox.get(id);
     } catch (e) {
-      debugPrint("Error on get device $id from Hive.");
+      debugPrint("Error on get device $id from Hive: $e.");
       return null;
     }
   }
@@ -125,7 +124,7 @@ class DeviceResource {
     try {
       return _hiveBox.values.toList();
     } catch (e) {
-      debugPrint("Error on list all devices from Hive.");
+      debugPrint("Error on list all devices from Hive: $e.");
       return [];
     }
   }

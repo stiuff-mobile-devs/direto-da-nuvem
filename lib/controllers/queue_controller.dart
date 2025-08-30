@@ -25,14 +25,17 @@ class QueueController extends ChangeNotifier {
   }
 
   _loadQueues() async {
-    queues = await _diretoDaNuvemAPI.queueResource.listAll();
+    queues = await _diretoDaNuvemAPI.queueResource.getAll();
     Stream<List<Queue>>? queuesStream = _diretoDaNuvemAPI
-        .queueResource.listAllStream();
+        .queueResource.getAllStream();
 
     _queuesSubscription?.cancel();
     _queuesSubscription = queuesStream.listen((updatedQueues) {
       queues = updatedQueues;
       notifyListeners();
+    },
+    onError: (e) {
+      debugPrint("Erro ao escutar stream de filas: $e");
     });
   }
 

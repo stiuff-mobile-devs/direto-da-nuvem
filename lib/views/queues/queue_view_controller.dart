@@ -10,17 +10,13 @@ class QueueViewController extends ChangeNotifier {
   DiretoDaNuvemAPI diretoDaNuvemAPI;
   DeviceController deviceController;
   Queue? queue;
-  QueueViewController(this.diretoDaNuvemAPI, this.deviceController) {
-    final currentQueue = deviceController.currentQueue;
-    if (currentQueue != null && currentQueue.status == QueueStatus.approved) {
-      queue = currentQueue;
-    } else {
-      queue = deviceController.defaultQueue;
-    }
-    deviceController.addListener(_updateQueue);
-    fetchImages();
-  }
+  bool loadingImages = false;
   bool disposed = false;
+
+  QueueViewController(this.diretoDaNuvemAPI, this.deviceController) {
+    _getQueue();
+    deviceController.addListener(_updateQueue);
+  }
 
   @override
   void dispose() {
@@ -30,22 +26,28 @@ class QueueViewController extends ChangeNotifier {
     super.dispose();
   }
 
-  void _updateQueue() {
-    final newQueue = deviceController.currentQueue;
-    if (queue != newQueue && newQueue!.status == QueueStatus.approved) {
-      queue = newQueue;
-      fetchImages();
-      notifyListeners();
-    }
-
-    if (newQueue == null) {
+  _getQueue() async {
+    loadingImages = true;
+    notifyListeners();
+    final currentQueue = deviceController.currentQueue;
+    if (currentQueue != null && currentQueue.status == QueueStatus.approved) {
+      queue = currentQueue;
+    } else {
       queue = deviceController.defaultQueue;
-      fetchImages();
-      notifyListeners();
+    }
+    await _fetchImages();
+    loadingImages = false;
+    notifyListeners();
+  }
+
+  _updateQueue() async {
+    final newQueue = deviceController.currentQueue;
+    if (newQueue != queue) {
+      await _getQueue();
     }
   }
 
-  Future fetchImages() async {
+  Future _fetchImages() async {
     List<Future<Uint8List?>> futures = [];
 
     for (var image in queue!.images) {

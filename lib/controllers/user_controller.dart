@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
-import 'package:ddnuvem/views/redirection_page.dart';
 import 'package:flutter/material.dart';
 
 class UserController extends ChangeNotifier {
@@ -49,17 +48,14 @@ class UserController extends ChangeNotifier {
       return;
     }
 
-    await _getCurrentUserInfo();
+    if (!_signInService.checkIfLoggedIn()) {
+      currentUser = User.empty();
+    } else {
+      await _getCurrentUserInfo();
+    }
+
     isLoggedIn = true;
     notifyListeners();
-
-    if (context.mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const RedirectionPage()),
-            (Route<dynamic> route) => false,
-      );
-    }
   }
 
   logout() async {
@@ -76,25 +72,25 @@ class UserController extends ChangeNotifier {
     profileImageUrl = fbAuthUser?.photoURL;
     User? user = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.email!);
     currentUser = user ?? User.empty();
-    await loadAllUsers();
+    if (currentUser!.privileges.isSuperAdmin) {
+      await _loadAllUsers();
+    }
   }
 
-  loadAllUsers() async {
-    if (currentUser!.privileges.isSuperAdmin) {
-      users = await _diretoDaNuvemAPI.userResource.getAll();
+  _loadAllUsers() async {
+    users = await _diretoDaNuvemAPI.userResource.getAll();
 
-      Stream<List<User>>? usersStream =
-          _diretoDaNuvemAPI.userResource.getAllStream();
+    Stream<List<User>>? usersStream =
+        _diretoDaNuvemAPI.userResource.getAllStream();
 
-      _usersSubscription?.cancel();
-      _usersSubscription = usersStream.listen((updatedUsers) {
-        users = updatedUsers;
-        notifyListeners();
-      },
-      onError: (e) {
-        debugPrint("Erro ao escutar stream de usuários: $e");
-      });
-    }
+    _usersSubscription?.cancel();
+    _usersSubscription = usersStream.listen((updatedUsers) {
+      users = updatedUsers;
+      notifyListeners();
+    },
+    onError: (e) {
+      debugPrint("Erro ao escutar stream de usuários: $e");
+    });
   }
 
   Future<String> createUser(User user) async {

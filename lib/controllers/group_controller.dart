@@ -44,8 +44,9 @@ class GroupController extends ChangeNotifier {
   }
 
   _fetchAllGroups() async {
-    groups = await _diretoDaNuvemAPI.groupResource.listAll();
-    Stream<List<Group>>? groupsStream = _diretoDaNuvemAPI.groupResource.listAllStream();
+    groups = await _diretoDaNuvemAPI.groupResource.getAll();
+    Stream<List<Group>>? groupsStream = _diretoDaNuvemAPI
+        .groupResource.getAllStream();
 
     _groupsSubscription?.cancel();
     _groupsSubscription = groupsStream.listen((updatedGroups) {
@@ -59,8 +60,10 @@ class GroupController extends ChangeNotifier {
           selectedGroup = null;
         }
       }
-
       notifyListeners();
+    },
+    onError: (e) {
+      debugPrint("Erro ao escutar stream de grupos: $e");
     });
   }
 
