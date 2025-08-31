@@ -84,7 +84,7 @@ class QueueCard extends StatelessWidget {
   _pushUpdateQueuePage(BuildContext context) {
     final messenger = ScaffoldMessenger.of(context);
     final isSuperAdmin = context.read<UserController>()
-        .currentUser!.privileges.isSuperAdmin;
+        .isCurrentUserSuperAdmin();
 
     Navigator.of(context).push(
       MaterialPageRoute(

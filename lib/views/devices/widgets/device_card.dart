@@ -21,8 +21,7 @@ class DeviceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (context.read<UserController>().currentUser!
-            .privileges.isSuperAdmin) {
+        if (context.read<UserController>().isCurrentUserSuperAdmin()) {
           final connectionService = context.read<ConnectionService>();
           connectionService.connectionStatus
               ? _pushUpdateDevicePage(context)

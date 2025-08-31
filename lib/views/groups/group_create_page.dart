@@ -18,7 +18,7 @@ class GroupCreatePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserController userController = context.read<UserController>();
-    bool isSuperAdmin = userController.currentUser!.privileges.isSuperAdmin;
+    bool isSuperAdmin = userController.isCurrentUserSuperAdmin();
     String titleAction = group.id.isEmpty ? "Criar" : "Editar";
 
     return ChangeNotifierProvider(

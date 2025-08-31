@@ -15,7 +15,7 @@ class GroupsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserController userController = context.read<UserController>();
-    bool isSuperAdmin = userController.currentUser!.privileges.isSuperAdmin;
+    bool isSuperAdmin = userController.isCurrentUserSuperAdmin();
 
     return Stack(
       children: [

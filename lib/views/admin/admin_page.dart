@@ -24,8 +24,8 @@ class AdminPage extends StatelessWidget {
       debugPrint(e.toString());
     }
 
-    UserController userController = context.read<UserController>();
-    final isSuperAdmin = userController.currentUser!.privileges.isSuperAdmin;
+    final isSuperAdmin = context.read<UserController>()
+        .isCurrentUserSuperAdmin();
 
     final pages = [
       const DevicesPage(),

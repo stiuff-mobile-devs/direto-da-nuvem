@@ -79,11 +79,8 @@ class DeviceController extends ChangeNotifier {
     if (isRegistered) {
       this.device = device;
       await _fetchGroupAndQueue();
-
-      if (context.mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-      }
     }
+
     notifyListeners();
   }
 

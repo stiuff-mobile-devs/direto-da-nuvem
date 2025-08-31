@@ -72,7 +72,7 @@ class UserController extends ChangeNotifier {
     profileImageUrl = fbAuthUser?.photoURL;
     User? user = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.email!);
     currentUser = user ?? User.empty();
-    if (currentUser!.privileges.isSuperAdmin) {
+    if (isCurrentUserSuperAdmin()) {
       await _loadAllUsers();
     }
   }
@@ -156,5 +156,31 @@ class UserController extends ChangeNotifier {
       u.name.toLowerCase().contains(q) ||
       u.email.toLowerCase().contains(q)
     ).toList();
+  }
+
+  bool isCurrentUserInstaller() {
+    if (currentUser == null) {
+      return false;
+    }
+
+    return currentUser!.privileges.isInstaller;
+  }
+
+  bool isCurrentUserAdmin() {
+    if (currentUser == null) {
+      return false;
+    }
+
+    final privilege = currentUser!.privileges;
+    return privilege.isSuperAdmin
+        || privilege.isAdmin;
+  }
+
+  bool isCurrentUserSuperAdmin() {
+    if (currentUser == null) {
+      return false;
+    }
+
+    return currentUser!.privileges.isSuperAdmin;
   }
 }

@@ -28,7 +28,7 @@ class QueueCreateUpdatePage extends StatelessWidget {
   Widget build(BuildContext context) {
     String titleAction = queue.id.isEmpty ? "Criar" : "Editar";
     final isSuperAdmin = context.read<UserController>()
-        .currentUser!.privileges.isSuperAdmin;
+        .isCurrentUserSuperAdmin();
 
     return ChangeNotifierProvider(
       create: (context) => QueueEditController(

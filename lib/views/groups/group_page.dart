@@ -135,8 +135,7 @@ class GroupPage extends StatelessWidget {
   _pushCreateQueuePage(BuildContext context) {
     final groupController = context.read<GroupController>();
     final queueController = context.read<QueueController>();
-    final isSuperAdmin = context.read<UserController>()
-        .currentUser!.privileges.isSuperAdmin;
+    final isSuperAdmin = context.read<UserController>().isCurrentUserSuperAdmin();
 
     Navigator.of(context).push(
       MaterialPageRoute(

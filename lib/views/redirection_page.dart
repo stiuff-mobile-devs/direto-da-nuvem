@@ -6,7 +6,6 @@ import 'package:ddnuvem/services/local_storage_service.dart';
 import 'package:ddnuvem/utils/loading_widget.dart';
 import 'package:ddnuvem/views/admin/admin_page.dart';
 import 'package:ddnuvem/views/devices/register_device_page.dart';
-import 'package:ddnuvem/views/devices/unregistered_device_error_page.dart';
 import 'package:ddnuvem/views/intro_page.dart';
 import 'package:ddnuvem/views/queues/queue_view_controller.dart';
 import 'package:ddnuvem/views/queues/queue_view_page.dart';
@@ -61,10 +60,8 @@ class _RedirectionPageState extends State<RedirectionPage> {
         redirectionData.loggedIn = userController.isLoggedIn;
 
         if (redirectionData.loggedIn) {
-          final privileges = userController.currentUser!.privileges;
-          redirectionData.isAdmin =
-              privileges.isSuperAdmin || privileges.isAdmin;
-          redirectionData.isInstaller = privileges.isInstaller;
+          redirectionData.isAdmin = userController.isCurrentUserSuperAdmin();
+          redirectionData.isInstaller = userController.isCurrentUserInstaller();
         }
 
         redirectionData.isDeviceRegistered = deviceController.isRegistered;
@@ -97,7 +94,6 @@ class _RedirectionPageState extends State<RedirectionPage> {
       if (redirectionData.isAdmin) {
         return const AdminPage();
       }
-      return const UnregisteredDeviceErrorPage();
     }
     if (redirectionData.isAdmin) {
       return const AdminPage();

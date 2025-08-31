@@ -11,10 +11,12 @@ class QueueViewController extends ChangeNotifier {
   DeviceController deviceController;
   Queue? queue;
   bool loadingImages = false;
+  bool registeredDevice = false;
   bool disposed = false;
 
   QueueViewController(this.diretoDaNuvemAPI, this.deviceController) {
     _getQueue();
+    registeredDevice = deviceController.isRegistered;
     deviceController.addListener(_updateQueue);
   }
 
@@ -47,25 +49,38 @@ class QueueViewController extends ChangeNotifier {
     }
   }
 
+  // Future _fetchImages() async {
+  //   for (var image in queue!.images) {
+  //     if (image.data != null) continue;
+  //
+  //     final value = await diretoDaNuvemAPI.imageResource.fetchImageData(
+  //         image.path);
+  //     image.data = value;
+  //     image.loading = false;
+  //
+  //     if (disposed) return;
+  //     notifyListeners();
+  //   }
+  // }
+
   Future _fetchImages() async {
     List<Future<Uint8List?>> futures = [];
 
     for (var image in queue!.images) {
-      if (image.data != null) {
-        continue;
-      }
+      if (image.data != null) continue;
+
       futures
           .add(diretoDaNuvemAPI.imageResource.fetchImageData(image.path).then(
-        (value) {
+            (value) {
           image.data = value;
           image.loading = false;
           return value;
         },
       ));
     }
-    notifyListeners();
+
     await Future.wait(futures).then(
-      (_) {
+          (_) {
         if (disposed) return;
         notifyListeners();
       },

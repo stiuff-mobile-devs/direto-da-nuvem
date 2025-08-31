@@ -48,10 +48,6 @@ flutter:
   assets:
     - assets/banner.png
     - assets/DiretoDaNuvem-JustLogo.svg
-    - assets/001.png
-    - assets/002.png
-    - assets/003.png
-    - assets/004.png
 
 flutter_launcher_icons:
   android: "launcher_icon"
