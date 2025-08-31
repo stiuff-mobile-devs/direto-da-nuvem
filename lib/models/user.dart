@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/user_privileges.dart';
 import 'package:hive/hive.dart';
 
-part 'user.g.dart';
+part 'hive/user.g.dart';
 
 @HiveType(typeId: 4)
 class User extends HiveObject {

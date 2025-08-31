@@ -1,5 +1,5 @@
-import 'package:ddnuvem/views/people/people_filter_drawer.dart';
-import 'package:ddnuvem/views/people/search_bar_widget.dart';
+import 'package:ddnuvem/views/people/widgets/people_filter_drawer.dart';
+import 'package:ddnuvem/views/people/widgets/search_bar_widget.dart';
 import 'package:flutter/material.dart';
 
 class PeopleAppBarWidget extends StatelessWidget {

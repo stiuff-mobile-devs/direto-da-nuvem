@@ -4,9 +4,10 @@ import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
+import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/groups/group_create_page.dart';
-import 'package:ddnuvem/views/queues/queue_card.dart';
+import 'package:ddnuvem/views/queues/widgets/queue_card.dart';
 import 'package:ddnuvem/views/queues/queue_create_update_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,26 +17,32 @@ class GroupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final groupController = context.watch<GroupController>();
-    if (groupController.selectedGroup == null) {
-      return const SizedBox.shrink();
-    }
-    return Consumer2<GroupController, UserController>(
-      builder: (context, groupController, userController,_) {
+    return Consumer3<GroupController, UserController, ConnectionService>(
+      builder: (context, groupController, userController, connection, _) {
+        if (groupController.selectedGroup == null) {
+          return const SizedBox.shrink();
+        }
+
         return Scaffold(
           appBar: AppBar(
             title: Text(groupController.selectedGroup!.name),
             actions: [
               IconButton(
                 onPressed: () {
-                  _pushEditGroupPage(context, groupController);
+                  connection.connectionStatus
+                    ? _pushEditGroupPage(context)
+                    : connection.noConnectionDialog(context).show();
                 },
                 icon: const Icon(Icons.edit),
               ),
             ],
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () => _pushCreateQueuePage(context, groupController),
+            onPressed: () {
+              connection.connectionStatus
+                  ? _pushCreateQueuePage(context)
+                  : connection.noConnectionDialog(context).show();
+            },
             backgroundColor: AppTheme.primaryBlue,
             foregroundColor: Colors.white,
             child: const Icon(Icons.add),
@@ -52,13 +59,13 @@ class GroupPage extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
-                    queueCardForActiveQueue(groupController, queueController),
+                    queueCardForActiveQueue(context),
                     const SizedBox(height: 8),
                     Text(
                       "Outras filas",
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    otherQueuesList(groupController, queueController),
+                    otherQueuesList(context),
                   ],
                 );
               },
@@ -69,9 +76,11 @@ class GroupPage extends StatelessWidget {
     );
   }
 
-  Widget queueCardForActiveQueue(
-      GroupController groupController, QueueController queueController) {
+  Widget queueCardForActiveQueue(BuildContext context) {
+    final groupController = context.read<GroupController>();
+    final queueController = context.read<QueueController>();
     Queue? queue;
+
     for (var q in queueController.queues) {
       if (q.id == groupController.selectedGroup!.currentQueue) {
         queue = q;
@@ -86,8 +95,10 @@ class GroupPage extends StatelessWidget {
     );
   }
 
-  Widget otherQueuesList(
-      GroupController groupController, QueueController queueController) {
+  Widget otherQueuesList(BuildContext context) {
+    final groupController = context.read<GroupController>();
+    final queueController = context.read<QueueController>();
+
     final otherQueues = queueController.queues
         .where((element) =>
             element.groupId == groupController.selectedGroup!.id &&
@@ -99,8 +110,9 @@ class GroupPage extends StatelessWidget {
     );
   }
 
-  _pushEditGroupPage(BuildContext context, GroupController groupController) {
-    UserController userController = context.read<UserController>();
+  _pushEditGroupPage(BuildContext context) {
+    final groupController = context.read<GroupController>();
+    final userController = context.read<UserController>();
     final messenger = ScaffoldMessenger.of(context);
 
     Navigator.of(context).push(
@@ -109,10 +121,10 @@ class GroupPage extends StatelessWidget {
           return GroupCreatePage(
             group: Group.copy(groupController.selectedGroup!),
             onSave: (group) {
-              _onCreateGroup(
-                group, userController, groupController).then((message) {
-                  messenger.showSnackBar(SnackBar(content: Text(message)));
-                });
+              groupController.updateGroup(group).then((message) async {
+                await userController.updateGroupAdmins(group.admins);
+                messenger.showSnackBar(SnackBar(content: Text(message)));
+              });
             },
           );
         },
@@ -120,8 +132,9 @@ class GroupPage extends StatelessWidget {
     );
   }
 
-  _pushCreateQueuePage(BuildContext context, GroupController groupController) {
-    QueueController queueController = context.read<QueueController>();
+  _pushCreateQueuePage(BuildContext context) {
+    final groupController = context.read<GroupController>();
+    final queueController = context.read<QueueController>();
     final isSuperAdmin = context.read<UserController>()
         .currentUser!.privileges.isSuperAdmin;
 
@@ -144,11 +157,5 @@ class GroupPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<String> _onCreateGroup(group, userController, groupController) async {
-    String message = await groupController.updateGroup(group);
-    await userController.updateGroupAdmins(group.admins);
-    return message;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
+import 'package:ddnuvem/utils/loading_widget.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/queues/queue_view_controller.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +29,7 @@ class _QueueViewPageState extends State<QueueViewPage> {
     }
 
     if (loading) {
-      return _loading();
+      return loadingWidget(context);
     }
 
     UserController userController = context.read<UserController>();
@@ -98,16 +99,4 @@ class _QueueViewPageState extends State<QueueViewPage> {
       );
     }
   }
-
-  Widget _loading() {
-    return Container(
-      color: Theme.of(context).colorScheme.surface,
-      child: const Center(
-        child: CircularProgressIndicator.adaptive(
-          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryRed),
-        ),
-      ),
-    );
-  }
-
 }

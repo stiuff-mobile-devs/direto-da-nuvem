@@ -2,6 +2,7 @@ import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
+import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/groups/group_card.dart';
 import 'package:ddnuvem/views/groups/group_create_page.dart';
@@ -42,38 +43,48 @@ class GroupsPage extends StatelessWidget {
         Positioned(
           bottom: 16,
           right: 16,
-          child: FloatingActionButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return GroupCreatePage(
-                      group: Group.empty(),
-                      onSave: (group) async {
-                        final messenger = ScaffoldMessenger.of(context);
-                        context.read<GroupController>()
-                            .createGroup(group).then((message) {
-                              messenger.showSnackBar(
-                              SnackBar(
-                                content: Text(message),
-                              ),
-                            );
-                        });
-                        await userController.updateGroupAdmins(group.admins);
-                      }
-                    );
-                  },
-                ),
-              );
-            },
-            backgroundColor: AppTheme.primaryBlue,
-            child: const Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-          ),
+          child: Consumer<ConnectionService>(builder: (context, connection, _) {
+            return FloatingActionButton(
+              onPressed: () {
+                connection.connectionStatus
+                  ? _createGroupButtonPush(context)
+                  : connection.noConnectionDialog(context).show();
+              },
+              backgroundColor: AppTheme.primaryBlue,
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
+            );
+          })
         )
       ],
+    );
+  }
+
+  _createGroupButtonPush(BuildContext context) {
+    final userController = context.read<UserController>();
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) {
+          return GroupCreatePage(
+            group: Group.empty(),
+            onSave: (group) async {
+              final messenger = ScaffoldMessenger.of(context);
+              context.read<GroupController>()
+                  .createGroup(group).then((message) {
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text(message),
+                  ),
+                );
+              });
+              await userController.updateGroupAdmins(group.admins);
+            }
+          );
+        },
+      ),
     );
   }
 }

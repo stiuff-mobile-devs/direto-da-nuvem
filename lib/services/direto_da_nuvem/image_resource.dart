@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/image.dart';
 import 'package:ddnuvem/models/image_ui.dart';
-import 'package:ddnuvem/utils/connection_utils.dart';
+import 'package:ddnuvem/services/connection_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:hive/hive.dart';
 
@@ -17,7 +17,7 @@ class ImageResource {
 
     if (image != null) {
       return image.data;
-    } else if (await hasInternetConnection()) {
+    } else if (await ConnectionService.isConnected()) {
       return await _fetchImageFromStorage(url);
     }
 

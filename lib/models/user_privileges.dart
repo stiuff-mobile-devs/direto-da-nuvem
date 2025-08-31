@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 
-part 'user_privileges.g.dart';
+part 'hive/user_privileges.g.dart';
 
 @HiveType(typeId: 5)
 class UserPrivileges extends HiveObject {

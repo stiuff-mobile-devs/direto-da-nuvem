@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 
-part 'queue_status.g.dart';
+part 'hive/queue_status.g.dart';
 
 @HiveType(typeId: 6)
 enum QueueStatus {

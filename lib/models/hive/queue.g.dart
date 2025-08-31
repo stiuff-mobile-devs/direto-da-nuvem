@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'queue.dart';
+part of '../queue.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator

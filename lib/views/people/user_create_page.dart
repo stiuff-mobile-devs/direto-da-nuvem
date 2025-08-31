@@ -1,5 +1,6 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
+import 'package:ddnuvem/utils/email_regex.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/people/user_create_controller.dart';
 import 'package:flutter/material.dart';
@@ -90,13 +91,10 @@ class UserCreatePage extends StatelessWidget {
                       if (value == null || value.isEmpty) {
                         return "Campo obrigatório";
                       }
-                      final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                      if (!emailRegex.hasMatch(value)) {
+                      if (!emailHasMatch(value)) {
                         return "E-mail inválido";
                       }
-                      // final iduffRegex = RegExp(
-                      //     r"^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@id\.uff\.br$");
-                      // if (!iduffRegex.hasMatch(value)) {
+                      // if (!iduffEmailHasMatch(value)) {
                       //   return "E-mail deve ser do domínio id.uff.br";
                       // }
                       return null;

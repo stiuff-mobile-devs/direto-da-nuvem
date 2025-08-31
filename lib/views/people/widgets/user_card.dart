@@ -1,6 +1,7 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
+import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/views/people/user_create_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,41 @@ class UserCard extends StatelessWidget {
   final User user;
 
   const UserCard({super.key, required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    final connection = context.read<ConnectionService>();
+
+    return GestureDetector(
+      onTap: () {
+        connection.connectionStatus
+          ? _pushUpdateUserPage(context)
+          : connection.noConnectionDialog(context).show();
+      },
+      child: Card(
+        elevation: 4,
+        margin: const EdgeInsets.all(8),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                user.name.isEmpty ? "Usuário não autenticado" : user.name,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(user.email),
+              Text("Privilégios: ${user.privileges.toString()}"),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   _pushUpdateUserPage(BuildContext context) {
     UserController userController = context.read<UserController>();
@@ -48,37 +84,6 @@ class UserCard extends StatelessWidget {
             });
             Navigator.pop(context);
           },
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        _pushUpdateUserPage(context);
-      },
-      child: Card(
-        elevation: 4,
-        margin: const EdgeInsets.all(8),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                user.name.isEmpty ? "Usuário não autenticado" : user.name,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(user.email),
-              Text("Privilégios: ${user.privileges.toString()}"),
-            ],
-          ),
         ),
       ),
     );

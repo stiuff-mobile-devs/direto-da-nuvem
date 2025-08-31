@@ -1,6 +1,7 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/device.dart';
+import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/utils/data_utils.dart';
 import 'package:ddnuvem/views/devices/register_device_page.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,10 @@ class DeviceCard extends StatelessWidget {
       onTap: () {
         if (context.read<UserController>().currentUser!
             .privileges.isSuperAdmin) {
-          _pushUpdateDevicePage(context);
+          final connectionService = context.read<ConnectionService>();
+          connectionService.connectionStatus
+              ? _pushUpdateDevicePage(context)
+              : connectionService.noConnectionDialog(context).show();
         }
       },
       child: Card(

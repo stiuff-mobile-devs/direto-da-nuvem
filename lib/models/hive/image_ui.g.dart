@@ -1,38 +1,41 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'user_privileges.dart';
+part of '../image_ui.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class UserPrivilegesAdapter extends TypeAdapter<UserPrivileges> {
+class ImageUIAdapter extends TypeAdapter<ImageUI> {
   @override
-  final int typeId = 5;
+  final int typeId = 2;
 
   @override
-  UserPrivileges read(BinaryReader reader) {
+  ImageUI read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return UserPrivileges(
-      isAdmin: fields[0] as bool,
-      isSuperAdmin: fields[1] as bool,
-      isInstaller: fields[2] as bool,
+    return ImageUI(
+      path: fields[0] as String,
+      data: fields[1] as Uint8List?,
+      loading: fields[2] as bool,
+      uploaded: fields[3] as bool,
     );
   }
 
   @override
-  void write(BinaryWriter writer, UserPrivileges obj) {
+  void write(BinaryWriter writer, ImageUI obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
-      ..write(obj.isAdmin)
+      ..write(obj.path)
       ..writeByte(1)
-      ..write(obj.isSuperAdmin)
+      ..write(obj.data)
       ..writeByte(2)
-      ..write(obj.isInstaller);
+      ..write(obj.loading)
+      ..writeByte(3)
+      ..write(obj.uploaded);
   }
 
   @override
@@ -41,7 +44,7 @@ class UserPrivilegesAdapter extends TypeAdapter<UserPrivileges> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is UserPrivilegesAdapter &&
+      other is ImageUIAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

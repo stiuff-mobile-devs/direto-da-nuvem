@@ -1,52 +1,52 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'user.dart';
+part of '../group.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class UserAdapter extends TypeAdapter<User> {
+class GroupAdapter extends TypeAdapter<Group> {
   @override
-  final int typeId = 4;
+  final int typeId = 1;
 
   @override
-  User read(BinaryReader reader) {
+  Group read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return User(
+    return Group(
       id: fields[0] as String,
-      email: fields[2] as String,
-      createdAt: fields[5] as DateTime,
-      updatedAt: fields[6] as DateTime,
+      name: fields[1] as String,
+      description: fields[2] as String,
+      currentQueue: fields[3] as String,
+      createdAt: fields[4] as DateTime,
+      updatedAt: fields[5] as DateTime,
       createdBy: fields[7] as String,
       updatedBy: fields[8] as String,
-      privileges: fields[4] as UserPrivileges,
-      name: fields[3] as String,
-      uid: fields[1] as String,
+      admins: (fields[6] as List).cast<String>(),
     );
   }
 
   @override
-  void write(BinaryWriter writer, User obj) {
+  void write(BinaryWriter writer, Group obj) {
     writer
       ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.uid)
-      ..writeByte(2)
-      ..write(obj.email)
-      ..writeByte(3)
       ..write(obj.name)
+      ..writeByte(2)
+      ..write(obj.description)
+      ..writeByte(3)
+      ..write(obj.currentQueue)
       ..writeByte(4)
-      ..write(obj.privileges)
-      ..writeByte(5)
       ..write(obj.createdAt)
-      ..writeByte(6)
+      ..writeByte(5)
       ..write(obj.updatedAt)
+      ..writeByte(6)
+      ..write(obj.admins)
       ..writeByte(7)
       ..write(obj.createdBy)
       ..writeByte(8)
@@ -59,7 +59,7 @@ class UserAdapter extends TypeAdapter<User> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is UserAdapter &&
+      other is GroupAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

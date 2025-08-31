@@ -1,6 +1,7 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
+import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/views/people/people_filter_controller.dart';
-import 'package:ddnuvem/views/people/user_card.dart';
+import 'package:ddnuvem/views/people/widgets/user_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,8 +10,8 @@ class PeopleListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<UserController, PeopleFilterController>(
-      builder: (context, userController, filterController, _) {
+    return Consumer3<UserController, ConnectionService, PeopleFilterController>(
+      builder: (context, userController, connection, filterController, _) {
         final users = userController.getUsersByPrivilegeAndQuery(
             filterController.filters, filterController.searchQuery);
         return SliverPadding(

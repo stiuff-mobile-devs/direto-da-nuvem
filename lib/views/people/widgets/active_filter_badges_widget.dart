@@ -1,5 +1,5 @@
 import 'package:ddnuvem/views/people/people_filter_controller.dart';
-import 'package:ddnuvem/views/people/privilege_filter_badge.dart';
+import 'package:ddnuvem/views/people/widgets/privilege_filter_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

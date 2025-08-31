@@ -2,8 +2,8 @@ import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
-import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
-import 'package:ddnuvem/utils/theme.dart';
+import 'package:ddnuvem/services/local_storage_service.dart';
+import 'package:ddnuvem/utils/loading_widget.dart';
 import 'package:ddnuvem/views/admin/admin_page.dart';
 import 'package:ddnuvem/views/devices/register_device_page.dart';
 import 'package:ddnuvem/views/devices/unregistered_device_error_page.dart';
@@ -80,22 +80,10 @@ class _RedirectionPageState extends State<RedirectionPage> {
 
   Widget redirectionBuilder(BuildContext c, RedirectionData redirectionData) {
     if (redirectionData.isLoading) {
-      return loading();
+      return loadingWidget(context);
     }
 
     return handleRedirection(redirectionData);
-  }
-
-  // Aparece quando abrimos o app
-  Widget loading() {
-    return Container(
-      color: Theme.of(context).colorScheme.surface,
-      child: const Center(
-        child: CircularProgressIndicator.adaptive(
-          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
-        ),
-      ),
-    );
   }
 
   Widget handleRedirection(RedirectionData redirectionData) {

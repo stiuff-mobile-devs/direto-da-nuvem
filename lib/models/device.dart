@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
 
-part 'device.g.dart';
+part 'hive/device.g.dart';
 
 @HiveType(typeId: 0)
 class Device extends HiveObject {

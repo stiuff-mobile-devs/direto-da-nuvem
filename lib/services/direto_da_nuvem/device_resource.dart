@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/device.dart';
-import 'package:ddnuvem/utils/connection_utils.dart';
+import 'package:ddnuvem/services/connection_service.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
 
@@ -42,7 +42,7 @@ class DeviceResource {
     Device? device;
 
     try {
-      if (await hasInternetConnection()) {
+      if (await ConnectionService.isConnected()) {
         final doc = await _firestore.doc("$collection/$id").get();
 
         if (!doc.exists) {
@@ -65,7 +65,7 @@ class DeviceResource {
     List<Device> devices = [];
 
     try {
-      if (await hasInternetConnection()) {
+      if (await ConnectionService.isConnected()) {
         final docs = await _firestore.collection(collection).get();
         devices = docs.docs.map((e) => Device.fromMap(e.id, e.data())).toList();
 

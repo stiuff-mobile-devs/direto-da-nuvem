@@ -1,5 +1,6 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
+import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/views/queues/queue_view_controller.dart';
 import 'package:ddnuvem/views/queues/queue_view_page.dart';
@@ -18,7 +19,8 @@ class SettingsPage extends StatelessWidget {
         appBar: AppBar(
           title: const Text("Configurações"),
         ),
-        body: Consumer<UserController>(builder: (context, controller, _) {
+        body: Consumer2<UserController, ConnectionService>(
+            builder: (context, controller, connection, _) {
           final email = controller.currentUser!.email;
           final photoUrl = controller.profileImageUrl;
 
@@ -27,8 +29,12 @@ class SettingsPage extends StatelessWidget {
               ListTile(
                 leading: CircleAvatar(
                   radius: 24,
-                  backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
-                  child: photoUrl == null ? const Icon(Icons.person) : null,
+                  backgroundImage: connection.connectionStatus
+                    ? NetworkImage(photoUrl!)
+                    : null,
+                  child: connection.connectionStatus
+                    ? null
+                    : const Icon(Icons.person)
                 ),
                 title: const Text("Perfil"),
                 subtitle: Text("Logado como $email"),

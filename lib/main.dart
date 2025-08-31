@@ -3,9 +3,10 @@ import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
+import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/hive_service.dart';
-import 'package:ddnuvem/services/local_storage/local_storage_service.dart';
+import 'package:ddnuvem/services/local_storage_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
 import 'package:ddnuvem/views/devices/devices_filter_controller.dart';
 import 'package:ddnuvem/views/people/people_filter_controller.dart';
@@ -45,6 +46,9 @@ Future<void> main() async {
     Provider<SignInService>(
       create: (context) => SignInService(context, context.read()),
     ),
+    ChangeNotifierProvider<ConnectionService>(
+        create: (context) =>
+        ConnectionService()),
     ChangeNotifierProvider<UserController>(
         create: (context) =>
             UserController(context.read(), context.read())..init()),

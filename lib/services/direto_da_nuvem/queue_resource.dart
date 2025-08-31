@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/queue.dart';
-import 'package:ddnuvem/utils/connection_utils.dart';
+import 'package:ddnuvem/services/connection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
@@ -13,7 +13,7 @@ class QueueResource {
     List<Queue> queues = [];
 
     try {
-      if (await hasInternetConnection()) {
+      if (await ConnectionService.isConnected()) {
         final list = await _firestore.collection(collection).get();
 
         for (var doc in list.docs) {
@@ -53,7 +53,7 @@ class QueueResource {
 
   Future<Queue?> get(String id) async {
     try {
-      if (await hasInternetConnection()) {
+      if (await ConnectionService.isConnected()) {
         var doc = await _firestore.doc("$collection/$id").get();
         if (!doc.exists) {
           return null;
@@ -72,7 +72,7 @@ class QueueResource {
 
   Future<Queue?> getDefaultQueue() async {
     try {
-      if (await hasInternetConnection()) {
+      if (await ConnectionService.isConnected()) {
         var doc = await _firestore.doc("$collection/init").get();
         if (!doc.exists) {
           return null;

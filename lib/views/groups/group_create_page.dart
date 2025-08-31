@@ -2,6 +2,7 @@ import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
+import 'package:ddnuvem/utils/email_regex.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/groups/group_create_controller.dart';
 import 'package:flutter/material.dart';
@@ -133,8 +134,7 @@ class GroupCreatePage extends StatelessWidget {
                               if (value == null || value.isEmpty) {
                                 return "Campo obrigatório";
                               }
-                              final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                              if (!emailRegex.hasMatch(value)) {
+                              if (!emailHasMatch(value)) {
                                 return "E-mail inválido";
                               }
                               return null;

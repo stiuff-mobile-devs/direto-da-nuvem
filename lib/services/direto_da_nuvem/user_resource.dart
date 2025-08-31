@@ -1,8 +1,8 @@
+import 'package:ddnuvem/services/connection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/models/user_privileges.dart';
-import 'package:ddnuvem/utils/connection_utils.dart';
 import 'package:hive/hive.dart';
 
 class UserResource {
@@ -14,7 +14,7 @@ class UserResource {
     List<User> users = [];
 
     try {
-      if (await hasInternetConnection()) {
+      if (await ConnectionService.isConnected()) {
         final list = await _firestore.collection(collection).get();
 
         for (var doc in list.docs) {
@@ -91,7 +91,7 @@ class UserResource {
     User? user;
 
     try {
-      if (await hasInternetConnection()) {
+      if (await ConnectionService.isConnected()) {
         final query = await _firestore
             .collection(collection)
             .where('email', isEqualTo: email)
