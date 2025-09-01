@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
@@ -42,30 +41,16 @@ class ConnectionService extends ChangeNotifier {
         return false;
       }
 
-      try {
-        final result = await http
-            .get(Uri.parse('https://www.google.com'))
-            .timeout(const Duration(seconds: 5));
-        if (result.statusCode == 200) {
-          return true;
-        } else {
-          return false;
-        }
-      } catch (e) {
+      final result = await http
+          .get(Uri.parse('https://www.google.com'))
+          .timeout(const Duration(seconds: 5));
+      if (result.statusCode == 200) {
+        return true;
+      } else {
         return false;
       }
     } catch (e) {
       return false;
     }
-  }
-
-  AwesomeDialog noConnectionDialog(BuildContext context) {
-    return AwesomeDialog(
-      context: context,
-      dialogType: DialogType.warning,
-      animType: AnimType.scale,
-      title: 'Desconectado',
-      desc: 'Você precisa de conexão à Internet para realizar esta ação.',
-    );
   }
 }

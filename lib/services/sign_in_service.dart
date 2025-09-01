@@ -1,62 +1,42 @@
-import 'package:ddnuvem/models/user.dart';
-import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInService {
-  BuildContext context;
-  final DiretoDaNuvemAPI _diretoDaNuvemAPI;
-  SignInService(this.context, this._diretoDaNuvemAPI);
-
-  final auth = fb_auth.FirebaseAuth.instance;
+  final auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
-  Future<bool> signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser;
-    User? user;
+  SignInService();
 
+  Future<GoogleSignInAccount?> signInWithGoogle() async {
     try {
-      googleUser = await googleSignIn.signIn();
+      return await googleSignIn.signIn();
+    } catch (e) {
+      debugPrint("ERRO ao pegar dados da conta do Google: $e");
+      return null;
+    }
+  }
 
-      if (googleUser == null) {
-        return false;
-      }
+  Future<bool> completeSignIn(GoogleSignInAccount googleUser) async {
+    try {
+      final GoogleSignInAuthentication googleAuth = await googleUser
+          .authentication;
 
-      user = await _diretoDaNuvemAPI.userResource.get(googleUser.email);
-
-      if (user == null) {
-        debugPrint("Usuário não autorizado");
-        return true;
-      }
-
-      final GoogleSignInAuthentication googleAuth =
-      await googleUser.authentication;
-
-      final credential = fb_auth.GoogleAuthProvider.credential(
+      final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
       await auth.signInWithCredential(credential);
+      debugPrint("Usuário logado");
+      return true;
     } catch (e) {
       debugPrint("ERRO ao logar: $e");
       return false;
     }
-
-    // Usuário está logando pela primeira vez, registrar uid no Firestore
-    if (user.uid.isEmpty) {
-      user.uid = auth.currentUser!.uid;
-      user.name = googleUser.displayName ?? "";
-      user.updatedAt = DateTime.now();
-      user.updatedBy = auth.currentUser!.uid;
-      await _diretoDaNuvemAPI.userResource.update(user);
-    }
-
-    return true;
   }
 
-  Future signOut() async {
+  signOut() async {
     try {
       await auth.signOut();
       await googleSignIn.signOut();
@@ -66,12 +46,7 @@ class SignInService {
     }
   }
 
-  bool checkIfLoggedIn() {
-    final user = getFirebaseAuthUser();
-    return user != null;
-  }
-
-  fb_auth.User? getFirebaseAuthUser() {
+  User? getFirebaseAuthUser() {
     return auth.currentUser;
   }
 }

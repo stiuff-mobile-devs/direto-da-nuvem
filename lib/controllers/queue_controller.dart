@@ -11,7 +11,9 @@ class QueueController extends ChangeNotifier {
 
   StreamSubscription<List<Queue>>? _queuesSubscription;
 
-  QueueController(this._diretoDaNuvemAPI);
+  QueueController(this._diretoDaNuvemAPI) {
+    init;
+  }
 
   init() async {
     await _loadQueues();

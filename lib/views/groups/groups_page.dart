@@ -3,6 +3,7 @@ import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/groups/group_card.dart';
 import 'package:ddnuvem/views/groups/group_create_page.dart';
@@ -48,7 +49,7 @@ class GroupsPage extends StatelessWidget {
               onPressed: () {
                 connection.connectionStatus
                   ? _createGroupButtonPush(context)
-                  : connection.noConnectionDialog(context).show();
+                  : noConnectionDialog(context).show();
               },
               backgroundColor: AppTheme.primaryBlue,
               child: const Icon(
@@ -80,7 +81,7 @@ class GroupsPage extends StatelessWidget {
                   ),
                 );
               });
-              await userController.updateGroupAdmins(group.admins);
+              await userController.grantAdminPrivilege(group.admins);
             }
           );
         },

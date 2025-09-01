@@ -39,30 +39,23 @@ Future<void> main() async {
   await HiveService.initialize();
 
   runApp(MultiProvider(providers: [
-    Provider<DiretoDaNuvemAPI>(
-      create: (context) => DiretoDaNuvemAPI(),
-    ),
+    Provider<DiretoDaNuvemAPI>(create: (context) => DiretoDaNuvemAPI()),
     Provider<LocalStorageService>(create: (context) => LocalStorageService()),
-    Provider<SignInService>(
-      create: (context) => SignInService(context, context.read()),
-    ),
+    Provider<SignInService>(create: (context) => SignInService()),
+
     ChangeNotifierProvider<ConnectionService>(
-        create: (context) =>
-        ConnectionService()),
+        create: (context) => ConnectionService()),
     ChangeNotifierProvider<UserController>(
-        create: (context) =>
-            UserController(context.read(), context.read())..init()),
-    ChangeNotifierProvider<DevicesFilterController>(create: (context) {
-      return DevicesFilterController();
-    }),
+        create: (context) => UserController(context.read(), context.read())),
+    ChangeNotifierProvider<DevicesFilterController>(
+        create: (context) => DevicesFilterController()),
     ChangeNotifierProvider<QueueController>(
-        create: (context) => QueueController(context.read())..init()),
+        create: (context) => QueueController(context.read())),
     ChangeNotifierProvider<GroupController>(
-        create: (context) => GroupController(context.read())..init()),
+        create: (context) => GroupController(context.read())),
     ChangeNotifierProvider<DeviceController>(create: (context) =>
-            DeviceController(context.read(), context.read<GroupController>())
-              ..init()),
+            DeviceController(context.read(), context.read())),
     ChangeNotifierProvider<PeopleFilterController>(
-        create: (_) => PeopleFilterController())
+        create: (context) => PeopleFilterController())
   ], child: const App()));
 }

@@ -14,7 +14,9 @@ class GroupController extends ChangeNotifier {
 
   StreamSubscription<List<Group>>? _groupsSubscription;
 
-  GroupController(this._diretoDaNuvemAPI);
+  GroupController(this._diretoDaNuvemAPI) {
+    init();
+  }
 
   init() async {
     notifyListeners();

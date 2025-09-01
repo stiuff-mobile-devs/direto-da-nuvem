@@ -2,6 +2,7 @@ import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/services/local_storage_service.dart';
 import 'package:ddnuvem/utils/loading_widget.dart';
+import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -109,8 +110,7 @@ class _IntroPageState extends State<IntroPage> {
                           onPressed: () {
                             connectionService.connectionStatus
                               ? userController.login(context)
-                              : connectionService
-                                .noConnectionDialog(context).show();
+                              : noConnectionDialog(context).show();
                           },
                         ),
                         const SizedBox(height: 15),
@@ -156,8 +156,7 @@ class _IntroPageState extends State<IntroPage> {
                               onPressed: () {
                                 connectionService.connectionStatus
                                     ? userController.login(context)
-                                    : connectionService
-                                    .noConnectionDialog(context).show();
+                                    : noConnectionDialog(context).show();
                               },
                             ),
                             const SizedBox(height: 5),

@@ -5,6 +5,7 @@ import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/groups/group_create_page.dart';
 import 'package:ddnuvem/views/queues/widgets/queue_card.dart';
@@ -31,7 +32,7 @@ class GroupPage extends StatelessWidget {
                 onPressed: () {
                   connection.connectionStatus
                     ? _pushEditGroupPage(context)
-                    : connection.noConnectionDialog(context).show();
+                    : noConnectionDialog(context).show();
                 },
                 icon: const Icon(Icons.edit),
               ),
@@ -41,7 +42,7 @@ class GroupPage extends StatelessWidget {
             onPressed: () {
               connection.connectionStatus
                   ? _pushCreateQueuePage(context)
-                  : connection.noConnectionDialog(context).show();
+                  : noConnectionDialog(context).show();
             },
             backgroundColor: AppTheme.primaryBlue,
             foregroundColor: Colors.white,
@@ -122,7 +123,7 @@ class GroupPage extends StatelessWidget {
             group: Group.copy(groupController.selectedGroup!),
             onSave: (group) {
               groupController.updateGroup(group).then((message) async {
-                await userController.updateGroupAdmins(group.admins);
+                await userController.grantAdminPrivilege(group.admins);
                 messenger.showSnackBar(SnackBar(content: Text(message)));
               });
             },

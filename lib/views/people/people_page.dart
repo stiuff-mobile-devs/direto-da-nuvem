@@ -1,6 +1,7 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/people/widgets/active_filter_badges_widget.dart';
 import 'package:ddnuvem/views/people/widgets/people_app_bar_widget.dart';
@@ -30,7 +31,7 @@ class PeoplePage extends StatelessWidget {
             onPressed: () {
               connection.connectionStatus
                 ? _pushCreateUserPage(context)
-                : connection.noConnectionDialog(context).show();
+                : noConnectionDialog(context).show();
             },
             backgroundColor: AppTheme.primaryBlue,
             child: const Icon(Icons.add, color: Colors.white),

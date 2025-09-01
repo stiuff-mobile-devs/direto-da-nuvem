@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
@@ -17,41 +16,45 @@ class UserController extends ChangeNotifier {
   bool isLoggedIn = false;
   bool loadingInitialState = true;
 
-  UserController(this._signInService, this._diretoDaNuvemAPI);
+  UserController(this._signInService, this._diretoDaNuvemAPI) {
+    _initialize();
+  }
 
-  Future init() async {
-    loadingInitialState = true;
-    notifyListeners();
-
-    if (_signInService.checkIfLoggedIn()) {
-      await _getCurrentUserInfo();
+  _initialize() async {
+    if (_signInService.getFirebaseAuthUser() != null) {
+      await _loadUserData();
       isLoggedIn = true;
-    } else {
-      isLoggedIn = false;
-      currentUser = null;
-      profileImageUrl = null;
     }
 
     loadingInitialState = false;
     notifyListeners();
+    debugPrint("UserController initialized");
   }
 
   @override
   void dispose() {
     _usersSubscription?.cancel();
+    debugPrint("UserController disposed");
     super.dispose();
   }
 
   login(BuildContext context) async {
-    if (!await _signInService.signInWithGoogle()) {
-      isLoggedIn = false;
-      return;
-    }
+    final googleUser = await _signInService.signInWithGoogle();
+    if (googleUser == null) return;
+    final user = await _diretoDaNuvemAPI.userResource.get(googleUser.email);
 
-    if (!_signInService.checkIfLoggedIn()) {
+    if (user == null) {
+      debugPrint("Usuário não autorizado!");
       currentUser = User.empty();
     } else {
-      await _getCurrentUserInfo();
+      if (await _signInService.completeSignIn(googleUser)) {
+        if (user.uid.isEmpty) {
+          await updateAuthenticatedUser(user, googleUser.displayName);
+        }
+        await _loadUserData();
+      } else {
+        return;
+      }
     }
 
     isLoggedIn = true;
@@ -67,14 +70,16 @@ class UserController extends ChangeNotifier {
     notifyListeners();
   }
 
+  _loadUserData() async {
+    await _getCurrentUserInfo();
+    if (isCurrentUserSuperAdmin()) await _loadAllUsers();
+  }
+
   _getCurrentUserInfo() async {
     final fbAuthUser = _signInService.getFirebaseAuthUser();
     profileImageUrl = fbAuthUser?.photoURL;
     User? user = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.email!);
     currentUser = user ?? User.empty();
-    if (isCurrentUserSuperAdmin()) {
-      await _loadAllUsers();
-    }
   }
 
   _loadAllUsers() async {
@@ -98,7 +103,6 @@ class UserController extends ChangeNotifier {
       notifyListeners();
       return "Usuário criado com sucesso!";
     }
-
     return "Usuário já existe.";
   }
 
@@ -114,7 +118,20 @@ class UserController extends ChangeNotifier {
     return "Usuário atualizado com sucesso!";
   }
 
-  Future updateGroupAdmins(List<String> emails) async {
+  // Salva uid e nome de usuário que se autenticou pela primeira vez
+  updateAuthenticatedUser(User user, String? googleName) async {
+    final uid = _signInService.getFirebaseAuthUser()?.uid;
+    if (uid == null) return;
+
+    user.uid = uid;
+    user.name = googleName ?? "";
+    user.updatedAt = DateTime.now();
+    user.updatedBy = uid;
+    await _diretoDaNuvemAPI.userResource.update(user);
+  }
+
+  // Atualiza ou cria usuário que foi inserido como admin de um grupo
+  Future grantAdminPrivilege(List<String> emails) async {
     for (var e in emails) {
       User? user = await _diretoDaNuvemAPI.userResource.get(e);
       if (user == null) {
@@ -159,28 +176,19 @@ class UserController extends ChangeNotifier {
   }
 
   bool isCurrentUserInstaller() {
-    if (currentUser == null) {
-      return false;
-    }
-
+    if (currentUser == null) return false;
     return currentUser!.privileges.isInstaller;
   }
 
   bool isCurrentUserAdmin() {
-    if (currentUser == null) {
-      return false;
-    }
+    if (currentUser == null) return false;
 
     final privilege = currentUser!.privileges;
-    return privilege.isSuperAdmin
-        || privilege.isAdmin;
+    return privilege.isSuperAdmin || privilege.isAdmin;
   }
 
   bool isCurrentUserSuperAdmin() {
-    if (currentUser == null) {
-      return false;
-    }
-
+    if (currentUser == null) return false;
     return currentUser!.privileges.isSuperAdmin;
   }
 }

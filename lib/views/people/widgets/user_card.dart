@@ -2,6 +2,7 @@ import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:ddnuvem/views/people/user_create_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +20,7 @@ class UserCard extends StatelessWidget {
       onTap: () {
         connection.connectionStatus
           ? _pushUpdateUserPage(context)
-          : connection.noConnectionDialog(context).show();
+          : noConnectionDialog(context).show();
       },
       child: Card(
         elevation: 4,

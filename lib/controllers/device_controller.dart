@@ -16,6 +16,7 @@ class DeviceController extends ChangeNotifier {
   Group? group;
   Device? device;
   bool isRegistered = false;
+  bool isSmartphone = false;
   Queue? currentQueue;
   Queue? defaultQueue;
   List<Device> _devices = [];
@@ -24,11 +25,11 @@ class DeviceController extends ChangeNotifier {
   StreamSubscription<List<Device>>? _devicesSubscription;
   bool loadingInitialState = true;
 
-  DeviceController(this._diretoDaNuvemAPI, this._groupController);
+  DeviceController(this._diretoDaNuvemAPI, this._groupController) {
+    _initialize();
+  }
 
-  init() async {
-    loadingInitialState = true;
-    notifyListeners();
+  _initialize() async {
     await _getAndroidInfo();
     await _checkIsRegistered();
     await _fetchGroupAndQueue();
@@ -36,6 +37,7 @@ class DeviceController extends ChangeNotifier {
     _groupController.addListener(_updateCurrentQueueAndGroup);
     loadingInitialState = false;
     notifyListeners();
+    debugPrint("DeviceController initialized");
   }
 
   @override
@@ -43,15 +45,21 @@ class DeviceController extends ChangeNotifier {
     _groupController.removeListener(_updateCurrentQueueAndGroup);
     _currentQueueSubscription?.cancel();
     _devicesSubscription?.cancel();
+    debugPrint("DeviceController disposed");
     super.dispose();
   }
 
   Future<void> _getAndroidInfo() async {
     try {
       androidInfo = await _deviceInfoPlugin.androidInfo;
+      if (androidInfo != null) {
+        isSmartphone = !androidInfo!.systemFeatures
+            .contains("android.software.leanback");
+      }
     } catch (e) {
       debugPrint("Erro ao obter dados do android: $e");
       androidInfo = null;
+      isSmartphone = false;
     }
   }
 

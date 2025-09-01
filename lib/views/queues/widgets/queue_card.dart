@@ -4,6 +4,7 @@ import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/queues/queue_create_update_page.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class QueueCard extends StatelessWidget {
         if (!isActive && queue.status == QueueStatus.approved) {
           connection.connectionStatus
               ? _showDialog(context, numberOfPhotos)
-              : connection.noConnectionDialog(context).show();
+              : noConnectionDialog(context).show();
         }
       },
       child: Card(
@@ -67,7 +68,7 @@ class QueueCard extends StatelessWidget {
                   IconButton(
                     onPressed: () {
                       !connection.connectionStatus
-                        ? connection.noConnectionDialog(context).show()
+                        ? noConnectionDialog(context).show()
                         : _pushUpdateQueuePage(context);
                     },
                     icon: const Icon(Icons.edit),

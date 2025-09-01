@@ -16,6 +16,7 @@ class RedirectionData {
   bool loggedIn;
   bool isInstaller;
   bool isDeviceRegistered;
+  bool isSmartphone;
   bool isAdmin;
   bool isLoading;
 
@@ -23,6 +24,7 @@ class RedirectionData {
     this.loggedIn = false,
     this.isInstaller = false,
     this.isDeviceRegistered = false,
+    this.isSmartphone = false,
     this.isAdmin = false,
     this.isLoading = true
   });
@@ -60,22 +62,23 @@ class _RedirectionPageState extends State<RedirectionPage> {
         redirectionData.loggedIn = userController.isLoggedIn;
 
         if (redirectionData.loggedIn) {
-          redirectionData.isAdmin = userController.isCurrentUserSuperAdmin();
+          redirectionData.isAdmin = userController.isCurrentUserAdmin();
           redirectionData.isInstaller = userController.isCurrentUserInstaller();
         }
 
         redirectionData.isDeviceRegistered = deviceController.isRegistered;
+        redirectionData.isSmartphone = deviceController.isSmartphone;
         redirectionData.isLoading = deviceController.loadingInitialState ||
             userController.loadingInitialState;
 
         return Builder(
-          builder: (c) => redirectionBuilder(c, redirectionData),
+          builder: (c) => redirectionBuilder(redirectionData),
         );
       },
     );
   }
 
-  Widget redirectionBuilder(BuildContext c, RedirectionData redirectionData) {
+  Widget redirectionBuilder(RedirectionData redirectionData) {
     if (redirectionData.isLoading) {
       return loadingWidget(context);
     }
@@ -87,15 +90,10 @@ class _RedirectionPageState extends State<RedirectionPage> {
     if (!redirectionData.loggedIn) {
       return const IntroPage();
     }
-    if (!redirectionData.isDeviceRegistered) {
-      if (redirectionData.isInstaller) {
-        return const RegisterDevicePage();
-      }
-      if (redirectionData.isAdmin) {
-        return const AdminPage();
-      }
+    if (!redirectionData.isDeviceRegistered && redirectionData.isInstaller) {
+      return const RegisterDevicePage();
     }
-    if (redirectionData.isAdmin) {
+    if (redirectionData.isAdmin && redirectionData.isSmartphone) {
       return const AdminPage();
     }
 
