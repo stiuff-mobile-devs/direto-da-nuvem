@@ -187,4 +187,19 @@ class DeviceController extends ChangeNotifier {
     }
     return devicesInGroups;
   }
+
+  Future<void> deleteDevice(String id) async {
+    try {
+      await _diretoDaNuvemAPI.deviceResource.delete(id);
+
+      _devices.removeWhere((d) => d.id == id);
+
+    } catch(e) {
+      rethrow;
+    }
+  }
+
+  void fetchDevices() {
+    _diretoDaNuvemAPI.deviceResource.getAll();
+  }
 }
