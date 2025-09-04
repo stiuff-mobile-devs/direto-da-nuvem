@@ -1,8 +1,10 @@
+import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
 
 class SignInService {
   BuildContext context;
@@ -60,6 +62,9 @@ class SignInService {
     try {
       await auth.signOut();
       await googleSignIn.signOut();
+      if (context.mounted) {
+        context.read<DeviceController>().resetInMemory();
+      }
       debugPrint('Deslogado');
     } catch (e) {
       debugPrint("ERRO deslogando:\n$e");

@@ -141,18 +141,38 @@ class DeviceController extends ChangeNotifier {
 
   Future _loadDevices() async {
     _devices = await _diretoDaNuvemAPI.deviceResource.getAll();
-    Stream<List<Device>>? devicesStream = _diretoDaNuvemAPI
-        .deviceResource.getAllStream();
+    Stream<List<Device>>? devicesStream =
+      _diretoDaNuvemAPI.deviceResource.getAllStream();
 
     _devicesSubscription?.cancel();
     _devicesSubscription = devicesStream.listen((updatedDevices) async {
-      try {
-        device = updatedDevices.firstWhere((d) => d.id == device!.id);
-      } catch (e) {
-        debugPrint("Erro ao atualizar dispositivo atual na stream: $e");
-      }
-      _updateCurrentQueueAndGroup();
+      final currentId = device?.id;
       _devices = updatedDevices;
+
+      if (currentId != null) {
+        // Coloca na variável match uma coleção de dispositivos
+        // que tenham o mesmo id do dispositivo atual.
+        final match = updatedDevices.where((d) => d.id == currentId);
+
+        // Se esta coleção estiver vazia,
+        // significa que o dispositivo atual sumiu do backend.
+        if (match.isEmpty) {
+          // Sumiu do backend => limpar estado
+          _clearCurrentDeviceState();
+        } else {
+          // Se não estiver vazia,
+          // então deve haver exatamente um dispositivo com o mesmo id do atual.
+          // Coloca este dispositivo na variável device.
+          device = match.first;
+        }
+      }
+
+      if (device == null) {
+        _currentQueueSubscription?.cancel();
+        group = null;
+        currentQueue = null;
+      }
+      await _fetchGroupAndQueue();
       notifyListeners();
     },
     onError: (e) {
@@ -194,6 +214,12 @@ class DeviceController extends ChangeNotifier {
 
       _devices.removeWhere((d) => d.id == id);
 
+      // Se o dispositivo deletado for o atual,
+      // limpa apenas o estado do dispositivo atual
+      if (device?.id == id) {
+        _clearCurrentDeviceState();
+      }
+
     } catch(e) {
       rethrow;
     }
@@ -202,4 +228,27 @@ class DeviceController extends ChangeNotifier {
   void fetchDevices() {
     _diretoDaNuvemAPI.deviceResource.getAll();
   }
+
+  // Helper centralizado para limpar apenas o estado do dispositivo atual
+  void _clearCurrentDeviceState() {
+    _currentQueueSubscription?.cancel();
+    currentQueue = null;
+    group = null;
+    device = null;
+    isRegistered = false;
+  }
+
+  // Limpa tudo em memória
+  void resetInMemory() {
+    _devicesSubscription?.cancel();
+    _currentQueueSubscription?.cancel();
+    _devicesSubscription = null;
+    _currentQueueSubscription = null;
+    _devices = [];
+    defaultQueue = null;
+    _clearCurrentDeviceState();
+    loadingInitialState = false;
+    notifyListeners();
+  }
 }
+
