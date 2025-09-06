@@ -74,6 +74,17 @@ class UserResource {
     }
   }
 
+  createAuthenticatedUser(User user) async {
+    try {
+      await _firestore.doc("$collection/${user.id}").set(user.toMap());
+      await _firestore
+          .doc("$collection/${user.id}/privileges/privileges")
+          .set(user.privileges.toMap());
+    } catch (e) {
+      debugPrint("Error on create authenticated user: $e");
+    }
+  }
+
   delete(User user) async {
     try {
       await _firestore

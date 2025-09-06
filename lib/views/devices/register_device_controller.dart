@@ -52,9 +52,9 @@ class RegisterDeviceController extends ChangeNotifier {
       description: description,
       locale: locale,
       groupId: _groupId!,
-      registeredBy: currentUser?.uid ?? "",
+      registeredBy: currentUser?.id ?? "",
       registeredByEmail: currentUser?.email ?? "",
-      updatedBy: currentUser?.uid ?? "",
+      updatedBy: currentUser?.id ?? "",
       updatedAt: DateTime.now(),
       createdAt: DateTime.now(),
     );
@@ -66,7 +66,7 @@ class RegisterDeviceController extends ChangeNotifier {
     device.locale = localeController.text;
     device.groupId = _groupId!;
     device.updatedAt = DateTime.now();
-    device.updatedBy = currentUser?.uid ?? "";
+    device.updatedBy = currentUser?.id ?? "";
     return device;
   }
 }

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../user.dart';
+part of 'user.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
@@ -18,14 +18,14 @@ class UserAdapter extends TypeAdapter<User> {
     };
     return User(
       id: fields[0] as String,
-      email: fields[2] as String,
-      createdAt: fields[5] as DateTime,
-      updatedAt: fields[6] as DateTime,
-      createdBy: fields[7] as String,
-      updatedBy: fields[8] as String,
-      privileges: fields[4] as UserPrivileges,
-      name: fields[3] as String,
-      uid: fields[1] as String,
+      email: fields[1] as String,
+      createdAt: fields[4] as DateTime,
+      updatedAt: fields[5] as DateTime,
+      createdBy: fields[6] as String,
+      updatedBy: fields[7] as String,
+      privileges: fields[3] as UserPrivileges,
+      name: fields[2] as String,
+      authenticated: fields[8] as bool,
     );
   }
 
@@ -36,21 +36,21 @@ class UserAdapter extends TypeAdapter<User> {
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.uid)
-      ..writeByte(2)
       ..write(obj.email)
-      ..writeByte(3)
+      ..writeByte(2)
       ..write(obj.name)
-      ..writeByte(4)
+      ..writeByte(3)
       ..write(obj.privileges)
-      ..writeByte(5)
+      ..writeByte(4)
       ..write(obj.createdAt)
-      ..writeByte(6)
+      ..writeByte(5)
       ..write(obj.updatedAt)
-      ..writeByte(7)
+      ..writeByte(6)
       ..write(obj.createdBy)
+      ..writeByte(7)
+      ..write(obj.updatedBy)
       ..writeByte(8)
-      ..write(obj.updatedBy);
+      ..write(obj.authenticated);
   }
 
   @override

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
 
-part 'hive/group.g.dart';
+part 'group.g.dart';
 
 @HiveType(typeId: 1)
 class Group extends HiveObject {

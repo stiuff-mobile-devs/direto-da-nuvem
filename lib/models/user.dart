@@ -2,28 +2,28 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/user_privileges.dart';
 import 'package:hive/hive.dart';
 
-part 'hive/user.g.dart';
+part 'user.g.dart';
 
 @HiveType(typeId: 4)
 class User extends HiveObject {
   @HiveField(0)
-  String id;
+  String id; // uid
   @HiveField(1)
-  String uid;
-  @HiveField(2)
   String email;
-  @HiveField(3)
+  @HiveField(2)
   String name;
-  @HiveField(4)
+  @HiveField(3)
   UserPrivileges privileges;
-  @HiveField(5)
+  @HiveField(4)
   DateTime createdAt;
-  @HiveField(6)
+  @HiveField(5)
   DateTime updatedAt;
-  @HiveField(7)
+  @HiveField(6)
   String createdBy;
-  @HiveField(8)
+  @HiveField(7)
   String updatedBy;
+  @HiveField(8)
+  bool authenticated;
 
   User({
     required this.id,
@@ -34,15 +34,15 @@ class User extends HiveObject {
     required this.updatedBy,
     required this.privileges,
     required this.name,
-    required this.uid
+    required this.authenticated
   });
 
   factory User.empty() {
     return User(
       id: "",
       name: "",
-      uid: "",
       email: "",
+      authenticated: false,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       createdBy: "",
@@ -58,9 +58,9 @@ class User extends HiveObject {
   factory User.copy(User user) {
     return User(
       id: user.id,
-      uid: user.uid,
       email: user.email,
       name: user.name,
+      authenticated: user.authenticated,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       createdBy: user.createdBy,
@@ -74,28 +74,13 @@ class User extends HiveObject {
   }
 
   factory User.fromMap(Map<String, dynamic> map, String id, UserPrivileges privileges) {
-    DateTime? createdAt;
-    DateTime? updatedAt;
-
-    if (map["created_at"] is Timestamp) {
-      createdAt = (map["created_at"] as Timestamp).toDate();
-    } else {
-      createdAt = DateTime.now();
-    }
-
-    if (map["updated_at"] is Timestamp) {
-      updatedAt = (map["updated_at"] as Timestamp).toDate();
-    } else {
-      updatedAt = DateTime.now();
-    }
-
     return User(
       id: id,
-      uid: map['uid'] ?? "",
       email: map['email'],
       name: map['name'] ?? "",
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+      authenticated: map['authenticated'],
+      createdAt: (map["created_at"] as Timestamp).toDate(),
+      updatedAt: (map["updated_at"] as Timestamp).toDate(),
       createdBy: map["created_by"] ?? "",
       updatedBy: map["updated_by"] ?? "",
       privileges: privileges
@@ -104,9 +89,9 @@ class User extends HiveObject {
 
   Map<String, dynamic> toMap() {
     return {
-      "uid": uid,
       "email": email,
       "name": name,
+      "authenticated": authenticated,
       "created_at": createdAt,
       "updated_at": updatedAt,
       "created_by": createdBy,

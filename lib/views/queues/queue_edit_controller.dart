@@ -27,8 +27,8 @@ class QueueEditController extends ChangeNotifier {
     diretoDaNuvemAPI = context.read();
 
     nameController.text = queue.name;
-    queue.updatedBy = currentUser.uid;
-    queue.id.isEmpty ? queue.createdBy = currentUser.uid
+    queue.updatedBy = currentUser.id;
+    queue.id.isEmpty ? queue.createdBy = currentUser.id
         : queue.updatedAt = DateTime.now();
 
     fetchImages();

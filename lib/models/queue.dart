@@ -3,7 +3,7 @@ import 'package:ddnuvem/models/image_ui.dart';
 import 'package:ddnuvem/models/queue_status.dart';
 import 'package:hive/hive.dart';
 
-part 'hive/queue.g.dart';
+part 'queue.g.dart';
 
 @HiveType(typeId: 3)
 class Queue extends HiveObject {

@@ -76,7 +76,7 @@ class UserCreatePage extends StatelessWidget {
               child: Column(
                 children: [
                   TextFormField(
-                    enabled: user.uid.isEmpty,
+                    enabled: !user.authenticated,
                     controller: userCreateController.emailController,
                     decoration: const InputDecoration(
                       floatingLabelStyle: TextStyle(color: Colors.blueGrey),

@@ -48,7 +48,7 @@ class UserController extends ChangeNotifier {
       currentUser = User.empty();
     } else {
       if (await _signInService.completeSignIn(googleUser)) {
-        if (user.uid.isEmpty) {
+        if (!user.authenticated) {
           await updateAuthenticatedUser(user, googleUser.displayName);
         }
         await _loadUserData();
@@ -123,11 +123,13 @@ class UserController extends ChangeNotifier {
     final uid = _signInService.getFirebaseAuthUser()?.uid;
     if (uid == null) return;
 
-    user.uid = uid;
+    await _diretoDaNuvemAPI.userResource.delete(user);
+    user.id = uid;
     user.name = googleName ?? "";
     user.updatedAt = DateTime.now();
     user.updatedBy = uid;
-    await _diretoDaNuvemAPI.userResource.update(user);
+    user.authenticated = true;
+    await _diretoDaNuvemAPI.userResource.createAuthenticatedUser(user);
   }
 
   // Atualiza ou cria usuário que foi inserido como admin de um grupo
@@ -137,15 +139,15 @@ class UserController extends ChangeNotifier {
       if (user == null) {
         user = User.empty();
         user.email = e;
-        user.createdBy = currentUser!.uid;
-        user.updatedBy = currentUser!.uid;
+        user.createdBy = currentUser!.id;
+        user.updatedBy = currentUser!.id;
         user.privileges.isAdmin = true;
         await _diretoDaNuvemAPI.userResource.create(user);
       } else {
         if (!user.privileges.isAdmin) {
           user.privileges.isAdmin = true;
           user.updatedAt = DateTime.now();
-          user.updatedBy = currentUser!.uid;
+          user.updatedBy = currentUser!.id;
           await _diretoDaNuvemAPI.userResource.update(user);
         }
       }

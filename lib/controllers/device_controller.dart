@@ -33,7 +33,6 @@ class DeviceController extends ChangeNotifier {
     await _getAndroidInfo();
     await _checkIsRegistered();
     await _fetchGroupAndQueue();
-    await _loadDevices();
     _groupController.addListener(_updateCurrentQueueAndGroup);
     loadingInitialState = false;
     notifyListeners();
@@ -59,7 +58,6 @@ class DeviceController extends ChangeNotifier {
     } catch (e) {
       debugPrint("Erro ao obter dados do android: $e");
       androidInfo = null;
-      isSmartphone = false;
     }
   }
 
@@ -67,9 +65,6 @@ class DeviceController extends ChangeNotifier {
     if (androidInfo != null) {
       device = await _diretoDaNuvemAPI.deviceResource.get(androidInfo!.id);
       isRegistered = (device != null);
-    } else {
-      device = null;
-      isRegistered = false;
     }
   }
 
@@ -108,11 +103,9 @@ class DeviceController extends ChangeNotifier {
   }
 
   _fetchGroup() async {
-    if (device == null) {
-      group = null;
-      return;
+    if (device != null) {
+      group = await _groupController.fetchDeviceGroup(device!);
     }
-    group = await _groupController.fetchDeviceGroup(device!);
   }
 
   _fetchCurrentQueue() async {
@@ -144,7 +137,7 @@ class DeviceController extends ChangeNotifier {
     });
   }
 
-  Future _loadDevices() async {
+  Future loadDevices() async {
     _devices = await _diretoDaNuvemAPI.deviceResource.getAll();
     Stream<List<Device>>? devicesStream = _diretoDaNuvemAPI
         .deviceResource.getAllStream();

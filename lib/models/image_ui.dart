@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:hive/hive.dart';
 
-part 'hive/image_ui.g.dart';
+part 'image_ui.g.dart';
 
 @HiveType(typeId: 2)
 class ImageUI extends HiveObject {
