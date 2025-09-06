@@ -1,3 +1,4 @@
+import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/device.dart';
@@ -27,6 +28,16 @@ class DeviceCard extends StatelessWidget {
           connectionService.connectionStatus
               ? _pushUpdateDevicePage(context)
               : noConnectionDialog(context).show();
+        }
+      },
+      onLongPress: () {
+        // Verifica se o usuário atual é um super admin,
+        // se sim, mostra o diálogo de exclusão
+        if (context.read<UserController>()
+            .currentUser!
+            .privileges.
+            isSuperAdmin) {
+          _showDeleteDialog(context);
         }
       },
       child: Card(
@@ -64,6 +75,37 @@ class DeviceCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Confirmar Exclusão"),
+          content: const Text("Você tem certeza que deseja excluir este dispositivo?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () {
+                // Deleta dispositivo
+                context.read<DeviceController>().deleteDevice(device.id);
+                // Atualiza a lista de dispositivos 
+                context.read<DeviceController>().fetchDevices();
+                // Fecha a caixa de diálogo
+                Navigator.of(context).pop();
+              },
+              child: const Text("Excluir"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

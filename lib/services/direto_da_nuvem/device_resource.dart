@@ -128,4 +128,13 @@ class DeviceResource {
       return [];
     }
   }
+
+  Future<void> delete(String id) async {
+    try {
+      _firestore.doc("$collection/$id").delete();
+      _hiveBox.delete(id);
+    } catch (e) {
+      debugPrint("Error on delete device $id: $e.");
+    }
+  }
 }
