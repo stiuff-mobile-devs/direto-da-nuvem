@@ -1,5 +1,6 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/views/devices/widgets/device_card.dart';
 import 'package:ddnuvem/views/devices/devices_filter_controller.dart';
@@ -57,10 +58,13 @@ class DevicesPage extends StatelessWidget {
                     DevicesFilterController, ConnectionService>(
                   builder: (context, deviceController, groupController,
                       filterController, connectionService, _) {
-                    final groups = groupController.groups;
-                    final adminGroupIds = groups.map((g) => g.id).toSet();
+                    UserController userController =
+                    context.read<UserController>();
+                    final adminGroups = groupController
+                        .getAdminGroups(userController
+                        .isCurrentUserSuperAdmin());
+                    final adminGroupIds = adminGroups.map((g) => g.id).toSet();
 
-                    // Use filters if any, otherwise use all admin group IDs
                     final filterGroupIds = filterController.filters.isNotEmpty
                         ? filterController.filters.map((g) => g.id).toSet()
                         : adminGroupIds;
@@ -76,14 +80,16 @@ class DevicesPage extends StatelessWidget {
                   },
                 );
               },
-              // Use the filtered device count for childCount!
+
               childCount: () {
                 final filterController =
                     context.watch<DevicesFilterController>();
                 final deviceController = context.watch<DeviceController>();
                 final groupController = context.watch<GroupController>();
+                final userController = context.watch<UserController>();
 
-                final adminGroups = groupController.groups;
+                final adminGroups = groupController
+                    .getAdminGroups(userController.isCurrentUserSuperAdmin());
                 final adminGroupIds = adminGroups.map((g) => g.id).toSet();
 
                 final filterGroupIds = filterController.filters.isNotEmpty

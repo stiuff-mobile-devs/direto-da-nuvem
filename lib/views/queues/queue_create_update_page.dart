@@ -5,7 +5,6 @@ import 'package:ddnuvem/utils/loading_widget.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/queues/widgets/image_list_tile.dart';
 import 'package:ddnuvem/views/queues/queue_edit_controller.dart';
-import 'package:ddnuvem/views/queues/queue_view_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -62,18 +61,6 @@ class QueueCreateUpdatePage extends StatelessWidget {
                 controller.queue.name = controller.nameController.text;
                 onSave(context.read<QueueEditController>().queue);
               },
-            ),
-            IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => QueueViewPage(
-                        queue: context.read<QueueEditController>().queue),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.play_arrow),
             ),
           ],
         ),

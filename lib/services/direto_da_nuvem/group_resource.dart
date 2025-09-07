@@ -31,29 +31,6 @@ class GroupResource {
     }
   }
 
-  Future<List<Group>> getAllToAdmin(String email) async {
-    List<Group> groups = [];
-
-    try {
-      if (await ConnectionService.isConnected()) {
-        final list = await _firestore.collection(collection)
-            .where("admins", arrayContains: email).get();
-
-        for (var doc in list.docs) {
-          Group group = Group.fromMap(doc.id, doc.data());
-          groups.add(group);
-          _saveToLocalDB(group);
-        }
-      } else {
-        groups = _getAllFromLocalDB();
-      }
-      return groups;
-    } catch (e) {
-      debugPrint("Error on get all groups to admin: $e");
-      return [];
-    }
-  }
-
   Stream<List<Group>> getAllStream() {
     var l = _firestore.collection(collection).snapshots();
     return l.map((event) {
@@ -68,26 +45,6 @@ class GroupResource {
         return groups;
       } catch (e) {
         debugPrint("Error on get all groups stream: $e");
-        return [];
-      }
-    });
-  }
-
-  Stream<List<Group>> getAllStreamToAdmin(String email) {
-    var l = _firestore.collection(collection)
-        .where("admins", arrayContains: email).snapshots();
-    return l.map((event) {
-      try {
-        List<Group> groups = [];
-
-        for (var doc in event.docs) {
-          Group group = Group.fromMap(doc.id, doc.data());
-          groups.add(group);
-          _saveToLocalDB(group);
-        }
-        return groups;
-      } catch (e) {
-        debugPrint("Error on get all groups stream to admin: $e");
         return [];
       }
     });

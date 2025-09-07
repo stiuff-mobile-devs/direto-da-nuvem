@@ -30,10 +30,8 @@ class GroupsPage extends StatelessWidget {
               return ListView(
                 padding: const EdgeInsets.only(bottom: 80),
                 children: [
-                  ...groupController.groups.map(
-                    (e) => GroupCard(
-                      group: e,
-                    ),
+                  ...groupController.getAdminGroups(isSuperAdmin).map(
+                      (e) => GroupCard(group: e),
                   ),
                 ],
               );

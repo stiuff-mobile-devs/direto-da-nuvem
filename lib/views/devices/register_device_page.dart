@@ -104,54 +104,24 @@ class RegisterDevicePage extends StatelessWidget {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(double.infinity, 50),
+                              minimumSize: const Size(double.infinity, 50),
+                              backgroundColor: AppTheme.primaryBlue
                           ),
                           child: Text(device != null
                               ? "Atualizar"
                               : "Cadastrar",
-                          style: const TextStyle(color: AppTheme.primaryBlue)),
+                          style: const TextStyle(color: Colors.white)),
                         ),
-                        // Mostrar botão de deletar apenas se o dispositivo já existir
                         if (device != null) ...[
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 5),
                           ElevatedButton(
-                            onPressed: () async {
-                              // Abre uma caixa de diálogo e aguarda a escolha do usuário.
-                              final confirmed = await _showDeleteDialog(context);
-
-                              // Se o usuário aceitar, 
-                              // então...
-                              if (confirmed == true) {
-                                // ... cria um scaffold messenger para mostrar, possivelmente em outra página,
-                                // mensagem de sucesso ou erro após tentativa de exclusão.
-                                final messenger = ScaffoldMessenger.of(context);
-                                try {
-                                  // deleta o dispositivo do banco de dados
-                                  await context.read<DeviceController>().deleteDevice(device!.id);
-                                  // mostra mensagem de sucesso atraves de uma snackbar
-                                  // com o auxílio do scaffold messenger.
-                                  messenger.showSnackBar(
-                                    const SnackBar(content: Text('Dispositivo deletado')),
-                                  );
-                                  // fecha a página atual de Edição dispositivo.
-                                  Navigator.of(context).pop();
-                                } catch (e) {
-                                  // mostra mensagem de erro através de uma snackbar
-                                  // com o auxílio do scaffold messenger.
-                                  messenger.showSnackBar(
-                                    SnackBar(content: Text('Erro ao deletar: $e'))
-                                  );
-                                }
-                              }
-                              // Se o usuário não aceitar (clicar em "Cancelar" ou fora da caixa),
-                              // então feche a caixa e não faça nada.
-                            },
+                            onPressed: () => _showDeleteDialog(context),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.primaryRed,
                               minimumSize: const Size(double.infinity, 50),
                             ),
                             child: const Text(
-                              "Deletar",
+                              "Excluir",
                               style: TextStyle(color: Colors.white),
                             ),
                           )
@@ -201,16 +171,30 @@ class RegisterDevicePage extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Confirmar Exclusão"),
-          content: const Text("Você tem certeza que deseja deletar este dispositivo?"),
+          title: const Text("Excluir dispositivo?"),
+          content: const Text("Você deseja excluir este dispositivo?"),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text("Cancelar"),
+              child: const Text("Fechar", style: TextStyle(color: AppTheme.primaryBlue)),
             ),
             TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text("Deletar"),
+              onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                Navigator.of(context).pop(true);
+                try {
+                  await context.read<DeviceController>().deleteDevice(device!.id);
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Dispositivo deletado')),
+                  );
+                } catch (e) {
+                  messenger.showSnackBar(
+                      const SnackBar(content: Text('Erro ao deletar dispositivo'))
+                  );
+                }
+              },
+              child: const Text("Excluir", style: TextStyle(
+                  color: AppTheme.primaryRed, fontWeight: FontWeight.bold)),
             ),
           ],
         );

@@ -85,6 +85,16 @@ class GroupController extends ChangeNotifier {
     }
   }
 
+  List<Group> getAdminGroups(bool isSuperAdmin) {
+    if (isSuperAdmin) {
+      return groups;
+    }
+    return groups
+        .where((element) =>
+        element.admins.contains(FirebaseAuth.instance.currentUser!.email))
+        .toList();
+  }
+
   Future<String> updateCurrentQueue(Group group, String queueId) async {
     group.currentQueue = queueId;
     await updateGroup(group);

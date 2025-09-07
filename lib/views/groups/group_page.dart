@@ -129,6 +129,7 @@ class GroupPage extends StatelessWidget {
                 await userController.grantAdminPrivilege(group.admins);
                 messenger.showSnackBar(SnackBar(content: Text(message)));
               });
+              Navigator.pop(context);
             },
           );
         },
