@@ -1,6 +1,7 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
+import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/services/connection_service.dart';
@@ -11,9 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class QueueCard extends StatelessWidget {
-  const QueueCard({super.key, required this.queue, this.isActive = false});
+  const QueueCard({super.key,
+    required this.group, required this.queue, this.isActive = false});
 
   final Queue queue;
+  final Group group;
   final bool isActive;
 
   @override
@@ -152,7 +155,7 @@ class QueueCard extends StatelessWidget {
               onPressed: () {
                 final messenger = ScaffoldMessenger.of(context);
                 context.read<GroupController>()
-                    .makeQueueCurrent(queue.id).then((message) {
+                    .updateCurrentQueue(group, queue.id).then((message) {
                   messenger.showSnackBar(
                     SnackBar(
                       content: Text(message),

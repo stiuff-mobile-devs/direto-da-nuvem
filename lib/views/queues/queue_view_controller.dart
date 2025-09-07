@@ -35,7 +35,7 @@ class QueueViewController extends ChangeNotifier {
     if (currentQueue != null && currentQueue.status == QueueStatus.approved) {
       queue = currentQueue;
     } else {
-      queue = deviceController.defaultQueue;
+      queue = await deviceController.getDefaultQueue();
     }
     await _fetchImages();
     loadingImages = false;

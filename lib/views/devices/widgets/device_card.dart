@@ -96,8 +96,6 @@ class DeviceCard extends StatelessWidget {
               onPressed: () {
                 // Deleta dispositivo
                 context.read<DeviceController>().deleteDevice(device.id);
-                // Atualiza a lista de dispositivos 
-                context.read<DeviceController>().fetchDevices();
                 // Fecha a caixa de diálogo
                 Navigator.of(context).pop();
               },

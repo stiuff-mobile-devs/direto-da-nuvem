@@ -67,14 +67,12 @@ class UserCard extends StatelessWidget {
 
             if (user.privileges.isAdmin && !updatedUser.privileges.isAdmin) {
               await groupController
-                  .removeAdministeredGroups(updatedUser.email,
-                  updatedUser.updatedBy);
+                  .removeAdminFromGroups(updatedUser.email);
             }
           },
           onDelete: (user) {
             if (user.privileges.isAdmin) {
-              groupController.removeAdministeredGroups(user.email,
-                  userController.currentUser!.id);
+              groupController.removeAdminFromGroups(user.email);
             }
             userController.deleteUser(user).then((message) {
               messenger.showSnackBar(

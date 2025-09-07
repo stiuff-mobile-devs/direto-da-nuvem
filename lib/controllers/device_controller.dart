@@ -1,16 +1,16 @@
 import 'dart:async';
-import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
+import 'package:ddnuvem/services/sign_in_service.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 
 class DeviceController extends ChangeNotifier {
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
+  final SignInService _signInService;
   final DeviceInfoPlugin _deviceInfoPlugin = DeviceInfoPlugin();
-  final GroupController _groupController;
 
   AndroidDeviceInfo? androidInfo;
   Group? group;
@@ -19,21 +19,25 @@ class DeviceController extends ChangeNotifier {
   bool isSmartphone = false;
   Queue? currentQueue;
   Queue? defaultQueue;
-  List<Device> _devices = [];
+  List<Device> devices = [];
 
   StreamSubscription<Queue?>? _currentQueueSubscription;
+  StreamSubscription<Group?>? _currentGroupSubscription;
   StreamSubscription<List<Device>>? _devicesSubscription;
   bool loadingInitialState = true;
 
-  DeviceController(this._diretoDaNuvemAPI, this._groupController) {
+  DeviceController(this._diretoDaNuvemAPI, this._signInService) {
     _initialize();
+    _signInService.addListener(_signInListener);
   }
 
   _initialize() async {
     await _getAndroidInfo();
-    await _checkIsRegistered();
-    await _fetchGroupAndQueue();
-    _groupController.addListener(_updateCurrentQueueAndGroup);
+    if (_signInService.isLoggedIn()) {
+      await _checkIsRegistered();
+      await _fetchGroupAndQueue();
+      await loadDevices();
+    }
     loadingInitialState = false;
     notifyListeners();
     debugPrint("DeviceController initialized");
@@ -41,11 +45,32 @@ class DeviceController extends ChangeNotifier {
 
   @override
   void dispose() {
-    _groupController.removeListener(_updateCurrentQueueAndGroup);
     _currentQueueSubscription?.cancel();
     _devicesSubscription?.cancel();
+    _currentGroupSubscription?.cancel();
+    _signInService.removeListener(_signInListener);
     debugPrint("DeviceController disposed");
     super.dispose();
+  }
+
+  _signInListener() async {
+    if (_signInService.isLoggedIn()) {
+      await _checkIsRegistered();
+      await _fetchGroupAndQueue();
+      await loadDevices();
+      notifyListeners();
+    } else {
+      _signOutClear();
+    }
+  }
+
+  _signOutClear() {
+    group = null;
+    currentQueue = null;
+    devices = [];
+    _currentQueueSubscription?.cancel();
+    _currentGroupSubscription?.cancel();
+    _devicesSubscription?.cancel();
   }
 
   Future<void> _getAndroidInfo() async {
@@ -104,13 +129,23 @@ class DeviceController extends ChangeNotifier {
 
   _fetchGroup() async {
     if (device != null) {
-      group = await _groupController.fetchDeviceGroup(device!);
+      group = await _diretoDaNuvemAPI.groupResource.get(device!.groupId);
+      Stream<Group?>? deviceGroupStream = _diretoDaNuvemAPI.groupResource
+          .getStream(device!.groupId);
+
+      _currentGroupSubscription?.cancel();
+      _currentGroupSubscription = deviceGroupStream.listen((group) {
+        this.group = group;
+        _fetchCurrentQueue();
+        notifyListeners();
+      },
+      onError: (e) {
+        debugPrint("Erro ao escutar stream do grupo do dispositivo: $e");
+      });
     }
   }
 
   _fetchCurrentQueue() async {
-    defaultQueue = await _diretoDaNuvemAPI.queueResource.getDefaultQueue();
-
     if (group == null) {
       return;
     }
@@ -121,11 +156,10 @@ class DeviceController extends ChangeNotifier {
       return;
     }
 
-    currentQueue =
-        await _diretoDaNuvemAPI.queueResource.get(group!.currentQueue);
-
-    Stream<Queue?>? currentQueueStream =
-        _diretoDaNuvemAPI.queueResource.getStream(group!.currentQueue);
+    currentQueue = await _diretoDaNuvemAPI.queueResource
+        .get(group!.currentQueue);
+    Stream<Queue?>? currentQueueStream = _diretoDaNuvemAPI.queueResource
+        .getStream(group!.currentQueue);
 
     _currentQueueSubscription?.cancel();
     _currentQueueSubscription = currentQueueStream.listen((queue) {
@@ -137,15 +171,20 @@ class DeviceController extends ChangeNotifier {
     });
   }
 
+  Future<Queue?> getDefaultQueue() async {
+    defaultQueue ??= await _diretoDaNuvemAPI.queueResource.getDefaultQueue();
+    return defaultQueue;
+  }
+
   Future loadDevices() async {
-    _devices = await _diretoDaNuvemAPI.deviceResource.getAll();
+    devices = await _diretoDaNuvemAPI.deviceResource.getAll();
     Stream<List<Device>>? devicesStream =
       _diretoDaNuvemAPI.deviceResource.getAllStream();
 
     _devicesSubscription?.cancel();
     _devicesSubscription = devicesStream.listen((updatedDevices) async {
       final currentId = device?.id;
-      _devices = updatedDevices;
+      devices = updatedDevices;
 
       if (currentId != null) {
         // Coloca na variável match uma coleção de dispositivos
@@ -178,14 +217,10 @@ class DeviceController extends ChangeNotifier {
     });
   }
 
-  _updateCurrentQueueAndGroup() async {
-    await _fetchGroupAndQueue();
-    notifyListeners();
-  }
 
   int numberOfDevicesOnGroup(String groupId) {
     int count = 0;
-    for (var device in _devices) {
+    for (var device in devices) {
       if (device.groupId == groupId) {
         count++;
       }
@@ -195,10 +230,10 @@ class DeviceController extends ChangeNotifier {
 
   List<Device> listDevicesInGroups(Set<String> groupIds) {
     if (groupIds.isEmpty) {
-      return _devices;
+      return devices;
     }
     List<Device> devicesInGroups = [];
-    for (var device in _devices) {
+    for (var device in devices) {
       if (groupIds.contains(device.groupId)) {
         devicesInGroups.add(device);
       }
@@ -207,46 +242,19 @@ class DeviceController extends ChangeNotifier {
   }
 
   Future<void> deleteDevice(String id) async {
-    try {
-      await _diretoDaNuvemAPI.deviceResource.delete(id);
-
-      _devices.removeWhere((d) => d.id == id);
-
-      // Se o dispositivo deletado for o atual,
-      // limpa apenas o estado do dispositivo atual
-      if (device?.id == id) {
-        _clearCurrentDeviceState();
-      }
-
-    } catch(e) {
-      rethrow;
+    await _diretoDaNuvemAPI.deviceResource.delete(id);
+    if (device?.id == id) {
+      _clearCurrentDeviceState();
     }
   }
 
-  void fetchDevices() {
-    _diretoDaNuvemAPI.deviceResource.getAll();
-  }
-
-  // Helper centralizado para limpar apenas o estado do dispositivo atual
   void _clearCurrentDeviceState() {
     _currentQueueSubscription?.cancel();
+    _currentGroupSubscription?.cancel();
     currentQueue = null;
     group = null;
     device = null;
     isRegistered = false;
-  }
-
-  // Limpa tudo em memória
-  void resetInMemory() {
-    _devicesSubscription?.cancel();
-    _currentQueueSubscription?.cancel();
-    _devicesSubscription = null;
-    _currentQueueSubscription = null;
-    _devices = [];
-    defaultQueue = null;
-    _clearCurrentDeviceState();
-    loadingInitialState = false;
-    notifyListeners();
   }
 }
 

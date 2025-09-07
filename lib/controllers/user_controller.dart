@@ -21,7 +21,7 @@ class UserController extends ChangeNotifier {
   }
 
   _initialize() async {
-    if (_signInService.getFirebaseAuthUser() != null) {
+    if (_signInService.isLoggedIn()) {
       await _loadUserData();
       isLoggedIn = true;
     }
@@ -66,13 +66,14 @@ class UserController extends ChangeNotifier {
     currentUser = null;
     profileImageUrl = null;
     users = [];
+    _usersSubscription?.cancel();
     isLoggedIn = false;
     notifyListeners();
   }
 
   _loadUserData() async {
     await _getCurrentUserInfo();
-    if (isCurrentUserSuperAdmin()) await _loadAllUsers();
+    await _loadAllUsers();
   }
 
   _getCurrentUserInfo() async {
@@ -83,8 +84,8 @@ class UserController extends ChangeNotifier {
   }
 
   _loadAllUsers() async {
+    if (!isCurrentUserSuperAdmin()) return;
     users = await _diretoDaNuvemAPI.userResource.getAll();
-
     Stream<List<User>>? usersStream =
         _diretoDaNuvemAPI.userResource.getAllStream();
 
@@ -100,7 +101,6 @@ class UserController extends ChangeNotifier {
 
   Future<String> createUser(User user) async {
     if (await _diretoDaNuvemAPI.userResource.create(user)) {
-      notifyListeners();
       return "Usuário criado com sucesso!";
     }
     return "Usuário já existe.";
@@ -108,13 +108,11 @@ class UserController extends ChangeNotifier {
 
   Future<String> deleteUser(User user) async {
     await _diretoDaNuvemAPI.userResource.delete(user);
-    notifyListeners();
     return "Usuário excluído com sucesso!";
   }
 
   Future<String> updateUser(User user) async {
     await _diretoDaNuvemAPI.userResource.update(user);
-    notifyListeners();
     return "Usuário atualizado com sucesso!";
   }
 

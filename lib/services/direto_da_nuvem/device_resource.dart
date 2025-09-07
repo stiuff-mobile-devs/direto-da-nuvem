@@ -38,6 +38,15 @@ class DeviceResource {
     }
   }
 
+  delete(String id) async {
+    try {
+      _firestore.doc("$collection/$id").delete();
+      _deleteFromLocalDB(id);
+    } catch (e) {
+      debugPrint("Error on delete device $id: $e.");
+    }
+  }
+
   Future<Device?> get(String id) async {
     Device? device;
 
@@ -111,6 +120,14 @@ class DeviceResource {
     }
   }
 
+  _deleteFromLocalDB(String id) {
+    try {
+      _hiveBox.delete(id);
+    } catch (e) {
+      debugPrint("Error on delete device $id from Hive: $e.");
+    }
+  }
+
   Device? _getFromLocalDB(String id) {
     try {
       return _hiveBox.get(id);
@@ -126,15 +143,6 @@ class DeviceResource {
     } catch (e) {
       debugPrint("Error on list all devices from Hive: $e.");
       return [];
-    }
-  }
-
-  Future<void> delete(String id) async {
-    try {
-      _firestore.doc("$collection/$id").delete();
-      _hiveBox.delete(id);
-    } catch (e) {
-      debugPrint("Error on delete device $id: $e.");
     }
   }
 }

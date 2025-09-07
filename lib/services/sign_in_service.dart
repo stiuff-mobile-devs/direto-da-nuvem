@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-class SignInService {
+class SignInService extends ChangeNotifier {
   final auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
@@ -29,6 +29,7 @@ class SignInService {
 
       await auth.signInWithCredential(credential);
       debugPrint("Usuário logado");
+      notifyListeners();
       return true;
     } catch (e) {
       debugPrint("ERRO ao logar: $e");
@@ -41,6 +42,7 @@ class SignInService {
       await auth.signOut();
       await googleSignIn.signOut();
       debugPrint('Deslogado');
+      notifyListeners();
     } catch (e) {
       debugPrint("ERRO deslogando:\n$e");
     }
@@ -48,5 +50,9 @@ class SignInService {
 
   User? getFirebaseAuthUser() {
     return auth.currentUser;
+  }
+
+  bool isLoggedIn() {
+    return getFirebaseAuthUser() != null;
   }
 }

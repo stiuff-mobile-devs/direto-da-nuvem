@@ -18,20 +18,24 @@ class GroupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Group? group;
+
+    try {
+      group = ModalRoute.of(context)!.settings.arguments as Group;
+    } catch (_) {
+      return const SizedBox.shrink();
+    }
+
     return Consumer3<GroupController, UserController, ConnectionService>(
       builder: (context, groupController, userController, connection, _) {
-        if (groupController.selectedGroup == null) {
-          return const SizedBox.shrink();
-        }
-
         return Scaffold(
           appBar: AppBar(
-            title: Text(groupController.selectedGroup!.name),
+            title: Text(group!.name),
             actions: [
               IconButton(
                 onPressed: () {
                   connection.connectionStatus
-                    ? _pushEditGroupPage(context)
+                    ? _pushEditGroupPage(context, group!)
                     : noConnectionDialog(context).show();
                 },
                 icon: const Icon(Icons.edit),
@@ -41,7 +45,7 @@ class GroupPage extends StatelessWidget {
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               connection.connectionStatus
-                  ? _pushCreateQueuePage(context)
+                  ? _pushCreateQueuePage(context, group!)
                   : noConnectionDialog(context).show();
             },
             backgroundColor: AppTheme.primaryBlue,
@@ -60,13 +64,13 @@ class GroupPage extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
-                    queueCardForActiveQueue(context),
+                    queueCardForActiveQueue(context, group!),
                     const SizedBox(height: 8),
                     Text(
                       "Outras filas",
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    otherQueuesList(context),
+                    otherQueuesList(context, group),
                   ],
                 );
               },
@@ -77,13 +81,12 @@ class GroupPage extends StatelessWidget {
     );
   }
 
-  Widget queueCardForActiveQueue(BuildContext context) {
-    final groupController = context.read<GroupController>();
+  Widget queueCardForActiveQueue(BuildContext context, Group group) {
     final queueController = context.read<QueueController>();
     Queue? queue;
 
     for (var q in queueController.queues) {
-      if (q.id == groupController.selectedGroup!.currentQueue) {
+      if (q.id == group.currentQueue) {
         queue = q;
       }
     }
@@ -92,26 +95,26 @@ class GroupPage extends StatelessWidget {
     }
     return QueueCard(
       queue: queue,
+      group: group,
       isActive: true,
     );
   }
 
-  Widget otherQueuesList(BuildContext context) {
-    final groupController = context.read<GroupController>();
+  Widget otherQueuesList(BuildContext context, Group group) {
     final queueController = context.read<QueueController>();
 
     final otherQueues = queueController.queues
         .where((element) =>
-            element.groupId == groupController.selectedGroup!.id &&
-            element.id != groupController.selectedGroup!.currentQueue)
-        .map((e) => QueueCard(queue: e));
+            element.groupId == group.id &&
+            element.id != group.currentQueue)
+        .map((e) => QueueCard(queue: e, group: group,));
 
     return Column(
       children: otherQueues.toList(),
     );
   }
 
-  _pushEditGroupPage(BuildContext context) {
+  _pushEditGroupPage(BuildContext context, Group group) {
     final groupController = context.read<GroupController>();
     final userController = context.read<UserController>();
     final messenger = ScaffoldMessenger.of(context);
@@ -120,7 +123,7 @@ class GroupPage extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) {
           return GroupCreatePage(
-            group: Group.copy(groupController.selectedGroup!),
+            group: Group.copy(group),
             onSave: (group) {
               groupController.updateGroup(group).then((message) async {
                 await userController.grantAdminPrivilege(group.admins);
@@ -133,8 +136,7 @@ class GroupPage extends StatelessWidget {
     );
   }
 
-  _pushCreateQueuePage(BuildContext context) {
-    final groupController = context.read<GroupController>();
+  _pushCreateQueuePage(BuildContext context, Group group) {
     final queueController = context.read<QueueController>();
     final isSuperAdmin = context.read<UserController>().isCurrentUserSuperAdmin();
 
@@ -148,7 +150,7 @@ class GroupPage extends StatelessWidget {
                 : QueueStatus.pending;
 
             final messenger = ScaffoldMessenger.of(context);
-            queue.groupId = groupController.selectedGroup!.id;
+            queue.groupId = group.id;
             queueController.saveQueue(queue).then((message) {
               messenger.showSnackBar(SnackBar(content: Text(message)));
             });

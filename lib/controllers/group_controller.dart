@@ -1,48 +1,46 @@
 import 'dart:async';
-import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
+import 'package:ddnuvem/services/sign_in_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class GroupController extends ChangeNotifier {
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
+  final SignInService _signInService;
 
-  Group? selectedGroup;
   List<Group> groups = [];
-  bool isAdmin = false;
-
   StreamSubscription<List<Group>>? _groupsSubscription;
 
-  GroupController(this._diretoDaNuvemAPI) {
-    init();
+  GroupController(this._diretoDaNuvemAPI, this._signInService) {
+    _initialize();
+    _signInService.addListener(_signInListener);
   }
 
-  init() async {
-    notifyListeners();
-    await _fetchAllGroups();
-    isAdmin = groups
-        .map((group) => group.admins)
-        .expand((admins) => admins)
-        .toSet()
-        .contains(FirebaseAuth.instance.currentUser?.email);
-    notifyListeners();
+  _initialize() async {
+    if (_signInService.isLoggedIn()) {
+      await _fetchAllGroups();
+    }
   }
 
   @override
   void dispose() {
     _groupsSubscription?.cancel();
+    _signInService.removeListener(_signInListener);
     super.dispose();
   }
 
-  List<Group> getAdminGroups(bool isSuperAdmin) {
-    if (isSuperAdmin) {
-      return groups;
+  _signInListener() async {
+    if (_signInService.isLoggedIn()) {
+      await _fetchAllGroups();
+    } else {
+      _signOutClear();
     }
-    return groups
-        .where((element) =>
-            element.admins.contains(FirebaseAuth.instance.currentUser!.email))
-        .toList();
+  }
+
+  _signOutClear() {
+    groups = [];
+    _groupsSubscription?.cancel();
   }
 
   _fetchAllGroups() async {
@@ -53,67 +51,43 @@ class GroupController extends ChangeNotifier {
     _groupsSubscription?.cancel();
     _groupsSubscription = groupsStream.listen((updatedGroups) {
       groups = updatedGroups;
-
-      if (selectedGroup != null) {
-        try {
-          selectedGroup = groups.firstWhere(
-                  (group) => group.id == selectedGroup!.id);
-        } catch (e) {
-          selectedGroup = null;
-        }
-      }
       notifyListeners();
     },
     onError: (e) {
       debugPrint("Erro ao escutar stream de grupos: $e");
     });
-  }
 
-  Future<Group?> fetchDeviceGroup(Device device) async {
-    return await _diretoDaNuvemAPI.groupResource.get(device.groupId);
+    notifyListeners();
   }
 
   Future<String> createGroup(Group group) async {
-    notifyListeners();
     await _diretoDaNuvemAPI.groupResource.create(group);
-    notifyListeners();
     return "Grupo criado com sucesso!";
   }
 
   Future<String> deleteGroup(String groupId) async {
-    await _diretoDaNuvemAPI.groupResource.delete(selectedGroup!.id);
-    notifyListeners();
+    await _diretoDaNuvemAPI.groupResource.delete(groupId);
     return "Grupo excluído com sucesso!";
   }
 
   Future<String> updateGroup(Group group) async {
-    notifyListeners();
     await _diretoDaNuvemAPI.groupResource.update(group);
-    int index = groups.indexWhere((g) => g.id == group.id);
-    groups[index] = group;
-    notifyListeners();
     return "Grupo atualizado com sucesso!";
   }
 
-  Future removeAdministeredGroups(String email, String removedBy) async {
+  Future removeAdminFromGroups(String email) async {
     List<Group> g = groups.where((group) => group.admins.contains(email)).toList();
     for (var group in g) {
       group.admins.remove(email);
       group.updatedAt = DateTime.now();
-      group.updatedBy = removedBy;
+      group.updatedBy = _signInService.getFirebaseAuthUser()!.uid;
       await updateGroup(group);
     }
   }
 
-  selectGroup(Group group) {
-    selectedGroup = group;
-    notifyListeners();
-  }
-
-  Future<String> makeQueueCurrent(String queueId) async {
-    selectedGroup?.currentQueue = queueId;
-    await _diretoDaNuvemAPI.groupResource.update(selectedGroup!);
-    notifyListeners();
+  Future<String> updateCurrentQueue(Group group, String queueId) async {
+    group.currentQueue = queueId;
+    await updateGroup(group);
     return "Fila ativa atualizada com sucesso!";
   }
 }

@@ -1,5 +1,4 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
-import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/routes/route_paths.dart';
@@ -13,14 +12,12 @@ class GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    GroupController groupController = context.read<GroupController>();
     bool pendingQueues = context.read<QueueController>()
         .checkPendingQueuesByGroup(group.id);
 
     return InkWell(
       onTap: () {
-        groupController.selectGroup(group);
-        Navigator.of(context).pushNamed(RoutePaths.group);
+        Navigator.of(context).pushNamed(RoutePaths.group, arguments: group);
       },
       child: Card(
         elevation: 1,

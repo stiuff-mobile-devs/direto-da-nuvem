@@ -2,28 +2,45 @@ import 'dart:async';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
+import 'package:ddnuvem/services/sign_in_service.dart';
 import 'package:flutter/material.dart';
 
 class QueueController extends ChangeNotifier {
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
+  final SignInService _signInService;
 
   List<Queue> queues = [];
-
   StreamSubscription<List<Queue>>? _queuesSubscription;
 
-  QueueController(this._diretoDaNuvemAPI) {
-    init;
+  QueueController(this._signInService, this._diretoDaNuvemAPI) {
+    _initialize();
+    _signInService.addListener(_signInListener);
   }
 
-  init() async {
-    await _loadQueues();
-    notifyListeners();
+  _initialize() async {
+    if (_signInService.isLoggedIn()) {
+      await _loadQueues();
+    }
   }
 
   @override
-  void dispose() {
+  dispose() {
     _queuesSubscription?.cancel();
+    _signInService.removeListener(_signInListener);
     super.dispose();
+  }
+
+  _signInListener() async {
+    if (_signInService.isLoggedIn()) {
+      await _loadQueues();
+    } else {
+      _signOutClear();
+    }
+  }
+
+  _signOutClear() {
+    queues = [];
+    _queuesSubscription?.cancel();
   }
 
   _loadQueues() async {
@@ -39,6 +56,8 @@ class QueueController extends ChangeNotifier {
     onError: (e) {
       debugPrint("Erro ao escutar stream de filas: $e");
     });
+
+    notifyListeners();
   }
 
   Future<String> updateQueue(Queue queue) async {
@@ -106,7 +125,6 @@ class QueueController extends ChangeNotifier {
 
   Future<String> deleteQueue(String id) async {
     await _diretoDaNuvemAPI.queueResource.delete(id);
-    notifyListeners();
     return "Fila excluída com sucesso!";
   }
 

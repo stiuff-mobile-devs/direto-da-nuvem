@@ -42,12 +42,10 @@ void main() {
           when(() => deviceController.isRegistered).thenReturn(false);
           when(() => deviceController.loadingInitialState).thenReturn(false);
 
-          when(() => groupController.isAdmin).thenReturn(false);
 
           when(() => deviceController.isRegistered).thenReturn(false);
           when(() => deviceController.loadingInitialState).thenReturn(false);
 
-          when(() => groupController.isAdmin).thenReturn(false);
 
           await widgetTester.pumpWidget(
             MaterialApp(

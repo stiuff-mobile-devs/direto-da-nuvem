@@ -41,8 +41,7 @@ Future<void> main() async {
   runApp(MultiProvider(providers: [
     Provider<DiretoDaNuvemAPI>(create: (context) => DiretoDaNuvemAPI()),
     Provider<LocalStorageService>(create: (context) => LocalStorageService()),
-    Provider<SignInService>(create: (context) => SignInService()),
-
+    ChangeNotifierProvider<SignInService>(create: (context) => SignInService()),
     ChangeNotifierProvider<ConnectionService>(
         create: (context) => ConnectionService()),
     ChangeNotifierProvider<UserController>(
@@ -50,11 +49,11 @@ Future<void> main() async {
     ChangeNotifierProvider<DevicesFilterController>(
         create: (context) => DevicesFilterController()),
     ChangeNotifierProvider<QueueController>(
-        create: (context) => QueueController(context.read())),
+        create: (context) => QueueController(context.read(), context.read())),
     ChangeNotifierProvider<GroupController>(
-        create: (context) => GroupController(context.read())),
-    ChangeNotifierProvider<DeviceController>(create: (context) =>
-            DeviceController(context.read(), context.read())),
+        create: (context) => GroupController(context.read(), context.read())),
+    ChangeNotifierProvider<DeviceController>(
+        create: (context) => DeviceController(context.read(), context.read())),
     ChangeNotifierProvider<PeopleFilterController>(
         create: (context) => PeopleFilterController())
   ], child: const App()));
