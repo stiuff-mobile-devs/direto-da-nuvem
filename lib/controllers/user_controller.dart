@@ -41,24 +41,26 @@ class UserController extends ChangeNotifier {
     notifyListeners();
 
     final googleUser = await _signInService.signInWithGoogle();
-    if (googleUser == null) return;
-    final user = await _diretoDaNuvemAPI.userResource.get(googleUser.email);
+    if (googleUser != null) {
+      final user = await _diretoDaNuvemAPI.userResource.get(googleUser.email);
 
-    if (user == null) {
-      debugPrint("Usuário não autorizado!");
-      currentUser = User.empty();
-    } else {
-      if (await _signInService.completeSignIn(googleUser)) {
-        if (!user.authenticated) {
-          await updateAuthenticatedUser(user, googleUser.displayName);
-        }
-        await _loadUserData();
+      if (user == null) {
+        debugPrint("Usuário não autorizado!");
+        currentUser = User.empty();
+        isLoggedIn = true;
       } else {
-        return;
+        if (await _signInService.completeSignIn(googleUser)) {
+          if (!user.authenticated) {
+            await updateAuthenticatedUser(user, googleUser.displayName);
+          }
+          await _loadUserData();
+          isLoggedIn = true;
+        } else {
+          isLoggedIn = false;
+        }
       }
     }
 
-    isLoggedIn = true;
     loadingInitialState = false;
     notifyListeners();
   }

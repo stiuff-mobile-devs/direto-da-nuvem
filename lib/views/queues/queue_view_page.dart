@@ -9,9 +9,9 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 class QueueViewPage extends StatefulWidget {
-  const QueueViewPage({super.key, required this.queue});
+  const QueueViewPage({super.key, this.queue});
 
-  final Queue queue;
+  final Queue? queue;
 
   @override
   State<QueueViewPage> createState() => _QueueViewPageState();
@@ -33,7 +33,7 @@ class _QueueViewPageState extends State<QueueViewPage> {
       registered = true;
     }
 
-    if (loading) {
+    if (loading || widget.queue == null) {
       return loadingWidget(context);
     }
 
@@ -56,7 +56,7 @@ class _QueueViewPageState extends State<QueueViewPage> {
             autoPlayInterval: const Duration(milliseconds: 10000),
             enlargeCenterPage: true,
           ),
-          items: widget.queue.images.map((image) {
+          items: widget.queue!.images.map((image) {
             return Container(
               width: MediaQuery.of(context).size.width,
               margin: const EdgeInsets.symmetric(horizontal: 5.0),

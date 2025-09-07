@@ -104,7 +104,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
       ),
       child: Consumer<QueueViewController>(
         builder: (context, controller, _) {
-          return QueueViewPage(queue: controller.queue!);
+          return QueueViewPage(queue: controller.queue);
         },
       )
     );

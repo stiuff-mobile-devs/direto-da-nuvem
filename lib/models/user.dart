@@ -73,7 +73,7 @@ class User extends HiveObject {
     );
   }
 
-  factory User.fromMap(Map<String, dynamic> map, String id, UserPrivileges privileges) {
+  factory User.fromMap(Map<String, dynamic> map, String id) {
     return User(
       id: id,
       email: map['email'],
@@ -83,7 +83,7 @@ class User extends HiveObject {
       updatedAt: (map["updated_at"] as Timestamp).toDate(),
       createdBy: map["created_by"] ?? "",
       updatedBy: map["updated_by"] ?? "",
-      privileges: privileges
+      privileges: UserPrivileges.fromMap(map["privileges"])
     );
   }
 
@@ -92,6 +92,7 @@ class User extends HiveObject {
       "email": email,
       "name": name,
       "authenticated": authenticated,
+      "privileges": privileges.toMap(),
       "created_at": createdAt,
       "updated_at": updatedAt,
       "created_by": createdBy,

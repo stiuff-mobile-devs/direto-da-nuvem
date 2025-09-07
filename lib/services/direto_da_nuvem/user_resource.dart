@@ -2,7 +2,6 @@ import 'package:ddnuvem/services/connection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/user.dart';
-import 'package:ddnuvem/models/user_privileges.dart';
 import 'package:hive/hive.dart';
 
 class UserResource {
@@ -18,8 +17,7 @@ class UserResource {
         final list = await _firestore.collection(collection).get();
 
         for (var doc in list.docs) {
-          UserPrivileges privileges = await _getUserPrivileges(doc.id);
-          User user = User.fromMap(doc.data(), doc.id, privileges);
+          User user = User.fromMap(doc.data(), doc.id);
           users.add(user);
           _saveToLocalDB(user);
         }
@@ -34,22 +32,21 @@ class UserResource {
   }
 
   Stream<List<User>> getAllStream() {
-    final snapshots = _firestore.collection(collection).snapshots();
-
-    return snapshots.asyncMap((event) async {
+    return _firestore.collection(collection).snapshots().map((e) {
       try {
-        List<User> users = [];
-        for (var doc in event.docs) {
-          try {
-            var privileges = await _getUserPrivileges(doc.id);
-            User user = User.fromMap(doc.data(), doc.id, privileges);
-            users.add(user);
-            _saveToLocalDB(user);
-          } catch (e) {
-            debugPrint("Error on user doc ${doc.id}: $e");
+        for (var change in e.docChanges) {
+          switch (change.type) {
+            case (DocumentChangeType.added || DocumentChangeType.modified) :
+              final user = User.fromMap(change.doc.data()!, change.doc.id);
+              _saveToLocalDB(user);
+              break;
+            case DocumentChangeType.removed:
+              _deleteFromLocalDB(change.doc.id);
+              break;
           }
         }
-        return users;
+
+        return e.docs.map((doc) => User.fromMap(doc.data(), doc.id)).toList();
       } catch (e) {
         debugPrint("Error on list all users stream: $e");
         return [];
@@ -63,10 +60,7 @@ class UserResource {
         throw Exception("Usuário já existe.");
       }
 
-      var doc = await _firestore.collection(collection).add(user.toMap());
-      await _firestore
-          .doc("$collection/${doc.id}/privileges/privileges")
-          .set(user.privileges.toMap());
+      await _firestore.collection(collection).add(user.toMap());
     } on Exception catch (e) {
       if (e.toString().contains("Usuário já existe.")) {
         rethrow;
@@ -80,9 +74,6 @@ class UserResource {
   createAuthenticatedUser(User user) async {
     try {
       await _firestore.doc("$collection/${user.id}").set(user.toMap());
-      await _firestore
-          .doc("$collection/${user.id}/privileges/privileges")
-          .set(user.privileges.toMap());
     } catch (e) {
       debugPrint("Error on create authenticated user: $e");
     }
@@ -90,10 +81,6 @@ class UserResource {
 
   delete(User user) async {
     try {
-      await _firestore
-          .doc("$collection/${user.id}/privileges/privileges")
-          .delete();
-
       await _firestore.doc("$collection/${user.id}").delete();
       _deleteFromLocalDB(user.id);
     } catch (e) {
@@ -117,8 +104,7 @@ class UserResource {
         }
 
         final doc = query.docs.first;
-        UserPrivileges privileges = await _getUserPrivileges(doc.id);
-        user = User.fromMap(doc.data(), doc.id, privileges);
+        user = User.fromMap(doc.data(), doc.id);
         _saveToLocalDB(user);
       } else {
         user = _getFromLocalDB(email);
@@ -139,33 +125,10 @@ class UserResource {
       }
 
       await _firestore.doc("$collection/${user.id}").update(user.toMap());
-      await _firestore
-          .doc("$collection/${user.id}/privileges/privileges")
-          .update(user.privileges.toMap());
       _saveToLocalDB(user);
     } catch (e) {
       debugPrint("Error on update user: $e");
       throw Exception("Erro ao atualizar usuário.");
-    }
-  }
-
-  Future<UserPrivileges> _getUserPrivileges(String id) async {
-    try {
-      final doc =
-          await _firestore.doc('$collection/$id/privileges/privileges').get();
-
-      if (doc.exists) {
-        return UserPrivileges.fromMap(doc.data()!);
-      }
-
-      throw Exception("Privilégios não encontrados ou não definidos.");
-    } catch (e) {
-      debugPrint("Error on get privileges: $e");
-      return UserPrivileges(
-          isAdmin: false,
-          isSuperAdmin: false,
-          isInstaller: false
-      );
     }
   }
 
