@@ -1,6 +1,7 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/people/widgets/active_filter_badges_widget.dart';
@@ -42,20 +43,25 @@ class PeoplePage extends StatelessWidget {
   }
 
   _pushCreateUserPage(BuildContext context) {
+    String text, type;
+    final snackBar = CustomSnackbar(context);
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) {
           return UserCreatePage(
             user: User.empty(),
-            onSave: (user) {
-              final messenger = ScaffoldMessenger.of(context);
-              context.read<UserController>().createUser(user).then((message) {
-                messenger.showSnackBar(
-                  SnackBar(
-                    content: Text(message),
-                  ),
-                );
-              });
+            onSave: (user) async {
+              try {
+                await context.read<UserController>().createUser(user);
+                text = "Usuário criado com sucesso!";
+                type = "success";
+              } catch (e) {
+                text = e.toString();
+                type = "error";
+              }
+              snackBar.build(text, type);
+              if (context.mounted) Navigator.of(context).pop();
             }
           );
         },

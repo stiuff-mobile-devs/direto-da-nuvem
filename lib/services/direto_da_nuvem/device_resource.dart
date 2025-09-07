@@ -35,6 +35,7 @@ class DeviceResource {
       await _firestore.doc("$collection/${device.id}").update(device.toMap());
     } catch (e) {
       debugPrint("Error on update device: $e");
+      throw Exception("Erro ao atualizar dipositivo.");
     }
   }
 
@@ -44,6 +45,7 @@ class DeviceResource {
       _deleteFromLocalDB(id);
     } catch (e) {
       debugPrint("Error on delete device $id: $e.");
+      throw Exception("Erro ao excluir dipositivo.");
     }
   }
 
@@ -92,18 +94,21 @@ class DeviceResource {
   }
 
   Stream<List<Device>> getAllStream() {
-    var l = _firestore.collection(collection).snapshots();
-
-    return l.map((event) {
+    return _firestore.collection(collection).snapshots().map((e) {
       try {
-        List<Device> devices = [];
-
-        for (var doc in event.docs) {
-          Device device = Device.fromMap(doc.id, doc.data());
-          devices.add(device);
-          _saveToLocalDB(device);
+        for (var change in e.docChanges) {
+          switch (change.type) {
+            case (DocumentChangeType.added || DocumentChangeType.modified) :
+              final device = Device.fromMap(change.doc.id, change.doc.data()!);
+              _saveToLocalDB(device);
+              break;
+            case DocumentChangeType.removed:
+              _deleteFromLocalDB(change.doc.id);
+              break;
+          }
         }
-        return devices;
+
+        return e.docs.map((doc) => Device.fromMap(doc.id, doc.data())).toList();
       } catch (e) {
         debugPrint("Error on list all devices stream: $e");
         return [];

@@ -1,5 +1,6 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
+import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/email_regex.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/people/user_create_controller.dart';
@@ -43,14 +44,10 @@ class UserCreatePage extends StatelessWidget {
                   if (!userCreateController.formKey.currentState!.validate()) {
                     return;
                   }
-
                   if (!userCreateController.privilegesNotEmpty()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Selecione pelo menos um privilégio."),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
+                    CustomSnackbar(context).build(
+                        "Selecione pelo menos um privilégio.",
+                        "error");
                     return;
                   }
 
@@ -64,7 +61,6 @@ class UserCreatePage extends StatelessWidget {
                       userCreateController.isSuperAdmin.value;
 
                   onSave(userCreateController.user);
-                  Navigator.of(context).pop();
                 },
               )
             ],

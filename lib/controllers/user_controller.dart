@@ -28,17 +28,18 @@ class UserController extends ChangeNotifier {
 
     loadingInitialState = false;
     notifyListeners();
-    debugPrint("UserController initialized");
   }
 
   @override
   void dispose() {
     _usersSubscription?.cancel();
-    debugPrint("UserController disposed");
     super.dispose();
   }
 
   login(BuildContext context) async {
+    loadingInitialState = true;
+    notifyListeners();
+
     final googleUser = await _signInService.signInWithGoogle();
     if (googleUser == null) return;
     final user = await _diretoDaNuvemAPI.userResource.get(googleUser.email);
@@ -58,6 +59,7 @@ class UserController extends ChangeNotifier {
     }
 
     isLoggedIn = true;
+    loadingInitialState = false;
     notifyListeners();
   }
 
@@ -99,21 +101,28 @@ class UserController extends ChangeNotifier {
     });
   }
 
-  Future<String> createUser(User user) async {
-    if (await _diretoDaNuvemAPI.userResource.create(user)) {
-      return "Usuário criado com sucesso!";
+  createUser(User user) async {
+    try {
+      await _diretoDaNuvemAPI.userResource.create(user);
+    } catch (e) {
+      rethrow;
     }
-    return "Usuário já existe.";
   }
 
-  Future<String> deleteUser(User user) async {
-    await _diretoDaNuvemAPI.userResource.delete(user);
-    return "Usuário excluído com sucesso!";
+  deleteUser(User user) async {
+    try {
+      await _diretoDaNuvemAPI.userResource.delete(user);
+    } catch (e) {
+      rethrow;
+    }
   }
 
-  Future<String> updateUser(User user) async {
-    await _diretoDaNuvemAPI.userResource.update(user);
-    return "Usuário atualizado com sucesso!";
+  updateUser(User user) async {
+    try {
+      await _diretoDaNuvemAPI.userResource.update(user);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   // Salva uid e nome de usuário que se autenticou pela primeira vez

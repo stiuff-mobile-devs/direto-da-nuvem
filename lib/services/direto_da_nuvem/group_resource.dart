@@ -32,19 +32,23 @@ class GroupResource {
   }
 
   Stream<List<Group>> getAllStream() {
-    var l = _firestore.collection(collection).snapshots();
-    return l.map((event) {
+    return _firestore.collection(collection).snapshots().map((e) {
       try {
-        List<Group> groups = [];
-
-        for (var doc in event.docs) {
-          Group group = Group.fromMap(doc.id, doc.data());
-          groups.add(group);
-          _saveToLocalDB(group);
+        for (var change in e.docChanges) {
+          switch (change.type) {
+            case (DocumentChangeType.added || DocumentChangeType.modified) :
+              final group = Group.fromMap(change.doc.id, change.doc.data()!);
+              _saveToLocalDB(group);
+              break;
+            case DocumentChangeType.removed:
+              _deleteFromLocalDB(change.doc.id);
+              break;
+          }
         }
-        return groups;
+
+        return e.docs.map((doc) => Group.fromMap(doc.id, doc.data())).toList();
       } catch (e) {
-        debugPrint("Error on get all groups stream: $e");
+        debugPrint("Error on list all groups stream: $e");
         return [];
       }
     });
@@ -93,23 +97,24 @@ class GroupResource {
       await _firestore.collection(collection).add(group.toMap());
     } catch (e) {
       debugPrint("Error on create group ${group.id}: $e.");
+      throw Exception("Erro ao criar grupo.");
     }
   }
 
-  Future<bool> update(Group group) async {
+  update(Group group) async {
     try {
       final docReference = _firestore.doc("$collection/${group.id}");
       final doc = await docReference.get();
 
       if (!doc.exists) {
-        return false;
+        return;
       }
 
       await docReference.update(group.toMap());
       return true;
     } catch (e) {
       debugPrint("Error on update group ${group.id}: $e.");
-      return false;
+      throw Exception("Erro ao atualizar grupo.");
     }
   }
 
@@ -119,6 +124,7 @@ class GroupResource {
       _deleteFromLocalDB(id);
     } catch (e) {
       debugPrint("Error on delete group $id: $e.");
+      throw Exception("Erro ao exluir grupo.");
     }
   }
 

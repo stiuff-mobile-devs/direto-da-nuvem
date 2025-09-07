@@ -57,7 +57,7 @@ class UserResource {
     });
   }
 
-  Future<bool> create(User user) async {
+  create(User user) async {
     try {
       if (await get(user.email) != null) {
         throw Exception("Usuário já existe.");
@@ -67,10 +67,13 @@ class UserResource {
       await _firestore
           .doc("$collection/${doc.id}/privileges/privileges")
           .set(user.privileges.toMap());
-      return true;
-    } catch (e) {
-      debugPrint("Error on create user: $e");
-      return false;
+    } on Exception catch (e) {
+      if (e.toString().contains("Usuário já existe.")) {
+        rethrow;
+      } else {
+        debugPrint("Error on create user: $e");
+        throw Exception("Erro ao criar usuário.");
+      }
     }
   }
 
@@ -95,6 +98,7 @@ class UserResource {
       _deleteFromLocalDB(user.id);
     } catch (e) {
       debugPrint("Error on delete user: $e");
+      throw Exception("Erro ao excluir usuário.");
     }
   }
 
@@ -141,6 +145,7 @@ class UserResource {
       _saveToLocalDB(user);
     } catch (e) {
       debugPrint("Error on update user: $e");
+      throw Exception("Erro ao atualizar usuário.");
     }
   }
 

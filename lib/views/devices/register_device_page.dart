@@ -1,6 +1,7 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/models/device.dart';
+import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/devices/register_device_controller.dart';
 import 'package:flutter/material.dart';
@@ -88,19 +89,12 @@ class RegisterDevicePage extends StatelessWidget {
                             if (!controller.validate()) {
                               return;
                             }
-
-                            Device newDevice;
                             if (device == null) {
-                              newDevice = controller.newDevice();
+                              final newDevice = controller.newDevice();
                               deviceController.register(newDevice, context);
                             } else {
-                              newDevice = controller.updatedDevice(device!);
-                              final messenger = ScaffoldMessenger.of(context);
-                              deviceController.update(newDevice).then((message) {
-                                messenger.showSnackBar(SnackBar(
-                                    content: Text(message)));
-                              });
-                              Navigator.pop(context);
+                              final newDevice = controller.updatedDevice(device!);
+                              _onUpdateDevice(newDevice, context);
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -171,7 +165,7 @@ class RegisterDevicePage extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Excluir dispositivo?"),
+          title: const Text("Excluir dispositivo"),
           content: const Text("Você deseja excluir este dispositivo?"),
           actions: <Widget>[
             TextButton(
@@ -180,18 +174,20 @@ class RegisterDevicePage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async {
-                final messenger = ScaffoldMessenger.of(context);
-                Navigator.of(context).pop(true);
+                Navigator.of(context).pop();
+                final snackBar = CustomSnackbar(context);
+                String text, type;
+
                 try {
                   await context.read<DeviceController>().deleteDevice(device!.id);
-                  messenger.showSnackBar(
-                    const SnackBar(content: Text('Dispositivo deletado')),
-                  );
+                  text = "Dispositivo excluído com sucesso!";
+                  type = "success";
                 } catch (e) {
-                  messenger.showSnackBar(
-                      const SnackBar(content: Text('Erro ao deletar dispositivo'))
-                  );
+                  text = e.toString();
+                  type = "error";
                 }
+                snackBar.build(text, type);
+                if (context.mounted) Navigator.of(context).pop();
               },
               child: const Text("Excluir", style: TextStyle(
                   color: AppTheme.primaryRed, fontWeight: FontWeight.bold)),
@@ -200,5 +196,23 @@ class RegisterDevicePage extends StatelessWidget {
         );
       },
     );
+  }
+
+  _onUpdateDevice(Device device, BuildContext ctx) async {
+    final deviceController = ctx.read<DeviceController>();
+    final snackBar = CustomSnackbar(ctx);
+    String text, type;
+
+    try {
+      await deviceController.updateDevice(device);
+      text = "Dispositivo atualizado com sucesso!";
+      type = "success";
+    } catch (e) {
+      text = e.toString();
+      type = "error";
+    }
+
+    snackBar.build(text, type);
+    if (ctx.mounted) Navigator.pop(ctx);
   }
 }

@@ -5,6 +5,7 @@ import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/groups/group_create_page.dart';
@@ -117,19 +118,30 @@ class GroupPage extends StatelessWidget {
   _pushEditGroupPage(BuildContext context, Group group) {
     final groupController = context.read<GroupController>();
     final userController = context.read<UserController>();
-    final messenger = ScaffoldMessenger.of(context);
+    final snackBar = CustomSnackbar(context);
 
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) {
           return GroupCreatePage(
             group: Group.copy(group),
-            onSave: (group) {
-              groupController.updateGroup(group).then((message) async {
+            onSave: (group) async {
+              String text, type;
+              try {
+                await groupController.updateGroup(group);
                 await userController.grantAdminPrivilege(group.admins);
-                messenger.showSnackBar(SnackBar(content: Text(message)));
-              });
-              Navigator.pop(context);
+                text = "Grupo atualizado com sucesso!";
+                type = "success";
+              } catch (e) {
+                text = e.toString();
+                type = "error";
+              }
+              snackBar.build(text, type);
+              if (context.mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil('/',
+                        (route) => false,
+                    arguments: {'startIndex': 1});
+              }
             },
           );
         },

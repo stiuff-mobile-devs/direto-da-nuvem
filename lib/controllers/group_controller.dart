@@ -60,19 +60,28 @@ class GroupController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String> createGroup(Group group) async {
-    await _diretoDaNuvemAPI.groupResource.create(group);
-    return "Grupo criado com sucesso!";
+  createGroup(Group group) async {
+    try {
+      await _diretoDaNuvemAPI.groupResource.create(group);
+    } catch (e) {
+      rethrow;
+    }
   }
 
-  Future<String> deleteGroup(String groupId) async {
-    await _diretoDaNuvemAPI.groupResource.delete(groupId);
-    return "Grupo excluído com sucesso!";
+  deleteGroup(String groupId) async {
+    try {
+      await _diretoDaNuvemAPI.groupResource.delete(groupId);
+    } catch (e) {
+      rethrow;
+    }
   }
 
-  Future<String> updateGroup(Group group) async {
-    await _diretoDaNuvemAPI.groupResource.update(group);
-    return "Grupo atualizado com sucesso!";
+  updateGroup(Group group) async {
+    try {
+      await _diretoDaNuvemAPI.groupResource.update(group);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future removeAdminFromGroups(String email) async {

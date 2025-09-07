@@ -33,19 +33,23 @@ class QueueResource {
   }
 
   Stream<List<Queue>> getAllStream() {
-    var l = _firestore.collection(collection).snapshots();
-    return l.map((event) {
+    return _firestore.collection(collection).snapshots().map((e) {
       try {
-        List<Queue> queues = [];
-
-        for (var doc in event.docs) {
-          Queue queue = Queue.fromMap(doc.id, doc.data());
-          queues.add(queue);
-          _saveToLocalDB(queue);
+        for (var change in e.docChanges) {
+          switch (change.type) {
+            case (DocumentChangeType.added || DocumentChangeType.modified) :
+              final queue = Queue.fromMap(change.doc.id, change.doc.data()!);
+              _saveToLocalDB(queue);
+              break;
+            case DocumentChangeType.removed:
+              _deleteFromLocalDB(change.doc.id);
+              break;
+          }
         }
-        return queues;
+
+        return e.docs.map((doc) => Queue.fromMap(doc.id, doc.data())).toList();
       } catch (e) {
-        debugPrint("Error on get all queues stream: $e");
+        debugPrint("Error on list all queues stream: $e");
         return [];
       }
     });
@@ -89,15 +93,6 @@ class QueueResource {
     }
   }
 
-  delete(String id) async {
-    try {
-      await _firestore.doc("$collection/$id").delete();
-      _deleteFromLocalDB(id);
-    } catch (e) {
-      debugPrint("Error on delete queue: $e");
-    }
-  }
-
   Stream<Queue?> getStream(String id) {
     var doc = _firestore.doc("$collection/$id").snapshots();
     return doc.map((event) {
@@ -119,6 +114,7 @@ class QueueResource {
       _saveToLocalDB(queue);
     } catch (e) {
       debugPrint("Error on create queue: $e");
+      throw Exception("Erro ao criar fila.");
     }
   }
 
@@ -129,6 +125,17 @@ class QueueResource {
       _saveToLocalDB(queue);
     } catch (e) {
       debugPrint("Error on update queue: $e");
+      throw Exception("Erro ao atualizar fila.");
+    }
+  }
+
+  delete(String id) async {
+    try {
+      await _firestore.doc("$collection/$id").delete();
+      _deleteFromLocalDB(id);
+    } catch (e) {
+      debugPrint("Error on delete queue: $e");
+      throw Exception("Erro ao excluir fila.");
     }
   }
 

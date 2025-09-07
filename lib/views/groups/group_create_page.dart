@@ -2,6 +2,7 @@ import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
+import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/email_regex.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/groups/group_create_controller.dart';
@@ -55,7 +56,6 @@ class GroupCreatePage extends StatelessWidget {
                       groupCreateController.admins;
 
                   onSave(groupCreateController.group);
-                  Navigator.pop(context);
                 },
               )
             ],
@@ -185,6 +185,8 @@ class GroupCreatePage extends StatelessWidget {
 
   _showDeleteDialog(BuildContext context) {
     QueueController queueController = context.read<QueueController>();
+    final snackBar = CustomSnackbar(context);
+    String text, type;
 
     showDialog(
       context: context,
@@ -199,18 +201,22 @@ class GroupCreatePage extends StatelessWidget {
                   color: AppTheme.primaryBlue)),
             ),
             TextButton(
-              onPressed: () {
-                final messenger = ScaffoldMessenger.of(context);
-                context.read<GroupController>().deleteGroup(group.id).then((message) async {
+              onPressed: () async {
+                try {
+                  await context.read<GroupController>().deleteGroup(group.id);
                   await queueController.deleteQueuesByGroup(group.id);
-                  messenger.showSnackBar(SnackBar(content: Text(message)));
-                });
-
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/',
-                    (route) => false,
-                    arguments: {'startIndex': 1}
-                );
+                  text = "Grupo excluído com sucesso!";
+                  type = "success";
+                } catch (e) {
+                  text = e.toString();
+                  type = "error";
+                }
+                snackBar.build(text, type);
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil('/',
+                          (route) => false,
+                      arguments: {'startIndex': 1});
+                }
               },
               child: const Text("Excluir",
                   style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryRed)),

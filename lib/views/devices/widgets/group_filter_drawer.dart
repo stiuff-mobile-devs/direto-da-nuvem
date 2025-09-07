@@ -1,4 +1,5 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/views/devices/devices_filter_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,9 +9,10 @@ class GroupFilterDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSuperAdmin = context.read<UserController>().isCurrentUserSuperAdmin();
     final adminGroups = context
         .read<GroupController>()
-        .groups;
+        .getAdminGroups(isSuperAdmin);
 
     return Column(
       children: [

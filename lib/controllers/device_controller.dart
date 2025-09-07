@@ -40,7 +40,6 @@ class DeviceController extends ChangeNotifier {
     }
     loadingInitialState = false;
     notifyListeners();
-    debugPrint("DeviceController initialized");
   }
 
   @override
@@ -49,15 +48,17 @@ class DeviceController extends ChangeNotifier {
     _devicesSubscription?.cancel();
     _currentGroupSubscription?.cancel();
     _signInService.removeListener(_signInListener);
-    debugPrint("DeviceController disposed");
     super.dispose();
   }
 
   _signInListener() async {
     if (_signInService.isLoggedIn()) {
+      loadingInitialState = true;
+      notifyListeners();
       await _checkIsRegistered();
       await _fetchGroupAndQueue();
       await loadDevices();
+      loadingInitialState = false;
       notifyListeners();
     } else {
       _signOutClear();
@@ -94,6 +95,9 @@ class DeviceController extends ChangeNotifier {
   }
 
   Future<void> register(Device device, BuildContext context) async {
+    loadingInitialState = true;
+    notifyListeners();
+
     if (androidInfo != null) {
       device.id = androidInfo!.id;
       device.brand = androidInfo!.brand;
@@ -109,16 +113,15 @@ class DeviceController extends ChangeNotifier {
       await _fetchGroupAndQueue();
     }
 
+    loadingInitialState = false;
     notifyListeners();
   }
 
-  Future<String> update(Device device) async {
+  updateDevice(Device device) async {
     try {
       await _diretoDaNuvemAPI.deviceResource.update(device);
-      notifyListeners();
-      return "Dispositivo atualizado com sucesso!";
     } catch (e) {
-      return "Erro ao atualizar dispositivo";
+      rethrow;
     }
   }
 
@@ -241,10 +244,14 @@ class DeviceController extends ChangeNotifier {
     return devicesInGroups;
   }
 
-  Future<void> deleteDevice(String id) async {
-    await _diretoDaNuvemAPI.deviceResource.delete(id);
-    if (device?.id == id) {
-      _clearCurrentDeviceState();
+  deleteDevice(String id) async {
+    try {
+      await _diretoDaNuvemAPI.deviceResource.delete(id);
+      if (device?.id == id) {
+        _clearCurrentDeviceState();
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/groups/group_card.dart';
@@ -63,6 +64,8 @@ class GroupsPage extends StatelessWidget {
 
   _createGroupButtonPush(BuildContext context) {
     final userController = context.read<UserController>();
+    final snackBar = CustomSnackbar(context);
+    String text, type;
 
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -70,16 +73,17 @@ class GroupsPage extends StatelessWidget {
           return GroupCreatePage(
             group: Group.empty(),
             onSave: (group) async {
-              final messenger = ScaffoldMessenger.of(context);
-              context.read<GroupController>()
-                  .createGroup(group).then((message) {
-                messenger.showSnackBar(
-                  SnackBar(
-                    content: Text(message),
-                  ),
-                );
-              });
-              await userController.grantAdminPrivilege(group.admins);
+              try {
+                await context.read<GroupController>().createGroup(group);
+                await userController.grantAdminPrivilege(group.admins);
+                text = "Grupo criado com sucesso!";
+                type = "success";
+              } catch (e) {
+                text = e.toString();
+                type = "error";
+              }
+              snackBar.build(text, type);
+              if (context.mounted) Navigator.of(context).pop();
             }
           );
         },

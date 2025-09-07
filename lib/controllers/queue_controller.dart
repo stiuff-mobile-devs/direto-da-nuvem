@@ -123,9 +123,12 @@ class QueueController extends ChangeNotifier {
     return "Fila criada com sucesso!";
   }
 
-  Future<String> deleteQueue(String id) async {
-    await _diretoDaNuvemAPI.queueResource.delete(id);
-    return "Fila excluída com sucesso!";
+  deleteQueue(String id) async {
+    try {
+      await _diretoDaNuvemAPI.queueResource.delete(id);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future deleteQueuesByGroup(String groupId) async {

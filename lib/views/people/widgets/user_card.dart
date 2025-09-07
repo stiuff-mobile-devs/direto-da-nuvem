@@ -2,6 +2,7 @@ import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:ddnuvem/views/people/user_create_page.dart';
 import 'package:flutter/material.dart';
@@ -48,40 +49,45 @@ class UserCard extends StatelessWidget {
   }
 
   _pushUpdateUserPage(BuildContext context) {
-    UserController userController = context.read<UserController>();
-    GroupController groupController = context.read<GroupController>();
-    final messenger = ScaffoldMessenger.of(context);
+    final userController = context.read<UserController>();
+    final groupController = context.read<GroupController>();
+    final snackBar = CustomSnackbar(context);
+    String text, type;
 
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => UserCreatePage(
           user: User.copy(user),
           onSave: (updatedUser) async {
-            userController.updateUser(updatedUser).then((message) {
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                ),
-              );
-            });
-
-            if (user.privileges.isAdmin && !updatedUser.privileges.isAdmin) {
-              await groupController
-                  .removeAdminFromGroups(updatedUser.email);
+            try {
+              await userController.updateUser(updatedUser);
+              if (user.privileges.isAdmin && !updatedUser.privileges.isAdmin) {
+                await groupController
+                    .removeAdminFromGroups(updatedUser.email);
+              }
+              text = "Usuário atualizado com sucesso!";
+              type = "success";
+            } catch (e) {
+              text = e.toString();
+              type = "error";
             }
+            snackBar.build(text, type);
+            if (context.mounted) Navigator.pop(context);
           },
-          onDelete: (user) {
-            if (user.privileges.isAdmin) {
-              groupController.removeAdminFromGroups(user.email);
+          onDelete: (user) async {
+            try {
+              if (user.privileges.isAdmin) {
+                await groupController.removeAdminFromGroups(user.email);
+              }
+              await userController.deleteUser(user);
+              text = "Usuário excluído com sucesso!";
+              type = "success";
+            } catch (e) {
+              text = e.toString();
+              type = "error";
             }
-            userController.deleteUser(user).then((message) {
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                ),
-              );
-            });
-            Navigator.pop(context);
+            snackBar.build(text, type);
+            if (context.mounted) Navigator.pop(context);
           },
         ),
       ),

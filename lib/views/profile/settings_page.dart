@@ -6,6 +6,7 @@ import 'package:ddnuvem/views/queues/queue_view_controller.dart';
 import 'package:ddnuvem/views/queues/queue_view_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -47,30 +48,32 @@ class SettingsPage extends StatelessWidget {
                 title: const Text("Logout"),
                 onTap: () => controller.logout(),
               ),
-              ListTile(
-                leading: const Icon(Icons.play_arrow),
-                title: const Text("Tocar fila"),
-                enabled: isRegistered,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return ChangeNotifierProvider<QueueViewController>(
-                          create: (_) => QueueViewController(
-                            context.read<DiretoDaNuvemAPI>(),
-                            context.read<DeviceController>(),
-                          ),
-                          child: Consumer<QueueViewController>(
-                            builder: (context, controller, _) {
-                              return QueueViewPage(queue: controller.queue!);
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
+              kDebugMode
+              ? ListTile(
+                  leading: const Icon(Icons.play_arrow),
+                  title: const Text("Tocar fila"),
+                  enabled: isRegistered,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return ChangeNotifierProvider<QueueViewController>(
+                            create: (_) => QueueViewController(
+                              context.read<DiretoDaNuvemAPI>(),
+                              context.read<DeviceController>(),
+                            ),
+                            child: Consumer<QueueViewController>(
+                              builder: (context, controller, _) {
+                                return QueueViewPage(queue: controller.queue!);
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                )
+              : const SizedBox.shrink(),
             ],
           );
         }),
