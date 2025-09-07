@@ -91,10 +91,10 @@ class RegisterDevicePage extends StatelessWidget {
                             }
                             if (device == null) {
                               final newDevice = controller.newDevice();
-                              deviceController.register(newDevice, context);
+                              await deviceController.register(newDevice, context);
                             } else {
                               final newDevice = controller.updatedDevice(device!);
-                              _onUpdateDevice(newDevice, context);
+                              await _onUpdateDevice(newDevice, context);
                             }
                           },
                           style: ElevatedButton.styleFrom(
