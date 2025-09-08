@@ -148,7 +148,7 @@ class _QueueViewPageState extends State<QueueViewPage> {
                 maximumSize: const Size(160, 40),
                 backgroundColor: AppTheme.primaryBlue
               ),
-              child: const Text("Tocar demonstração", style: TextStyle(
+              child: const Text("Tocar fila", style: TextStyle(
                   color: Colors.white)),
             ),
             ElevatedButton(

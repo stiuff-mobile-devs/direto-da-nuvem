@@ -5,12 +5,12 @@ import 'package:ddnuvem/utils/loading_widget.dart';
 import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_button/sign_button.dart';
 
 class IntroPage extends StatefulWidget {
-  const IntroPage({super.key});
+  final String packageVersion;
+  const IntroPage({super.key, required this.packageVersion});
 
   @override
   State<IntroPage> createState() => _IntroPageState();
@@ -21,7 +21,6 @@ class _IntroPageState extends State<IntroPage> {
   late LocalStorageService localStorageService;
   late ConnectionService connectionService;
   bool isFirstTime = false;
-  String packageVersion = "";
   bool loading = true;
 
   @override
@@ -38,16 +37,10 @@ class _IntroPageState extends State<IntroPage> {
 
   _loadData() async {
     await _getIsFirstTime();
-    await _getPackageVersion();
     setState(() {
       loading = false;
     });
     _saveIsFirstTime();
-  }
-
-  _getPackageVersion() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    packageVersion = packageInfo.version;
   }
 
   _getIsFirstTime() async {
@@ -114,7 +107,7 @@ class _IntroPageState extends State<IntroPage> {
                           },
                         ),
                         const SizedBox(height: 15),
-                        Text("v $packageVersion"),
+                        Text("v ${widget.packageVersion}"),
                       ],
                     ),
                   ),
@@ -160,7 +153,7 @@ class _IntroPageState extends State<IntroPage> {
                               },
                             ),
                             const SizedBox(height: 5),
-                            Text("v $packageVersion"),
+                            Text("v ${widget.packageVersion}"),
                           ],
                         ),
                       ),

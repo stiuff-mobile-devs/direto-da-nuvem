@@ -27,6 +27,7 @@ class DeviceController extends ChangeNotifier {
   StreamSubscription<Group?>? _currentGroupSubscription;
   StreamSubscription<List<Device>>? _devicesSubscription;
   bool loadingInitialState = true;
+  bool showedSplash = false;
 
   DeviceController(this._diretoDaNuvemAPI, this._signInService) {
     _initialize();
@@ -287,6 +288,11 @@ class DeviceController extends ChangeNotifier {
     group = null;
     device = null;
     isRegistered = false;
+  }
+
+  splashScreenComplete() {
+    showedSplash = true;
+    notifyListeners();
   }
 }
 
