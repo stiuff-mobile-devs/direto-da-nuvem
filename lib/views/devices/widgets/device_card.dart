@@ -24,10 +24,10 @@ class DeviceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final connectionService = context.read<ConnectionService>();
     return GestureDetector(
       onTap: () {
         if (context.read<UserController>().isCurrentUserSuperAdmin()) {
-          final connectionService = context.read<ConnectionService>();
           connectionService.connectionStatus
               ? _pushUpdateDevicePage(context)
               : noConnectionDialog(context).show();
@@ -35,7 +35,9 @@ class DeviceCard extends StatelessWidget {
       },
       onLongPress: () {
         if (context.read<UserController>().isCurrentUserSuperAdmin()) {
-          _showDeleteDialog(context);
+          connectionService.connectionStatus
+              ? _showDeleteDialog(context)
+              : noConnectionDialog(context).show();
         }
       },
       child: Card(
