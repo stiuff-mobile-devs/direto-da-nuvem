@@ -186,7 +186,7 @@ class GroupCreatePage extends StatelessWidget {
   _showDeleteDialog(BuildContext context) {
     QueueController queueController = context.read<QueueController>();
     final snackBar = CustomSnackbar(context);
-    String text, type;
+    String text;
 
     showDialog(
       context: context,
@@ -206,12 +206,10 @@ class GroupCreatePage extends StatelessWidget {
                   await context.read<GroupController>().deleteGroup(group.id);
                   await queueController.deleteQueuesByGroup(group.id);
                   text = "Grupo excluído com sucesso!";
-                  type = "success";
                 } catch (e) {
                   text = e.toString();
-                  type = "error";
                 }
-                snackBar.build(text, type);
+                snackBar.buildMessage(text);
                 if (context.mounted) {
                   Navigator.of(context).pushNamedAndRemoveUntil('/',
                           (route) => false,

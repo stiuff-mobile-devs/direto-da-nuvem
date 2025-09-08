@@ -59,6 +59,7 @@ class QueueCreateUpdatePage extends StatelessWidget {
                   return;
                 }
                 controller.queue.name = controller.nameController.text;
+                Navigator.of(context).pop();
                 onSave(context.read<QueueEditController>().queue);
               },
             ),
@@ -67,14 +68,13 @@ class QueueCreateUpdatePage extends StatelessWidget {
         floatingActionButton: Column (
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            isSuperAdmin && queue.id.isNotEmpty
-                && queue.status == QueueStatus.pending ?
+            isSuperAdmin && queue.id.isNotEmpty ?
             FloatingActionButton(
               heroTag: "moderate",
               onPressed: () {
                 _showModerationDialog(context);
               },
-              backgroundColor: Colors.orange,
+              backgroundColor: _queueStatusIcon(queue.status),
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
               tooltip: "Moderar fila",
               child: const Icon(Icons.error),
@@ -155,9 +155,9 @@ class QueueCreateUpdatePage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async {
-                Navigator.pop(context);
                 if (onDelete != null) {
                   onDelete!(queue);
+                  Navigator.pop(context);
                 }
               },
               child: const Text("Excluir",
@@ -208,5 +208,16 @@ class QueueCreateUpdatePage extends StatelessWidget {
         );
       },
     );
+  }
+
+  _queueStatusIcon(QueueStatus status) {
+    switch (status) {
+      case QueueStatus.approved:
+        return Colors.green;
+      case QueueStatus.rejected:
+        return AppTheme.primaryRed;
+      case QueueStatus.pending:
+        return Colors.orange;
+    }
   }
 }

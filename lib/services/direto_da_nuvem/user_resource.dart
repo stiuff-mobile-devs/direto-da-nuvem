@@ -11,7 +11,6 @@ class UserResource {
 
   Future<List<User>> getAll() async {
     List<User> users = [];
-
     try {
       if (await ConnectionService.isConnected()) {
         final list = await _firestore.collection(collection).get();
@@ -59,7 +58,6 @@ class UserResource {
       if (await get(user.email) != null) {
         throw Exception("Usuário já existe.");
       }
-
       await _firestore.collection(collection).add(user.toMap());
     } on Exception catch (e) {
       if (e.toString().contains("Usuário já existe.")) {
@@ -82,7 +80,6 @@ class UserResource {
   delete(User user) async {
     try {
       await _firestore.doc("$collection/${user.id}").delete();
-      _deleteFromLocalDB(user.id);
     } catch (e) {
       debugPrint("Error on delete user: $e");
       throw Exception("Erro ao excluir usuário.");
@@ -91,7 +88,6 @@ class UserResource {
 
   Future<User?> get(String email) async {
     User? user;
-
     try {
       if (await ConnectionService.isConnected()) {
         final query = await _firestore
@@ -99,13 +95,9 @@ class UserResource {
             .where('email', isEqualTo: email)
             .get();
 
-        if (query.docs.isEmpty) {
-          return null;
-        }
-
+        if (query.docs.isEmpty) return null;
         final doc = query.docs.first;
         user = User.fromMap(doc.data(), doc.id);
-        _saveToLocalDB(user);
       } else {
         user = _getFromLocalDB(email);
       }
@@ -119,13 +111,8 @@ class UserResource {
   update(User user) async {
     try {
       var doc = await _firestore.doc("$collection/${user.id}").get();
-
-      if (!doc.exists) {
-        return;
-      }
-
+      if (!doc.exists) return;
       await _firestore.doc("$collection/${user.id}").update(user.toMap());
-      _saveToLocalDB(user);
     } catch (e) {
       debugPrint("Error on update user: $e");
       throw Exception("Erro ao atualizar usuário.");

@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 
 class DeviceController extends ChangeNotifier {
@@ -32,7 +34,7 @@ class DeviceController extends ChangeNotifier {
   }
 
   _initialize() async {
-    await _getAndroidInfo();
+    await _getDeviceInfo();
     if (_signInService.isLoggedIn()) {
       await _checkIsRegistered();
       await _fetchGroupAndQueue();
@@ -74,16 +76,30 @@ class DeviceController extends ChangeNotifier {
     _devicesSubscription?.cancel();
   }
 
-  Future<void> _getAndroidInfo() async {
-    try {
-      androidInfo = await _deviceInfoPlugin.androidInfo;
-      if (androidInfo != null) {
-        isSmartphone = !androidInfo!.systemFeatures
-            .contains("android.software.leanback");
+  Future<void> _getDeviceInfo() async {
+    if (Platform.isAndroid) {
+      try {
+        androidInfo = await _deviceInfoPlugin.androidInfo;
+        if (androidInfo != null) {
+          isSmartphone = !androidInfo!.systemFeatures
+              .contains("android.software.leanback");
+
+          if (!isSmartphone) {
+            // Solicita permissão de execução em segundo plano se necessário
+            if (await Permission.ignoreBatteryOptimizations.isDenied) {
+              await Permission.ignoreBatteryOptimizations.request();
+            }
+            // Solicita permissão para sobrepor outros aplicativos
+            if (await Permission.systemAlertWindow.isDenied) {
+              await Permission.systemAlertWindow.request();
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint("Erro ao obter dados do android: $e");
       }
-    } catch (e) {
-      debugPrint("Erro ao obter dados do android: $e");
-      androidInfo = null;
+    } else if (Platform.isIOS) {
+      isSmartphone = true;
     }
   }
 

@@ -5,6 +5,7 @@ import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/queues/queue_create_update_page.dart';
@@ -86,50 +87,47 @@ class QueueCard extends StatelessWidget {
   }
 
   _pushUpdateQueuePage(BuildContext context) {
-    final messenger = ScaffoldMessenger.of(context);
-    final isSuperAdmin = context.read<UserController>()
-        .isCurrentUserSuperAdmin();
+    final isSuperAdmin = context.read<UserController>().isCurrentUserSuperAdmin();
+    final controller = context.read<QueueController>();
+    final snackBar = CustomSnackbar(context);
+    String text;
 
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => QueueCreateUpdatePage(
           queue: queue,
           isActive: isActive,
-          onSave: (queue) {
+          onSave: (queue) async {
             queue.status = isSuperAdmin
                 ? QueueStatus.approved
                 : QueueStatus.pending;
-
-            context.read<QueueController>()
-                .updateQueue(queue).then((message) {
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                ),
-              );
-            });
-            Navigator.pop(context);
+            try {
+              await controller.updateQueue(queue);
+              text = "Fila atualizada com sucesso!";
+            } catch (e) {
+              text = e.toString();
+            }
+            snackBar.buildMessage(text);
           },
-          onDelete: (queue) {
-            context.read<QueueController>().deleteQueue(queue.id).then((message) {
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                ),
-              );
-            });
+          onDelete: (queue) async {
             Navigator.pop(context);
+            try {
+              await controller.deleteQueue(queue.id);
+              text = "Fila excluída com sucesso!";
+            } catch (e) {
+              text = e.toString();
+            }
+            snackBar.buildMessage(text);
           },
-          onModerate: (queue) {
-            context.read<QueueController>()
-                .updateQueue(queue).then((message) {
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                ),
-              );
-            });
+          onModerate: (queue) async {
             Navigator.pop(context);
+            try {
+              await controller.updateQueue(queue);
+              text = "Fila atualizada com sucesso!";
+            } catch (e) {
+              text = e.toString();
+            }
+            snackBar.buildMessage(text);
           },
         ),
       ),
@@ -152,17 +150,18 @@ class QueueCard extends StatelessWidget {
                   style: TextStyle(color: AppTheme.primaryRed)),
             ),
             TextButton(
-              onPressed: () {
-                final messenger = ScaffoldMessenger.of(context);
-                context.read<GroupController>()
-                    .updateCurrentQueue(group, queue.id).then((message) {
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text(message),
-                    ),
-                  );
-                });
-                Navigator.pop(context);
+              onPressed: () async {
+                final snackBar = CustomSnackbar(context);
+                String text;
+                try {
+                  await context.read<GroupController>()
+                      .updateCurrentQueue(group, queue.id);
+                  text = "Fila ativa atualizada com sucesso!";
+                } catch (e) {
+                  text = e.toString();
+                }
+                snackBar.buildMessage(text);
+                if (context.mounted) Navigator.pop(context);
               },
               child: const Text("Sim", style: TextStyle(
                   fontWeight: FontWeight.bold,

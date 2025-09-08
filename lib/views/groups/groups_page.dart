@@ -65,7 +65,7 @@ class GroupsPage extends StatelessWidget {
   _createGroupButtonPush(BuildContext context) {
     final userController = context.read<UserController>();
     final snackBar = CustomSnackbar(context);
-    String text, type;
+    String text;
 
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -77,12 +77,10 @@ class GroupsPage extends StatelessWidget {
                 await context.read<GroupController>().createGroup(group);
                 await userController.grantAdminPrivilege(group.admins);
                 text = "Grupo criado com sucesso!";
-                type = "success";
               } catch (e) {
                 text = e.toString();
-                type = "error";
               }
-              snackBar.build(text, type);
+              snackBar.buildMessage(text);
               if (context.mounted) Navigator.of(context).pop();
             }
           );

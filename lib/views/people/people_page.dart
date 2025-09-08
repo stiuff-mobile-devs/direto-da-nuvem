@@ -43,7 +43,7 @@ class PeoplePage extends StatelessWidget {
   }
 
   _pushCreateUserPage(BuildContext context) {
-    String text, type;
+    String text;
     final snackBar = CustomSnackbar(context);
 
     Navigator.of(context).push(
@@ -55,12 +55,10 @@ class PeoplePage extends StatelessWidget {
               try {
                 await context.read<UserController>().createUser(user);
                 text = "Usuário criado com sucesso!";
-                type = "success";
               } catch (e) {
                 text = e.toString();
-                type = "error";
               }
-              snackBar.build(text, type);
+              snackBar.buildMessage(text);
               if (context.mounted) Navigator.of(context).pop();
             }
           );

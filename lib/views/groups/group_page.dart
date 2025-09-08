@@ -126,17 +126,15 @@ class GroupPage extends StatelessWidget {
           return GroupCreatePage(
             group: Group.copy(group),
             onSave: (group) async {
-              String text, type;
+              String text;
               try {
                 await groupController.updateGroup(group);
                 await userController.grantAdminPrivilege(group.admins);
                 text = "Grupo atualizado com sucesso!";
-                type = "success";
               } catch (e) {
                 text = e.toString();
-                type = "error";
               }
-              snackBar.build(text, type);
+              snackBar.buildMessage(text);
               if (context.mounted) {
                 Navigator.of(context).pushNamedAndRemoveUntil('/',
                         (route) => false,
@@ -150,24 +148,27 @@ class GroupPage extends StatelessWidget {
   }
 
   _pushCreateQueuePage(BuildContext context, Group group) {
-    final queueController = context.read<QueueController>();
     final isSuperAdmin = context.read<UserController>().isCurrentUserSuperAdmin();
+    final queueController = context.read<QueueController>();
+    final snackBar = CustomSnackbar(context);
+    String text;
 
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => QueueCreateUpdatePage(
           queue: Queue.empty(),
-          onSave: (queue) {
+          onSave: (queue) async {
             queue.status = isSuperAdmin
                 ? QueueStatus.approved
                 : QueueStatus.pending;
-
-            final messenger = ScaffoldMessenger.of(context);
             queue.groupId = group.id;
-            queueController.saveQueue(queue).then((message) {
-              messenger.showSnackBar(SnackBar(content: Text(message)));
-            });
-            Navigator.pop(context);
+            try {
+              await queueController.saveQueue(queue);
+              text = "Fila criada com sucesso!";
+            } catch (e) {
+              text = e.toString();
+            }
+            snackBar.buildMessage(text);
           },
         ),
       ),

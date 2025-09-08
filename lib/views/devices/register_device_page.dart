@@ -176,17 +176,14 @@ class RegisterDevicePage extends StatelessWidget {
               onPressed: () async {
                 Navigator.of(context).pop();
                 final snackBar = CustomSnackbar(context);
-                String text, type;
-
+                String text;
                 try {
                   await context.read<DeviceController>().deleteDevice(device!.id);
                   text = "Dispositivo excluído com sucesso!";
-                  type = "success";
                 } catch (e) {
                   text = e.toString();
-                  type = "error";
                 }
-                snackBar.build(text, type);
+                snackBar.buildMessage(text);
                 if (context.mounted) Navigator.of(context).pop();
               },
               child: const Text("Excluir", style: TextStyle(
@@ -201,18 +198,16 @@ class RegisterDevicePage extends StatelessWidget {
   _onUpdateDevice(Device device, BuildContext ctx) async {
     final deviceController = ctx.read<DeviceController>();
     final snackBar = CustomSnackbar(ctx);
-    String text, type;
+    String text;
 
     try {
       await deviceController.updateDevice(device);
       text = "Dispositivo atualizado com sucesso!";
-      type = "success";
     } catch (e) {
       text = e.toString();
-      type = "error";
     }
 
-    snackBar.build(text, type);
+    snackBar.buildMessage(text);
     if (ctx.mounted) Navigator.pop(ctx);
   }
 }

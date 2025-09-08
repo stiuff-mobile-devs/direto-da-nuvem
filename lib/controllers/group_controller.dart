@@ -104,9 +104,12 @@ class GroupController extends ChangeNotifier {
         .toList();
   }
 
-  Future<String> updateCurrentQueue(Group group, String queueId) async {
-    group.currentQueue = queueId;
-    await updateGroup(group);
-    return "Fila ativa atualizada com sucesso!";
+  updateCurrentQueue(Group group, String queueId) async {
+    try {
+      group.currentQueue = queueId;
+      await updateGroup(group);
+    } catch (e) {
+      rethrow;
+    }
   }
 }

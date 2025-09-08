@@ -16,7 +16,6 @@ class DeviceResource {
       }
 
       await _firestore.doc("$collection/${device.id}").set(device.toMap());
-      _saveToLocalDB(device);
       return true;
     } catch (e) {
       debugPrint("Error on create device: $e");
@@ -27,11 +26,7 @@ class DeviceResource {
   update(Device device) async {
     try {
       var doc = await _firestore.doc("$collection/${device.id}").get();
-
-      if (!doc.exists) {
-        return;
-      }
-
+      if (!doc.exists) return;
       await _firestore.doc("$collection/${device.id}").update(device.toMap());
     } catch (e) {
       debugPrint("Error on update device: $e");
@@ -42,7 +37,6 @@ class DeviceResource {
   delete(String id) async {
     try {
       _firestore.doc("$collection/$id").delete();
-      _deleteFromLocalDB(id);
     } catch (e) {
       debugPrint("Error on delete device $id: $e.");
       throw Exception("Erro ao excluir dipositivo.");
@@ -51,7 +45,6 @@ class DeviceResource {
 
   Future<Device?> get(String id) async {
     Device? device;
-
     try {
       if (await ConnectionService.isConnected()) {
         final doc = await _firestore.doc("$collection/$id").get();
@@ -61,7 +54,6 @@ class DeviceResource {
         }
 
         device = Device.fromMap(doc.id, doc.data()!);
-        _saveToLocalDB(device);
       } else {
         device = _getFromLocalDB(id);
       }
@@ -74,7 +66,6 @@ class DeviceResource {
 
   Future<List<Device>> getAll() async {
     List<Device> devices = [];
-
     try {
       if (await ConnectionService.isConnected()) {
         final docs = await _firestore.collection(collection).get();

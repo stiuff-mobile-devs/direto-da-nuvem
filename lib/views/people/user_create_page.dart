@@ -45,7 +45,7 @@ class UserCreatePage extends StatelessWidget {
                     return;
                   }
                   if (!userCreateController.privilegesNotEmpty()) {
-                    CustomSnackbar(context).build(
+                    CustomSnackbar(context).buildType(
                         "Selecione pelo menos um privilégio.",
                         "error");
                     return;

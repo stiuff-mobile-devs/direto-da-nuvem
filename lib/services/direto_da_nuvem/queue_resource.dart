@@ -11,7 +11,6 @@ class QueueResource {
 
   Future<List<Queue>> getAll() async {
     List<Queue> queues = [];
-
     try {
       if (await ConnectionService.isConnected()) {
         final list = await _firestore.collection(collection).get();
@@ -24,7 +23,6 @@ class QueueResource {
       } else {
         queues = _getAllFromLocalDB();
       }
-
       return queues;
     } catch (e) {
       debugPrint("Error on get all queues: $e");
@@ -59,11 +57,8 @@ class QueueResource {
     try {
       if (await ConnectionService.isConnected()) {
         var doc = await _firestore.doc("$collection/$id").get();
-        if (!doc.exists) {
-          return null;
-        }
+        if (!doc.exists) return null;
         final queue = Queue.fromMap(doc.id, doc.data()!);
-        _saveToLocalDB(queue);
         return queue;
       } else {
         return _getFromLocalDB(id);
@@ -78,11 +73,8 @@ class QueueResource {
     try {
       if (await ConnectionService.isConnected()) {
         var doc = await _firestore.doc("$collection/init").get();
-        if (!doc.exists) {
-          return null;
-        }
+        if (!doc.exists) return null;
         final queue = Queue.fromMap(doc.id, doc.data()!);
-        _saveToLocalDB(queue);
         return queue;
       } else {
         return _getFromLocalDB("init");
@@ -98,7 +90,6 @@ class QueueResource {
     return doc.map((event) {
       try {
         Queue queue = Queue.fromMap(event.id, event.data()!);
-        _saveToLocalDB(queue);
         return queue;
       } catch (e) {
         debugPrint("Error on get queue stream $id: $e.");
@@ -111,7 +102,6 @@ class QueueResource {
     try {
       var doc = await _firestore.collection(collection).add(queue.toMap());
       queue.id = doc.id;
-      _saveToLocalDB(queue);
     } catch (e) {
       debugPrint("Error on create queue: $e");
       throw Exception("Erro ao criar fila.");
@@ -122,7 +112,6 @@ class QueueResource {
     try {
       var doc = _firestore.collection(collection).doc(queue.id);
       await doc.update(queue.toMap());
-      _saveToLocalDB(queue);
     } catch (e) {
       debugPrint("Error on update queue: $e");
       throw Exception("Erro ao atualizar fila.");
@@ -132,7 +121,6 @@ class QueueResource {
   delete(String id) async {
     try {
       await _firestore.doc("$collection/$id").delete();
-      _deleteFromLocalDB(id);
     } catch (e) {
       debugPrint("Error on delete queue: $e");
       throw Exception("Erro ao excluir fila.");

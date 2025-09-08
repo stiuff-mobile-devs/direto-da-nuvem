@@ -52,7 +52,7 @@ class UserCard extends StatelessWidget {
     final userController = context.read<UserController>();
     final groupController = context.read<GroupController>();
     final snackBar = CustomSnackbar(context);
-    String text, type;
+    String text;
 
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -66,12 +66,10 @@ class UserCard extends StatelessWidget {
                     .removeAdminFromGroups(updatedUser.email);
               }
               text = "Usuário atualizado com sucesso!";
-              type = "success";
             } catch (e) {
               text = e.toString();
-              type = "error";
             }
-            snackBar.build(text, type);
+            snackBar.buildMessage(text);
             if (context.mounted) Navigator.pop(context);
           },
           onDelete: (user) async {
@@ -81,12 +79,10 @@ class UserCard extends StatelessWidget {
               }
               await userController.deleteUser(user);
               text = "Usuário excluído com sucesso!";
-              type = "success";
             } catch (e) {
               text = e.toString();
-              type = "error";
             }
-            snackBar.build(text, type);
+            snackBar.buildMessage(text);
             if (context.mounted) Navigator.pop(context);
           },
         ),

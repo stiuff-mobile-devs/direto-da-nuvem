@@ -11,7 +11,6 @@ class GroupResource {
 
   Future<List<Group>> getAll() async {
     List<Group> groups = [];
-
     try {
       if (await ConnectionService.isConnected()) {
         final list = await _firestore.collection(collection).get();
@@ -56,21 +55,14 @@ class GroupResource {
 
   Future<Group?> get(String id) async {
     Group? group;
-
     try {
       if (await ConnectionService.isConnected()) {
         var doc = await _firestore.doc("$collection/$id").get();
-
-        if (!doc.exists) {
-          return null;
-        }
-
+        if (!doc.exists) return null;
         group = Group.fromMap(doc.id, doc.data()!);
-        _saveToLocalDB(group);
       } else {
         group = _getFromLocalDB(id);
       }
-
       return group;
     } catch (e) {
       debugPrint("Error on get group $id: $e.");
@@ -83,7 +75,6 @@ class GroupResource {
     return doc.map((event) {
       try {
         Group group = Group.fromMap(event.id, event.data()!);
-        _saveToLocalDB(group);
         return group;
       } catch (e) {
         debugPrint("Error on get group stream $id: $e.");
@@ -105,13 +96,8 @@ class GroupResource {
     try {
       final docReference = _firestore.doc("$collection/${group.id}");
       final doc = await docReference.get();
-
-      if (!doc.exists) {
-        return;
-      }
-
+      if (!doc.exists) return;
       await docReference.update(group.toMap());
-      return true;
     } catch (e) {
       debugPrint("Error on update group ${group.id}: $e.");
       throw Exception("Erro ao atualizar grupo.");
@@ -121,7 +107,6 @@ class GroupResource {
   delete(String id) async {
     try {
       await _firestore.doc("$collection/$id").delete();
-      _deleteFromLocalDB(id);
     } catch (e) {
       debugPrint("Error on delete group $id: $e.");
       throw Exception("Erro ao exluir grupo.");
