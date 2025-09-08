@@ -1,10 +1,14 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/devices/register_device_controller.dart';
+import 'package:ddnuvem/views/redirection_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
 class RegisterDevicePage extends StatelessWidget {
@@ -119,6 +123,19 @@ class RegisterDevicePage extends StatelessWidget {
                               style: TextStyle(color: Colors.white),
                             ),
                           )
+                        ] else ...[
+                          const SizedBox(height: 5),
+                          ElevatedButton(
+                            onPressed: () => _logout(context),  
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.primaryRed,
+                              minimumSize: const Size(double.infinity, 50),
+                            ),
+                            child: const Text(
+                              "Sair",
+                              style: TextStyle(color: Colors.white),
+                            )
+                          )
                         ]
                       ],
                     )
@@ -214,5 +231,26 @@ class RegisterDevicePage extends StatelessWidget {
 
     snackBar.build(text, type);
     if (ctx.mounted) Navigator.pop(ctx);
+  }
+  
+  Future<void> _logout(BuildContext context) async {
+    final snackBar = CustomSnackbar(context);
+
+    try {
+      await context.read<UserController>().logout();
+      snackBar.build("Sessão encerrada.", "success");
+    } catch (e) {
+      snackBar.build(e.toString(), "error");
+      return;
+    }
+
+    if (context.mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => const RedirectionPage()
+        ),
+        (route) => false
+      );
+    }
   }
 }
