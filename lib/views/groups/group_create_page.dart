@@ -1,7 +1,9 @@
+import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
+import 'package:ddnuvem/utils/custom_dialog.dart';
 import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/email_regex.dart';
 import 'package:ddnuvem/utils/theme.dart';
@@ -184,44 +186,53 @@ class GroupCreatePage extends StatelessWidget {
   }
 
   _showDeleteDialog(BuildContext context) {
-    QueueController queueController = context.read<QueueController>();
+    final queueController = context.read<QueueController>();
+    final deviceController = context.read<DeviceController>();
+    final groupController = context.read<GroupController>();
     final snackBar = CustomSnackbar(context);
     String text;
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Excluir grupo"),
-          content: const Text("Você deseja excluir este grupo e todas as suas filas e dispositivos?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Fechar", style: TextStyle(
-                  color: AppTheme.primaryBlue)),
+    customDialog(context,
+      "Excluir grupo?",
+      "Você deseja excluir este grupo e todas as suas filas e dispositivos?",
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                await groupController.deleteGroup(group.id);
+                await queueController.deleteQueuesByGroup(group.id);
+                await deviceController.deleteDevicesByGroup(group.id);
+                text = "Grupo excluído com sucesso!";
+              } catch (e) {
+                text = e.toString();
+              }
+              snackBar.buildMessage(text);
+              if (context.mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil('/',
+                        (route) => false,
+                    arguments: {'startIndex': 1});
+              }
+            },
+            style: ElevatedButton.styleFrom(
+                minimumSize: const Size(200, 50),
+                backgroundColor: AppTheme.primaryRed,
+                visualDensity: VisualDensity.compact
             ),
-            TextButton(
-              onPressed: () async {
-                try {
-                  await context.read<GroupController>().deleteGroup(group.id);
-                  await queueController.deleteQueuesByGroup(group.id);
-                  text = "Grupo excluído com sucesso!";
-                } catch (e) {
-                  text = e.toString();
-                }
-                snackBar.buildMessage(text);
-                if (context.mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil('/',
-                          (route) => false,
-                      arguments: {'startIndex': 1});
-                }
-              },
-              child: const Text("Excluir",
-                  style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryRed)),
+            child: const Text("Excluir", style: TextStyle(
+                color: Colors.white)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
             ),
-          ],
-        );
-      },
+            child: const Text("Fechar", style: TextStyle(
+                color: AppTheme.primaryBlue)),
+          ),
+        ],
+      )
     );
   }
 }

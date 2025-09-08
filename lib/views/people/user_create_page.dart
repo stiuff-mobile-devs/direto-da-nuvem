@@ -1,5 +1,6 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
+import 'package:ddnuvem/utils/custom_dialog.dart';
 import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/email_regex.dart';
 import 'package:ddnuvem/utils/theme.dart';
@@ -143,34 +144,40 @@ class UserCreatePage extends StatelessWidget {
       },
     );
   }
+
   _showDeleteDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Excluir usuário"),
-          content: const Text("Você deseja excluir este usuário?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Fechar", style: TextStyle(
-                  color: AppTheme.primaryBlue)),
+    customDialog(
+      context,
+      "Remover usuário?",
+      "Você deseja remover este usuário?",
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ElevatedButton(
+            onPressed: () {
+              if (onDelete != null) {
+                Navigator.pop(context);
+                onDelete!(user);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+                minimumSize: const Size(200, 50),
+                backgroundColor: AppTheme.primaryRed,
+                visualDensity: VisualDensity.compact
             ),
-            TextButton(
-              onPressed: () {
-                if (onDelete != null) {
-                  Navigator.pop(context);
-                  onDelete!(user);
-                }
-              },
-              child: const Text("Excluir",
-                  style: TextStyle(fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryRed),
-            )),
-          ],
-        );
-      },
+            child: const Text("Remover", style: TextStyle(
+                color: Colors.white)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+            ),
+            child: const Text("Fechar", style: TextStyle(
+                color: AppTheme.primaryBlue)),
+          ),
+        ],
+      )
     );
   }
-
 }

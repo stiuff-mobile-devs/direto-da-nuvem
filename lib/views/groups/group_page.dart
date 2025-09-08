@@ -3,7 +3,6 @@ import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
-import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/no_connection_dialog.dart';
@@ -148,7 +147,6 @@ class GroupPage extends StatelessWidget {
   }
 
   _pushCreateQueuePage(BuildContext context, Group group) {
-    final isSuperAdmin = context.read<UserController>().isCurrentUserSuperAdmin();
     final queueController = context.read<QueueController>();
     final snackBar = CustomSnackbar(context);
     String text;
@@ -158,9 +156,6 @@ class GroupPage extends StatelessWidget {
         builder: (context) => QueueCreateUpdatePage(
           queue: Queue.empty(),
           onSave: (queue) async {
-            queue.status = isSuperAdmin
-                ? QueueStatus.approved
-                : QueueStatus.pending;
             queue.groupId = group.id;
             try {
               await queueController.saveQueue(queue);

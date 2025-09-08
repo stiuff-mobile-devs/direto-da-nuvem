@@ -145,6 +145,7 @@ class _QueueViewPageState extends State<QueueViewPage> {
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(160, 40),
+                maximumSize: const Size(160, 40),
                 backgroundColor: AppTheme.primaryBlue
               ),
               child: const Text("Tocar demonstração", style: TextStyle(
@@ -157,6 +158,7 @@ class _QueueViewPageState extends State<QueueViewPage> {
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(160, 40),
+                maximumSize: const Size(160, 40),
                 backgroundColor: AppTheme.primaryBlue
               ),
               child: const Text("Sair", style: TextStyle(

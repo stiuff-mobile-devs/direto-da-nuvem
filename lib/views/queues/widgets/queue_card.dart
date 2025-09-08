@@ -1,10 +1,10 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
-import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:ddnuvem/utils/custom_dialog.dart';
 import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:ddnuvem/utils/theme.dart';
@@ -87,20 +87,17 @@ class QueueCard extends StatelessWidget {
   }
 
   _pushUpdateQueuePage(BuildContext context) {
-    final isSuperAdmin = context.read<UserController>().isCurrentUserSuperAdmin();
     final controller = context.read<QueueController>();
-    final snackBar = CustomSnackbar(context);
-    String text;
 
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => QueueCreateUpdatePage(
-          queue: queue,
+          queue: Queue.copy(queue),
           isActive: isActive,
           onSave: (queue) async {
-            queue.status = isSuperAdmin
-                ? QueueStatus.approved
-                : QueueStatus.pending;
+            Navigator.pop(context);
+            final snackBar = CustomSnackbar(context);
+            String text;
             try {
               await controller.updateQueue(queue);
               text = "Fila atualizada com sucesso!";
@@ -111,19 +108,11 @@ class QueueCard extends StatelessWidget {
           },
           onDelete: (queue) async {
             Navigator.pop(context);
+            final snackBar = CustomSnackbar(context);
+            String text;
             try {
               await controller.deleteQueue(queue.id);
               text = "Fila excluída com sucesso!";
-            } catch (e) {
-              text = e.toString();
-            }
-            snackBar.buildMessage(text);
-          },
-          onModerate: (queue) async {
-            Navigator.pop(context);
-            try {
-              await controller.updateQueue(queue);
-              text = "Fila atualizada com sucesso!";
             } catch (e) {
               text = e.toString();
             }
@@ -135,41 +124,45 @@ class QueueCard extends StatelessWidget {
   }
 
   _showDialog(BuildContext context, String numberOfPhotos) {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: const Text("Tornar esta fila ativa?"),
-          content: Text("Esta fila possui $numberOfPhotos."),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Fechar",
-                  style: TextStyle(color: AppTheme.primaryRed)),
+    customDialog(context,
+      "Tornar fila ativa?",
+      "Esta fila possui $numberOfPhotos.",
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final snackBar = CustomSnackbar(context);
+              String text;
+              try {
+                await context.read<GroupController>()
+                    .updateCurrentQueue(group, queue.id);
+                text = "Fila ativa atualizada com sucesso!";
+              } catch (e) {
+                text = e.toString();
+              }
+              snackBar.buildMessage(text);
+            },
+            style: ElevatedButton.styleFrom(
+                minimumSize: const Size(200, 50),
+                backgroundColor: AppTheme.primaryBlue,
+                visualDensity: VisualDensity.compact
             ),
-            TextButton(
-              onPressed: () async {
-                final snackBar = CustomSnackbar(context);
-                String text;
-                try {
-                  await context.read<GroupController>()
-                      .updateCurrentQueue(group, queue.id);
-                  text = "Fila ativa atualizada com sucesso!";
-                } catch (e) {
-                  text = e.toString();
-                }
-                snackBar.buildMessage(text);
-                if (context.mounted) Navigator.pop(context);
-              },
-              child: const Text("Sim", style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryBlue)),
+            child: const Text("Confirmar", style: TextStyle(
+                color: Colors.white)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
             ),
-          ],
-        );
-      });
+            child: const Text("Fechar", style: TextStyle(
+                color: AppTheme.primaryBlue)),
+          ),
+        ],
+      )
+    );
   }
   
   _queueStatusIcon(QueueStatus status) {

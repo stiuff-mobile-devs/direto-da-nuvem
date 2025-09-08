@@ -1,6 +1,7 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
+import 'package:ddnuvem/utils/custom_dialog.dart';
 import 'package:ddnuvem/utils/loading_widget.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/queues/widgets/image_list_tile.dart';
@@ -13,7 +14,6 @@ class QueueCreateUpdatePage extends StatelessWidget {
       {super.key, required this.queue,
         required this.onSave,
         this.onDelete,
-        this.onModerate,
         this.isActive = false
       });
 
@@ -21,7 +21,6 @@ class QueueCreateUpdatePage extends StatelessWidget {
   final bool isActive;
   final void Function(Queue) onSave;
   final void Function(Queue)? onDelete;
-  final void Function(Queue)? onModerate;
 
   @override
   Widget build(BuildContext context) {
@@ -50,17 +49,14 @@ class QueueCreateUpdatePage extends StatelessWidget {
               color: AppTheme.primaryBlue,
               icon: const Icon(Icons.save),
               onPressed: () {
-                var controller =
-                    context.read<QueueEditController>();
-                if (!controller
-                    .formKey
-                    .currentState!
-                    .validate()) {
-                  return;
-                }
+                var controller = context.read<QueueEditController>();
+                if (!controller.formKey.currentState!.validate()) return;
                 controller.queue.name = controller.nameController.text;
+                controller.queue.status = isSuperAdmin
+                    ? QueueStatus.approved
+                    : QueueStatus.pending;
                 Navigator.of(context).pop();
-                onSave(context.read<QueueEditController>().queue);
+                onSave(controller.queue);
               },
             ),
           ],
@@ -72,12 +68,12 @@ class QueueCreateUpdatePage extends StatelessWidget {
             FloatingActionButton(
               heroTag: "moderate",
               onPressed: () {
-                _showModerationDialog(context);
+                _showModerationDialog(context,queue.status);
               },
               backgroundColor: _queueStatusIcon(queue.status),
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
               tooltip: "Moderar fila",
-              child: const Icon(Icons.error),
+              child: const Icon(Icons.local_police_outlined),
             ) : const SizedBox.shrink(),
             const SizedBox(height: 5),
             FloatingActionButton(
@@ -141,72 +137,89 @@ class QueueCreateUpdatePage extends StatelessWidget {
   }
 
   _showDeleteDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Excluir fila"),
-          content: const Text("Você deseja excluir esta fila?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Fechar", style: TextStyle(
-                  color: AppTheme.primaryBlue)),
+    customDialog(
+      context,
+      "Excluir fila?",
+      "Você deseja excluir esta fila?",
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              if (onDelete != null) onDelete!(queue);
+            },
+            style: ElevatedButton.styleFrom(
+                minimumSize: const Size(200, 50),
+                backgroundColor: AppTheme.primaryRed,
+                visualDensity: VisualDensity.compact
             ),
-            TextButton(
-              onPressed: () async {
-                if (onDelete != null) {
-                  onDelete!(queue);
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text("Excluir",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryRed)),
+            child: const Text("Excluir", style: TextStyle(
+                color: Colors.white)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
             ),
-          ],
-        );
-      },
+            child: const Text("Fechar", style: TextStyle(
+                color: AppTheme.primaryBlue)),
+          ),
+        ],
+      )
     );
   }
 
-  _showModerationDialog(BuildContext context) {
+  _showModerationDialog(BuildContext context, QueueStatus status) {
     var controller = context.read<QueueEditController>();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Moderar fila"),
-          content: const Text("Você deseja aprovar ou rejeitar esta fila?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Fechar", style: TextStyle(
-                  color: AppTheme.primaryBlue)),
+    customDialog(
+      context,
+      "Moderar fila",
+      "Esta fila está ${_queueStatusString(status)}.",
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              controller.queue.status = QueueStatus.approved;
+              onSave(controller.queue);
+            },
+            style: ElevatedButton.styleFrom(
+                minimumSize: const Size(200, 50),
+                maximumSize: const Size(200, 50),
+                backgroundColor: Colors.green,
+                visualDensity: VisualDensity.compact
             ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                controller.queue.status = QueueStatus.rejected;
-                onModerate!(controller.queue);
-              },
-              child: const Text("Rejeitar",
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+            child: const Text("Aprovar", style: TextStyle(
+                color: Colors.white)),
+          ),
+          const SizedBox(height: 5),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              controller.queue.status = QueueStatus.rejected;
+              onSave(controller.queue);
+            },
+            style: ElevatedButton.styleFrom(
+                minimumSize: const Size(200, 50),
+                maximumSize: const Size(200, 50),
+                backgroundColor: AppTheme.primaryRed,
+                visualDensity: VisualDensity.compact
             ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                controller.queue.status = QueueStatus.approved;
-                onModerate!(controller.queue);
-              },
-              child: const Text("Aprovar",
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+            child: const Text("Rejeitar", style: TextStyle(
+                color: Colors.white)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
             ),
-          ],
-        );
-      },
+            child: const Text("Fechar", style: TextStyle(
+                color: AppTheme.primaryBlue)),
+          ),
+        ],
+      )
     );
   }
 
@@ -218,6 +231,17 @@ class QueueCreateUpdatePage extends StatelessWidget {
         return AppTheme.primaryRed;
       case QueueStatus.pending:
         return Colors.orange;
+    }
+  }
+
+  _queueStatusString(QueueStatus status) {
+    switch (status) {
+      case QueueStatus.approved:
+        return "aprovada";
+      case QueueStatus.rejected:
+        return "rejeitada";
+      case QueueStatus.pending:
+        return "pendente";
     }
   }
 }

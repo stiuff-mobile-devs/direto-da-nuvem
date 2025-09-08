@@ -260,6 +260,15 @@ class DeviceController extends ChangeNotifier {
     return devicesInGroups;
   }
 
+  Future deleteDevicesByGroup(String groupId) async {
+    final filteredDevices = devices.where(
+            (d) => d.groupId == groupId).toList();
+
+    for (var device in filteredDevices) {
+      await deleteDevice(device.id);
+    }
+  }
+
   deleteDevice(String id) async {
     try {
       await _diretoDaNuvemAPI.deviceResource.delete(id);
