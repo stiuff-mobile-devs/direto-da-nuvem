@@ -6,10 +6,7 @@ import 'package:ddnuvem/utils/custom_dialog.dart';
 import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/devices/register_device_controller.dart';
-import 'package:ddnuvem/views/redirection_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
 class RegisterDevicePage extends StatelessWidget {
@@ -237,24 +234,15 @@ class RegisterDevicePage extends StatelessWidget {
     if (ctx.mounted) Navigator.pop(ctx);
   }
   
-  Future<void> _logout(BuildContext context) async {
+  _logout(BuildContext context) async {
     final snackBar = CustomSnackbar(context);
 
     try {
       await context.read<UserController>().logout();
-      snackBar.build("Sessão encerrada.", "success");
+      snackBar.buildType("Sessão encerrada", "success");
     } catch (e) {
-      snackBar.build(e.toString(), "error");
+      snackBar.buildType(e.toString(), "error");
       return;
-    }
-
-    if (context.mounted) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (_) => const RedirectionPage()
-        ),
-        (route) => false
-      );
     }
   }
 }

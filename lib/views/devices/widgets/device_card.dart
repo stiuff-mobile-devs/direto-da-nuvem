@@ -1,9 +1,13 @@
+import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:ddnuvem/utils/custom_dialog.dart';
+import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/data_utils.dart';
 import 'package:ddnuvem/utils/no_connection_dialog.dart';
+import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/devices/register_device_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -30,14 +34,9 @@ class DeviceCard extends StatelessWidget {
         }
       },
       onLongPress: () {
-        // Verifica se o usuário atual é um super admin,
-        // se sim, mostra o diálogo de exclusão
-        // if (context.read<UserController>()
-        //     .currentUser!
-        //     .privileges.
-        //     isSuperAdmin) {
-        //   _showDeleteDialog(context);
-        // }
+        if (context.read<UserController>().isCurrentUserSuperAdmin()) {
+          _showDeleteDialog(context);
+        }
       },
       child: Card(
         elevation: 4,
@@ -77,32 +76,45 @@ class DeviceCard extends StatelessWidget {
     );
   }
 
-  // void _showDeleteDialog(BuildContext context) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         title: const Text("Confirmar Exclusão"),
-  //         content: const Text("Você tem certeza que deseja excluir este dispositivo?"),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: const Text("Cancelar"),
-  //           ),
-  //           TextButton(
-  //             onPressed: () {
-  //               // Deleta dispositivo
-  //               context.read<DeviceController>().deleteDevice(device.id);
-  //               // Fecha a caixa de diálogo
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: const Text("Excluir"),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
+  _showDeleteDialog(BuildContext context) {
+    customDialog(
+      context,
+      "Excluir dispositivo?",
+      "Você deseja excluir este dispositivo?",
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final snackBar = CustomSnackbar(context);
+              String text;
+              try {
+                await context.read<DeviceController>().deleteDevice(device.id);
+                text = "Dispositivo excluído com sucesso!";
+              } catch (e) {
+                text = e.toString();
+              }
+              snackBar.buildMessage(text);
+            },
+            style: ElevatedButton.styleFrom(
+                minimumSize: const Size(200, 50),
+                backgroundColor: AppTheme.primaryRed,
+                visualDensity: VisualDensity.compact
+            ),
+            child: const Text("Excluir", style: TextStyle(
+                color: Colors.white)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+            ),
+            child: const Text("Fechar", style: TextStyle(
+                color: AppTheme.primaryBlue)),
+          ),
+        ],
+      )
+    );
+  }
 }
