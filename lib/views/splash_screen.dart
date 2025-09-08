@@ -27,10 +27,11 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _show() async {
-    await Future.delayed(const Duration(seconds: 5));
-    if (mounted) {
+    await Future.delayed(const Duration(seconds: 2));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DeviceController>().splashScreenComplete();
-    }
+    });
+    setState(() {});
   }
 
   @override
@@ -55,11 +56,13 @@ class _SplashScreenState extends State<SplashScreen> {
                         ),
                       ),
                       const SizedBox(height: 25),
-                      Text("Grupo: ${widget.group}",
-                          style: const TextStyle(fontSize: 20)),
-                      Text("Fila ativa: ${widget.queue}",
-                          style: const TextStyle(fontSize: 20)),
-                      const SizedBox(height: 15),
+                      if (widget.group.isNotEmpty) ...[
+                        Text("Grupo: ${widget.group}",
+                            style: const TextStyle(fontSize: 20)),
+                        Text("Fila ativa: ${widget.queue}",
+                            style: const TextStyle(fontSize: 20)),
+                        const SizedBox(height: 15),
+                      ],
                       Text("v ${widget.packageVersion}"),
                     ],
                   ),
@@ -89,11 +92,13 @@ class _SplashScreenState extends State<SplashScreen> {
                               ),
                             ),
                             const SizedBox(width: 25),
-                            Text("Grupo: ${widget.group}",
-                                style: const TextStyle(fontSize: 20)),
-                            Text("Fila ativa: ${widget.queue}",
-                                style: const TextStyle(fontSize: 20)),
-                            const SizedBox(height: 10),
+                            if (widget.group.isNotEmpty) ...[
+                              Text("Grupo: ${widget.group}",
+                                  style: const TextStyle(fontSize: 20)),
+                              Text("Fila ativa: ${widget.queue}",
+                                  style: const TextStyle(fontSize: 20)),
+                              const SizedBox(height: 10),
+                            ],
                             Text("v ${widget.packageVersion}"),
                           ],
                         ),

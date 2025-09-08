@@ -87,12 +87,12 @@ class _RedirectionPageState extends State<RedirectionPage> {
         }
 
         redirectionData.isDeviceRegistered = deviceController.isRegistered;
+        redirectionData.initialized = deviceController.showedSplash;
         redirectionData.isSmartphone = deviceController.isSmartphone;
         redirectionData.isLoading = deviceController.loadingInitialState ||
             userController.loadingInitialState;
 
         if (redirectionData.isDeviceRegistered) {
-          redirectionData.initialized = deviceController.showedSplash;
           redirectionData.queueTitle = deviceController.currentQueue != null
               ? deviceController.currentQueue!.name : "";
           redirectionData.groupTitle = deviceController.group != null
@@ -120,15 +120,15 @@ class _RedirectionPageState extends State<RedirectionPage> {
     if (!redirectionData.isDeviceRegistered && redirectionData.isInstaller) {
       return const RegisterDevicePage();
     }
-    if (redirectionData.isAdmin && redirectionData.isSmartphone) {
-      return const AdminPage();
-    }
-    if (!redirectionData.initialized && redirectionData.isDeviceRegistered) {
+    if (!redirectionData.initialized) {
       return SplashScreen(
           group: redirectionData.groupTitle,
           packageVersion: redirectionData.packageVersion,
           queue: redirectionData.queueTitle
       );
+    }
+    if (redirectionData.isAdmin && redirectionData.isSmartphone) {
+      return const AdminPage();
     }
     return ChangeNotifierProvider(
       create: (context) => QueueViewController(
