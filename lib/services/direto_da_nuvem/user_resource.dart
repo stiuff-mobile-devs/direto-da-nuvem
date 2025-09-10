@@ -1,4 +1,5 @@
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/user.dart';
@@ -12,7 +13,7 @@ class UserResource {
   Future<List<User>> getAll() async {
     List<User> users = [];
     try {
-      if (await ConnectionService.isConnected()) {
+      if (kIsWeb || await ConnectionService.isConnected()) {
         final list = await _firestore.collection(collection).get();
 
         for (var doc in list.docs) {
@@ -89,7 +90,7 @@ class UserResource {
   Future<User?> get(String email) async {
     User? user;
     try {
-      if (await ConnectionService.isConnected()) {
+      if (kIsWeb || await ConnectionService.isConnected()) {
         final query = await _firestore
             .collection(collection)
             .where('email', isEqualTo: email)

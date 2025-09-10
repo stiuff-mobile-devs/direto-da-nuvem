@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/services/connection_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
@@ -12,7 +13,7 @@ class GroupResource {
   Future<List<Group>> getAll() async {
     List<Group> groups = [];
     try {
-      if (await ConnectionService.isConnected()) {
+      if (kIsWeb || await ConnectionService.isConnected()) {
         final list = await _firestore.collection(collection).get();
 
         for (var doc in list.docs) {
@@ -56,7 +57,7 @@ class GroupResource {
   Future<Group?> get(String id) async {
     Group? group;
     try {
-      if (await ConnectionService.isConnected()) {
+      if (kIsWeb || await ConnectionService.isConnected()) {
         var doc = await _firestore.doc("$collection/$id").get();
         if (!doc.exists) return null;
         group = Group.fromMap(doc.id, doc.data()!);

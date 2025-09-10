@@ -3,6 +3,7 @@ import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/services/local_storage_service.dart';
 import 'package:ddnuvem/utils/loading_widget.dart';
 import 'package:ddnuvem/utils/no_connection_dialog.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +29,9 @@ class _IntroPageState extends State<IntroPage> {
     super.initState();
     _getDependencies();
     _loadData();
+    setState(() {
+      loading = false;
+    });
   }
 
   _getDependencies() {
@@ -36,10 +40,8 @@ class _IntroPageState extends State<IntroPage> {
   }
 
   _loadData() async {
+    if (kIsWeb) return;
     await _getIsFirstTime();
-    setState(() {
-      loading = false;
-    });
     _saveIsFirstTime();
   }
 

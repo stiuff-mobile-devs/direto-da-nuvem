@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,6 +27,10 @@ class ConnectionService extends ChangeNotifier {
   }
 
   _checkConnection() async {
+    if (kIsWeb) {
+      connectionStatus = true;
+      return;
+    }
     bool newStatus = await isConnected();
     if (newStatus != connectionStatus) {
       connectionStatus = newStatus;

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -9,6 +10,11 @@ class SignInService extends ChangeNotifier {
   SignInService();
 
   Future<GoogleSignInAccount?> signInWithGoogle() async {
+
+    // if (kIsWeb) {
+    //   return await googleSignIn.signInSilently();
+    // }
+
     try {
       return await googleSignIn.signIn();
     } catch (e) {

@@ -6,8 +6,10 @@ import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class DeviceController extends ChangeNotifier {
   final DiretoDaNuvemAPI _diretoDaNuvemAPI;
@@ -18,7 +20,7 @@ class DeviceController extends ChangeNotifier {
   Group? group;
   Device? device;
   bool isRegistered = false;
-  bool isSmartphone = false;
+  bool isTelevision = false;
   Queue? currentQueue;
   Queue? defaultQueue;
   List<Device> devices = [];
@@ -37,8 +39,10 @@ class DeviceController extends ChangeNotifier {
   _initialize() async {
     await _getDeviceInfo();
     if (_signInService.isLoggedIn()) {
-      await _checkIsRegistered();
-      await _fetchGroupAndQueue();
+      if (isTelevision) {
+        await _checkIsRegistered();
+        await _fetchGroupAndQueue();
+      }
       await loadDevices();
     }
     loadingInitialState = false;
@@ -58,8 +62,10 @@ class DeviceController extends ChangeNotifier {
     if (_signInService.isLoggedIn()) {
       loadingInitialState = true;
       notifyListeners();
-      await _checkIsRegistered();
-      await _fetchGroupAndQueue();
+      if (isTelevision) {
+        await _checkIsRegistered();
+        await _fetchGroupAndQueue();
+      }
       await loadDevices();
       loadingInitialState = false;
       notifyListeners();
@@ -77,15 +83,18 @@ class DeviceController extends ChangeNotifier {
     _devicesSubscription?.cancel();
   }
 
-  Future<void> _getDeviceInfo() async {
+  _getDeviceInfo() async {
+    if (kIsWeb) return;
     if (Platform.isAndroid) {
       try {
         androidInfo = await _deviceInfoPlugin.androidInfo;
         if (androidInfo != null) {
-          isSmartphone = !androidInfo!.systemFeatures
+          isTelevision = androidInfo!.systemFeatures
               .contains("android.software.leanback");
 
-          if (!isSmartphone) {
+          if (isTelevision) {
+            // Impede o bloqueio automático de tela
+            await WakelockPlus.enable();
             // Solicita permissão de execução em segundo plano se necessário
             if (await Permission.ignoreBatteryOptimizations.isDenied) {
               await Permission.ignoreBatteryOptimizations.request();
@@ -99,8 +108,6 @@ class DeviceController extends ChangeNotifier {
       } catch (e) {
         debugPrint("Erro ao obter dados do android: $e");
       }
-    } else if (Platform.isIOS) {
-      isSmartphone = true;
     }
   }
 

@@ -4,34 +4,36 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
-  final String group;
-  final String queue;
   final String packageVersion;
 
-  const SplashScreen({
-    super.key,
-    required this.group,
-    required this.packageVersion,
-    required this.queue});
+  const SplashScreen({super.key, required this.packageVersion});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  late String group;
+  late String queue;
 
   @override
   void initState() {
     super.initState();
-    _show();
+    _loadData();
   }
 
-  _show() async {
-    await Future.delayed(const Duration(seconds: 2));
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DeviceController>().splashScreenComplete();
+  _loadData() async {
+    final deviceController = context.read<DeviceController>();
+    setState(() {
+      group = deviceController.group?.name ?? "";
+      queue = deviceController.currentQueue?.name ?? "";
     });
-    setState(() {});
+    await Future.delayed(const Duration(seconds: 2));
+    deviceController.splashScreenComplete();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   context.read<DeviceController>().splashScreenComplete();
+    // });
+    //setState(() {});
   }
 
   @override
@@ -56,10 +58,12 @@ class _SplashScreenState extends State<SplashScreen> {
                         ),
                       ),
                       const SizedBox(height: 25),
-                      if (widget.group.isNotEmpty) ...[
-                        Text("Grupo: ${widget.group}",
-                            style: const TextStyle(fontSize: 20)),
-                        Text("Fila ativa: ${widget.queue}",
+                      if (group.isNotEmpty) ...[
+                        Text("Grupo: $group",
+                          style: const TextStyle(fontSize: 20)),
+                      ],
+                      if (queue.isNotEmpty) ... [
+                        Text("Fila ativa: $queue",
                             style: const TextStyle(fontSize: 20)),
                         const SizedBox(height: 15),
                       ],
@@ -92,10 +96,12 @@ class _SplashScreenState extends State<SplashScreen> {
                               ),
                             ),
                             const SizedBox(width: 25),
-                            if (widget.group.isNotEmpty) ...[
-                              Text("Grupo: ${widget.group}",
+                            if (group.isNotEmpty) ...[
+                              Text("Grupo: $group",
                                   style: const TextStyle(fontSize: 20)),
-                              Text("Fila ativa: ${widget.queue}",
+                            ],
+                            if (queue.isNotEmpty) ... [
+                              Text("Fila ativa: $queue",
                                   style: const TextStyle(fontSize: 20)),
                               const SizedBox(height: 10),
                             ],

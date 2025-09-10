@@ -2,7 +2,6 @@ import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
-import 'package:ddnuvem/services/local_storage_service.dart';
 import 'package:ddnuvem/utils/loading_widget.dart';
 import 'package:ddnuvem/views/admin/admin_page.dart';
 import 'package:ddnuvem/views/devices/register_device_page.dart';
@@ -18,25 +17,19 @@ class RedirectionData {
   bool loggedIn;
   bool isInstaller;
   bool isDeviceRegistered;
-  bool isSmartphone;
+  bool isTelevision;
   bool isAdmin;
   bool isLoading;
-  bool initialized;
-  String packageVersion;
-  String groupTitle;
-  String queueTitle;
+  bool showSplash;
 
   RedirectionData({
     this.loggedIn = false,
     this.isInstaller = false,
     this.isDeviceRegistered = false,
-    this.isSmartphone = false,
+    this.isTelevision = false,
     this.isAdmin = false,
     this.isLoading = true,
-    this.initialized = false,
-    this.packageVersion = "",
-    this.queueTitle = "",
-    this.groupTitle = ""
+    this.showSplash = false,
   });
 }
 
@@ -48,27 +41,25 @@ class RedirectionPage extends StatefulWidget {
 }
 
 class _RedirectionPageState extends State<RedirectionPage> {
-  late LocalStorageService localStorageService;
   late DiretoDaNuvemAPI diretoDaNuvemAPI;
-  String version = "";
+  String packageVersion = "";
 
-  getDependencies() {
-    localStorageService = context.read<LocalStorageService>();
+  _getDependencies() {
     diretoDaNuvemAPI =  context.read<DiretoDaNuvemAPI>();
   }
 
   _getPackageVersion() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     setState(() {
-      version = packageInfo.version;
+      packageVersion = packageInfo.version;
     });
   }
 
   @override
   void initState() {
     super.initState();
-    getDependencies();
     _getPackageVersion();
+    _getDependencies();
   }
 
   @override
@@ -78,26 +69,20 @@ class _RedirectionPageState extends State<RedirectionPage> {
           (context, userController, deviceController, groupController, child) {
         RedirectionData redirectionData = RedirectionData();
 
-        redirectionData.packageVersion = version;
         redirectionData.loggedIn = userController.isLoggedIn;
-
         if (redirectionData.loggedIn) {
           redirectionData.isAdmin = userController.isCurrentUserAdmin();
           redirectionData.isInstaller = userController.isCurrentUserInstaller();
         }
 
-        redirectionData.isDeviceRegistered = deviceController.isRegistered;
-        redirectionData.initialized = deviceController.showedSplash;
-        redirectionData.isSmartphone = deviceController.isSmartphone;
+        redirectionData.showSplash = !deviceController.showedSplash;
+        redirectionData.isTelevision = deviceController.isTelevision;
+        if (redirectionData.isTelevision) {
+          redirectionData.isDeviceRegistered = deviceController.isRegistered;
+        }
+
         redirectionData.isLoading = deviceController.loadingInitialState ||
             userController.loadingInitialState;
-
-        if (redirectionData.isDeviceRegistered) {
-          redirectionData.queueTitle = deviceController.currentQueue != null
-              ? deviceController.currentQueue!.name : "";
-          redirectionData.groupTitle = deviceController.group != null
-              ? deviceController.group!.name : "";
-        }
         return Builder(
           builder: (c) => redirectionBuilder(redirectionData),
         );
@@ -115,21 +100,20 @@ class _RedirectionPageState extends State<RedirectionPage> {
 
   Widget handleRedirection(RedirectionData redirectionData) {
     if (!redirectionData.loggedIn) {
-      return IntroPage(packageVersion: redirectionData.packageVersion);
+      return IntroPage(packageVersion: packageVersion);
     }
-    if (!redirectionData.isDeviceRegistered && redirectionData.isInstaller) {
+    if (redirectionData.isTelevision
+        && !redirectionData.isDeviceRegistered
+        && redirectionData.isInstaller) {
       return const RegisterDevicePage();
     }
-    if (!redirectionData.initialized) {
-      return SplashScreen(
-          group: redirectionData.groupTitle,
-          packageVersion: redirectionData.packageVersion,
-          queue: redirectionData.queueTitle
-      );
+    if (redirectionData.showSplash) {
+      return SplashScreen(packageVersion: packageVersion);
     }
-    if (redirectionData.isAdmin && redirectionData.isSmartphone) {
+    if (redirectionData.isAdmin && !redirectionData.isTelevision) {
       return const AdminPage();
     }
+
     return ChangeNotifierProvider(
       create: (context) => QueueViewController(
         diretoDaNuvemAPI,
