@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
@@ -71,7 +72,7 @@ class QueueController extends ChangeNotifier {
         if (image.data != null) {
           debugPrint("Uploading image ${image.path}");
           imagesFutures.add(_diretoDaNuvemAPI.imageResource
-              .uploadImage(image.path, image.data!)
+              .uploadImage(image)
               .then(
                 (_) => image.uploaded = true,
           ));
@@ -92,16 +93,14 @@ class QueueController extends ChangeNotifier {
     return "Fila atualizada com sucesso!";
   }
 
-  Future<String> saveQueue(Queue queue) async {
-    queues.add(queue..updated = false);
-    notifyListeners();
+  createQueue(Queue queue) async {
     try {
       List<Future> imagesFutures = [];
-      for (var image in queue.images.where((q) => !q.uploaded)) {
+      for (var image in queue.images.where((i) => !i.uploaded)) {
         if (image.data != null) {
           debugPrint("Uploading image ${image.path}");
           imagesFutures.add(_diretoDaNuvemAPI.imageResource
-              .uploadImage(image.path, image.data!)
+              .uploadImage(image)
               .then(
                 (_) => image.uploaded = true,
               ));
@@ -111,16 +110,10 @@ class QueueController extends ChangeNotifier {
       await Future.wait(imagesFutures);
 
       await _diretoDaNuvemAPI.queueResource.create(queue);
-      queue.updated = true;
-      notifyListeners();
     } catch (e) {
       debugPrint("Error updating queue: $e");
-      queues.remove(queue);
-
-      notifyListeners();
-      return "Erro ao criar fila.";
+      rethrow;
     }
-    return "Fila criada com sucesso!";
   }
 
   deleteQueue(String id) async {
@@ -131,13 +124,32 @@ class QueueController extends ChangeNotifier {
     }
   }
 
-  Future deleteQueuesByGroup(String groupId) async {
+  deleteQueuesByGroup(String groupId) async {
     final filteredQueues = queues.where(
             (queue) => queue.groupId == groupId).toList();
 
     for (var queue in filteredQueues) {
       await deleteQueue(queue.id);
     }
+  }
+
+  fetchQueueImages(Queue queue) async {
+    List<Future<Uint8List?>> futures = [];
+    for (var image in queue.images) {
+      if (image.data != null) {
+        continue;
+      }
+      futures
+          .add(_diretoDaNuvemAPI.imageResource.fetchImageData(image.path).then(
+            (value) {
+          image.data = value;
+          return value;
+        },
+      ));
+    }
+
+    await Future.wait(futures);
+    return queue;
   }
 
   bool checkPendingQueuesByGroup(String groupId) {

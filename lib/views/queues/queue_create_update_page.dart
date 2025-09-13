@@ -114,19 +114,21 @@ class QueueCreateUpdatePage extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: controller.imagesLoaded ? ReorderableListView(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 70),
-                    onReorder: controller.reorderQueue,
-                    children: controller.queue.images.map((image) {
-                      if (image.data == null) {
-                        return const CircularProgressIndicator();
-                      }
-                      return ImageListTile(
-                        image: image,
-                        key: Key(image.path),
-                      );
-                    }).toList(),
-                  ) : loadingWidget(context),
+                  child: controller.imagesLoaded
+                      ? ReorderableListView(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 70),
+                          onReorder: controller.reorderQueue,
+                          children: controller.queue.images.map((image) {
+                            if (image.data == null) {
+                              return const SizedBox.shrink();
+                            }
+                            return ImageListTile(
+                              image: image,
+                              key: Key(image.path),
+                            );
+                          }).toList(),
+                        )
+                      : loadingWidget(context),
                 ),
               ],
             );

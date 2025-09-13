@@ -1,6 +1,5 @@
 import 'package:ddnuvem/services/connection_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:hive/hive.dart';
@@ -122,6 +121,7 @@ class UserResource {
 
   // Hive
   _saveToLocalDB(User user) {
+    if (kIsWeb) return;
     try {
       _hiveBox.put(user.id, user);
     } catch (e) {
@@ -130,6 +130,7 @@ class UserResource {
   }
 
   _deleteFromLocalDB(String id) {
+    if (kIsWeb) return;
     try {
       _hiveBox.delete(id);
     } catch (e) {

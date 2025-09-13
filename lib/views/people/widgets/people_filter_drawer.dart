@@ -8,7 +8,7 @@ class PeopleFilterDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: eventualmente substituir esses hardcodeds
-    List<String> userPrivileges = ["Super Admin", "Admin", "Instalador"];
+    List<String> userPrivileges = ["Superadmin", "Admin", "Instalador"];
 
     return Column(children: [
       const SizedBox(height: 16),

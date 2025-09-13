@@ -128,7 +128,7 @@ class UserCreatePage extends StatelessWidget {
                     builder: (context, value, _) {
                       return CheckboxListTile(
                         activeColor: AppTheme.primaryBlue,
-                        title: const Text("Super Administrador"),
+                        title: const Text("Superadministrador"),
                         value: value,
                         onChanged: (v) {
                           userCreateController.isSuperAdmin.value = v ?? false;

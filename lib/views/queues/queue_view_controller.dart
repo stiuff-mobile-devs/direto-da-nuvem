@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
@@ -73,7 +72,6 @@ class QueueViewController extends ChangeNotifier {
           .add(diretoDaNuvemAPI.imageResource.fetchImageData(image.path).then(
             (value) {
           image.data = value;
-          image.loading = false;
           return value;
         },
       ));

@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/connection_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 class QueueResource {
@@ -130,6 +129,7 @@ class QueueResource {
 
   // Hive
   _saveToLocalDB(Queue queue) {
+    if (kIsWeb) return;
     try {
       _hiveBox.put(queue.id, queue);
     } catch (e) {
@@ -138,6 +138,7 @@ class QueueResource {
   }
 
   _deleteFromLocalDB(String id) {
+    if (kIsWeb) return;
     try {
       _hiveBox.delete(id);
     } catch (e) {

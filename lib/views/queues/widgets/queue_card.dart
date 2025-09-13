@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/models/group.dart';
@@ -29,10 +30,14 @@ class QueueCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        if (!isActive && queue.status == QueueStatus.approved) {
-          connection.connectionStatus
-              ? _showDialog(context, numberOfPhotos)
-              : noConnectionDialog(context).show();
+        if (!isActive) {
+          if (!connection.connectionStatus) {
+            noConnectionDialog(context).show();
+          } else {
+            queue.status == QueueStatus.approved
+                ? _showActivateQueueDialog(context, numberOfPhotos)
+                : _showPendingQueueDialog(context, queue.status);
+          }
         }
       },
       child: Card(
@@ -123,7 +128,7 @@ class QueueCard extends StatelessWidget {
     );
   }
 
-  _showDialog(BuildContext context, String numberOfPhotos) {
+  _showActivateQueueDialog(BuildContext context, String numberOfPhotos) {
     customDialog(context,
       "Tornar fila ativa?",
       "Esta fila possui $numberOfPhotos.",
@@ -163,6 +168,16 @@ class QueueCard extends StatelessWidget {
         ],
       )
     );
+  }
+
+  _showPendingQueueDialog(BuildContext context, QueueStatus status) {
+    return AwesomeDialog(
+      context: context,
+      dialogType: DialogType.warning,
+      animType: AnimType.scale,
+      title: "Fila ${queueStatusString(status)}",
+      desc: 'Somente filas aprovadas por um superadministrador podem ser ativadas.',
+    ).show();
   }
   
   _queueStatusIcon(QueueStatus status) {

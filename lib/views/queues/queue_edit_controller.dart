@@ -1,19 +1,20 @@
-import 'dart:typed_data';
+import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
-import 'package:ddnuvem/models/image_ui.dart';
+import 'package:ddnuvem/models/image.dart';
 import 'package:ddnuvem/models/queue.dart';
-import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart' hide Image;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' hide Image;
+import 'package:flutter/widgets.dart' hide Image;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class QueueEditController extends ChangeNotifier {
-  late DiretoDaNuvemAPI diretoDaNuvemAPI;
+  late String currentUserId;
+  late QueueController queueController;
   BuildContext context;
   Queue queue;
-  // List<ImageUI> images = [];
   Uint8List? imageBytes;
   bool hasChanged = false;
   final ImagePicker _picker = ImagePicker();
@@ -23,12 +24,12 @@ class QueueEditController extends ChangeNotifier {
   bool imagesLoaded = false;
 
   QueueEditController({required this.context, required this.queue}) {
-    final currentUser = context.read<UserController>().currentUser!;
-    diretoDaNuvemAPI = context.read();
+    currentUserId = context.read<UserController>().currentUser!.id;
+    queueController = context.read<QueueController>();
 
     nameController.text = queue.name;
-    queue.updatedBy = currentUser.id;
-    queue.id.isEmpty ? queue.createdBy = currentUser.id
+    queue.updatedBy = currentUserId;
+    queue.id.isEmpty ? queue.createdBy = currentUserId
         : queue.updatedAt = DateTime.now();
 
     fetchImages();
@@ -51,52 +52,54 @@ class QueueEditController extends ChangeNotifier {
   }
 
   void fetchImages() async {
-    List<Future<Uint8List?>> futures = [];
-    for (var image in queue.images) {
-      if (image.data != null) {
-        continue;
-      }
-      futures
-          .add(diretoDaNuvemAPI.imageResource.fetchImageData(image.path).then(
-        (value) {
-          image.data = value;
-          image.loading = false;
-          return value;
-        },
-      ));
-    }
+    imagesLoaded = false;
     notifyListeners();
-    await Future.wait(futures).then((_) {
-      if (disposed) return;
-      notifyListeners();
-    });
+    queue = await queueController.fetchQueueImages(queue);
+    if (disposed) return;
     imagesLoaded = true;
-    // List<Uint8List?> datas = await Future.wait(futures);
-    // for (var data in datas) {
-    //   if (data == null) continue;
-    //   images.add(ImageUI(path: queue.images[images.length], data: data));
-    // }
+    notifyListeners();
   }
 
-  void pickImage() async {
+  pickImage() {
+    return kIsWeb ? _pickImageOnWeb() : _pickImageOnMobile();
+  }
+
+  _pickImageOnMobile() async {
     final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
+    await _picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile == null) {
       return;
     }
 
     imageBytes = await pickedFile.readAsBytes();
-    queue.images.add(ImageUI(
+    queue.images.add(Image(
         path: pickedFile.name,
         data: imageBytes,
-        loading: false,
-        uploaded: false));
+        createdAt: DateTime.now(),
+        createdBy: currentUserId)
+    );
     if (disposed) return;
     notifyListeners();
   }
 
-  void removeQueueImage(ImageUI image) {
+  _pickImageOnWeb() async {
+    final pickedFile = await FilePicker
+        .platform.pickFiles(type: FileType.image);
+
+    if (pickedFile != null) {
+      queue.images.add(Image(
+          path: pickedFile.files.first.name,
+          data: pickedFile.files.first.bytes,
+          createdAt: DateTime.now(),
+          createdBy: currentUserId)
+      );
+      if (disposed) return;
+      notifyListeners();
+    }
+  }
+
+  void removeQueueImage(Image image) {
     queue.images.remove(image);
     notifyListeners();
   }

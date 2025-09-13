@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ddnuvem/models/image_ui.dart';
+import 'package:ddnuvem/models/image.dart';
 import 'package:ddnuvem/models/queue_status.dart';
 import 'package:hive/hive.dart';
 
@@ -22,7 +22,7 @@ class Queue extends HiveObject {
   @HiveField(6)
   String createdBy;
   @HiveField(7)
-  List<ImageUI> images;
+  List<Image> images;
   @HiveField(8)
   bool updated = true;
   @HiveField(9)
@@ -59,7 +59,7 @@ class Queue extends HiveObject {
       updatedBy: data["updated_by"] ?? "",
       updatedAt: (data["updated_at"] as Timestamp).toDate(),
       images: (data["images"] as List)
-          .map((e) => ImageUI(path: "$e", data: null))
+          .map((e) => Image(path: "$e", data: null))
           .toList());
   }
 

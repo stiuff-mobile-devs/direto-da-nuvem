@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/services/connection_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 class GroupResource {
@@ -116,6 +115,7 @@ class GroupResource {
 
   // Hive
   _saveToLocalDB(Group group) {
+    if (kIsWeb) return;
     try {
       _hiveBox.put(group.id, group);
     } catch (e) {
@@ -124,6 +124,7 @@ class GroupResource {
   }
 
   _deleteFromLocalDB(String id) {
+    if (kIsWeb) return;
     try {
       _hiveBox.delete(id);
     } catch (e) {

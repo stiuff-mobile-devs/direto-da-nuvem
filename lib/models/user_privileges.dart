@@ -20,7 +20,7 @@ class UserPrivileges extends HiveObject {
   @override
   String toString() {
     String string = [
-      if (isSuperAdmin) "Super Admin",
+      if (isSuperAdmin) "Superadmin",
       if (isAdmin) "Admin",
       if (isInstaller) "Instalador",
     ].join(", ");

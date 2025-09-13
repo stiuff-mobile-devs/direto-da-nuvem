@@ -1,31 +1,31 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'image_ui.dart';
+part of 'image.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class ImageUIAdapter extends TypeAdapter<ImageUI> {
+class ImageAdapter extends TypeAdapter<Image> {
   @override
   final int typeId = 2;
 
   @override
-  ImageUI read(BinaryReader reader) {
+  Image read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return ImageUI(
+    return Image(
       path: fields[0] as String,
+      createdAt: fields[2] as DateTime?,
+      createdBy: fields[3] as String?,
       data: fields[1] as Uint8List?,
-      loading: fields[2] as bool,
-      uploaded: fields[3] as bool,
     );
   }
 
   @override
-  void write(BinaryWriter writer, ImageUI obj) {
+  void write(BinaryWriter writer, Image obj) {
     writer
       ..writeByte(4)
       ..writeByte(0)
@@ -33,9 +33,9 @@ class ImageUIAdapter extends TypeAdapter<ImageUI> {
       ..writeByte(1)
       ..write(obj.data)
       ..writeByte(2)
-      ..write(obj.loading)
+      ..write(obj.createdAt)
       ..writeByte(3)
-      ..write(obj.uploaded);
+      ..write(obj.createdBy);
   }
 
   @override
@@ -44,7 +44,7 @@ class ImageUIAdapter extends TypeAdapter<ImageUI> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ImageUIAdapter &&
+      other is ImageAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

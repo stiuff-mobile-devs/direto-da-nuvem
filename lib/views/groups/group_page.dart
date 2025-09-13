@@ -158,7 +158,7 @@ class GroupPage extends StatelessWidget {
           onSave: (queue) async {
             queue.groupId = group.id;
             try {
-              await queueController.saveQueue(queue);
+              await queueController.createQueue(queue);
               text = "Fila criada com sucesso!";
             } catch (e) {
               text = e.toString();

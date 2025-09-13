@@ -3,7 +3,6 @@ import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/services/connection_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:flutter/material.dart';
 
 class DeviceResource {
   static const String collection = "devices";
@@ -110,6 +109,7 @@ class DeviceResource {
 
   // Hive
   _saveToLocalDB(Device device) {
+    if (kIsWeb) return;
     try {
       _hiveBox.put(device.id, device);
     } catch (e) {
@@ -118,6 +118,7 @@ class DeviceResource {
   }
 
   _deleteFromLocalDB(String id) {
+    if (kIsWeb) return;
     try {
       _hiveBox.delete(id);
     } catch (e) {

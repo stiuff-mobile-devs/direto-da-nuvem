@@ -35,3 +35,14 @@ String queueStatusToMap(QueueStatus status) {
       return "rejected";
   }
 }
+
+String queueStatusString(QueueStatus status) {
+  switch (status) {
+    case QueueStatus.approved:
+      return "aprovada";
+    case QueueStatus.rejected:
+      return "rejeitada";
+    case QueueStatus.pending:
+      return "pendente";
+  }
+}

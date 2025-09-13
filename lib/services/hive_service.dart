@@ -1,6 +1,6 @@
 import 'package:ddnuvem/models/device.dart';
 import 'package:ddnuvem/models/group.dart';
-import 'package:ddnuvem/models/image_ui.dart';
+import 'package:ddnuvem/models/image.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/models/queue_status.dart';
@@ -13,7 +13,7 @@ class HiveService {
 
     Hive.registerAdapter(DeviceAdapter());
     Hive.registerAdapter(GroupAdapter());
-    Hive.registerAdapter(ImageUIAdapter());
+    Hive.registerAdapter(ImageAdapter());
     Hive.registerAdapter(QueueStatusAdapter());
     Hive.registerAdapter(QueueAdapter());
     Hive.registerAdapter(UserPrivilegesAdapter());
@@ -23,7 +23,7 @@ class HiveService {
     await Hive.openBox<Device>('devices');
     await Hive.openBox<Group>('groups');
     await Hive.openBox<Queue>('queues');
-    await Hive.openBox<ImageUI>('images');
+    await Hive.openBox<Image>('images');
     await Hive.openBox<User>('users');
   }
 }

@@ -25,7 +25,7 @@ class QueueAdapter extends TypeAdapter<Queue> {
       status: fields[11] as QueueStatus,
       createdAt: fields[5] as DateTime,
       createdBy: fields[6] as String,
-      images: (fields[7] as List).cast<ImageUI>(),
+      images: (fields[7] as List).cast<Image>(),
       updatedBy: fields[9] as String,
       updatedAt: fields[10] as DateTime,
     )..updated = fields[8] as bool;
