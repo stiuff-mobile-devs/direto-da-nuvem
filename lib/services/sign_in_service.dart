@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInService extends ChangeNotifier {
@@ -9,22 +8,13 @@ class SignInService extends ChangeNotifier {
 
   SignInService();
 
-  Future<GoogleSignInAccount?> signInWithGoogle() async {
-
-    // if (kIsWeb) {
-    //   return await googleSignIn.signInSilently();
-    // }
-
+  Future<bool> signInWithGoogle() async {
     try {
-      return await googleSignIn.signIn();
-    } catch (e) {
-      debugPrint("ERRO ao pegar dados da conta do Google: $e");
-      return null;
-    }
-  }
+      GoogleSignInAccount? googleUser;
+      googleUser = await googleSignIn.signInSilently();
+      googleUser ??= await googleSignIn.signIn();
+      if (googleUser == null) return false;
 
-  Future<bool> completeSignIn(GoogleSignInAccount googleUser) async {
-    try {
       final GoogleSignInAuthentication googleAuth = await googleUser
           .authentication;
 
@@ -46,7 +36,7 @@ class SignInService extends ChangeNotifier {
   signOut() async {
     try {
       await auth.signOut();
-      await googleSignIn.signOut();
+      googleSignIn.disconnect();
       debugPrint('Deslogado');
       notifyListeners();
     } catch (e) {

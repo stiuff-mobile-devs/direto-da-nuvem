@@ -40,25 +40,13 @@ class UserController extends ChangeNotifier {
     loadingInitialState = true;
     notifyListeners();
 
-    final googleUser = await _signInService.signInWithGoogle();
-    if (googleUser != null) {
-      final user = await _diretoDaNuvemAPI.userResource.get(googleUser.email);
-
-      if (user == null) {
-        debugPrint("Usuário não autorizado!");
-        currentUser = User.empty();
-        isLoggedIn = true;
-      } else {
-        if (await _signInService.completeSignIn(googleUser)) {
-          if (!user.authenticated) {
-            await updateAuthenticatedUser(user, googleUser.displayName);
-          }
-          await _loadUserData();
-          isLoggedIn = true;
-        } else {
-          isLoggedIn = false;
-        }
+    if (await _signInService.signInWithGoogle()) {
+      isLoggedIn = true;
+      await _getCurrentUserInfo();
+      if (isCurrentUserAuthorized() && !currentUser!.authenticated) {
+        await updateAuthenticatedUser();
       }
+      await _loadAllUsers();
     }
 
     loadingInitialState = false;
@@ -84,7 +72,12 @@ class UserController extends ChangeNotifier {
     final fbAuthUser = _signInService.getFirebaseAuthUser();
     profileImageUrl = fbAuthUser?.photoURL;
     User? user = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.email!);
-    currentUser = user ?? User.empty();
+    if (user == null) {
+      currentUser = User.empty();
+      debugPrint("Usuario nao autorizado");
+      return;
+    }
+    currentUser = user;
   }
 
   _loadAllUsers() async {
@@ -128,10 +121,13 @@ class UserController extends ChangeNotifier {
   }
 
   // Salva uid e nome de usuário que se autenticou pela primeira vez
-  updateAuthenticatedUser(User user, String? googleName) async {
-    final uid = _signInService.getFirebaseAuthUser()?.uid;
+  updateAuthenticatedUser() async {
+    final authUser = _signInService.getFirebaseAuthUser();
+    final uid = authUser?.uid;
+    final googleName = authUser?.displayName;
     if (uid == null) return;
 
+    User user = User.copy(currentUser!);
     await _diretoDaNuvemAPI.userResource.delete(user);
     user.id = uid;
     user.name = googleName ?? "";
@@ -139,6 +135,7 @@ class UserController extends ChangeNotifier {
     user.updatedBy = uid;
     user.authenticated = true;
     await _diretoDaNuvemAPI.userResource.createAuthenticatedUser(user);
+    currentUser = user;
   }
 
   // Atualiza ou cria usuário que foi inserido como admin de um grupo
@@ -201,5 +198,14 @@ class UserController extends ChangeNotifier {
   bool isCurrentUserSuperAdmin() {
     if (currentUser == null) return false;
     return currentUser!.privileges.isSuperAdmin;
+  }
+
+  bool isCurrentUserAuthorized() {
+    if (currentUser == null) return false;
+
+    final privileges = currentUser!.privileges;
+    return privileges.isSuperAdmin
+        || privileges.isAdmin
+        || privileges.isInstaller;
   }
 }

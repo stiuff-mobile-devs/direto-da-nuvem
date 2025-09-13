@@ -143,6 +143,7 @@ class QueueController extends ChangeNotifier {
           .add(_diretoDaNuvemAPI.imageResource.fetchImageData(image.path).then(
             (value) {
           image.data = value;
+          image.uploaded = true;
           return value;
         },
       ));
