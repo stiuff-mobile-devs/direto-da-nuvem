@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class UserController extends ChangeNotifier {
@@ -21,7 +22,8 @@ class UserController extends ChangeNotifier {
   }
 
   _initialize() async {
-    if (_signInService.isLoggedIn()) {
+    if (_signInService.isLoggedIn()
+        || (kIsWeb && await _signInService.signInSilently())) {
       await _loadUserData();
       isLoggedIn = true;
     }

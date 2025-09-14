@@ -9,6 +9,7 @@ import 'package:ddnuvem/views/intro_page.dart';
 import 'package:ddnuvem/views/queues/queue_view_controller.dart';
 import 'package:ddnuvem/views/queues/queue_view_page.dart';
 import 'package:ddnuvem/views/splash_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -102,7 +103,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
     if (!redirectionData.loggedIn) {
       return IntroPage(packageVersion: packageVersion);
     }
-    if (redirectionData.isTelevision
+    if ((redirectionData.isTelevision || kDebugMode)
         && !redirectionData.isDeviceRegistered
         && redirectionData.isInstaller) {
       return const RegisterDevicePage();

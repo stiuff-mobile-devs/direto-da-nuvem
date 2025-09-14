@@ -10,11 +10,30 @@ class SignInService extends ChangeNotifier {
 
   Future<bool> signInWithGoogle() async {
     try {
-      GoogleSignInAccount? googleUser;
-      googleUser = await googleSignIn.signInSilently();
-      googleUser ??= await googleSignIn.signIn();
-      if (googleUser == null) return false;
+      final googleUser = await googleSignIn.signIn();
+      return googleUser != null
+          ? await _signIn(googleUser)
+          : false;
+    } catch (e) {
+      debugPrint("Error on sign in with google: $e");
+      return false;
+    }
+  }
 
+  Future<bool> signInSilently() async {
+    try {
+      final googleUser = await googleSignIn.signInSilently();
+      return googleUser != null
+          ? await _signIn(googleUser)
+          : false;
+    } catch (e) {
+      debugPrint("Error on sign in silently with google: $e");
+      return false;
+    }
+  }
+
+  Future<bool> _signIn(GoogleSignInAccount googleUser) async {
+    try {
       final GoogleSignInAuthentication googleAuth = await googleUser
           .authentication;
 
