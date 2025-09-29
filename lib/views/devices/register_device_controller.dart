@@ -21,6 +21,7 @@ class RegisterDeviceController extends ChangeNotifier {
   final FocusNode localeFocus = FocusNode();
   final FocusNode groupFocus = FocusNode();
   final FocusNode buttonFocus = FocusNode();
+  final FocusNode redButtonFocus = FocusNode();
   UserController? userController;
   final BuildContext context;
 
