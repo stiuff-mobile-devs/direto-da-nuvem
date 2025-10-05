@@ -37,9 +37,9 @@ class RegisterDeviceController extends ChangeNotifier {
     if (v != true) {
       return false;
     }
-    if (_groupId == null) {
-      return false;
-    }
+    // if (_groupId == null) {
+    //   return false;
+    // }
 
     return true;
   }
@@ -52,7 +52,7 @@ class RegisterDeviceController extends ChangeNotifier {
       id: "",
       description: description,
       locale: locale,
-      groupId: _groupId!,
+      groupId: _groupId ?? "",
       registeredBy: currentUser?.id ?? "",
       registeredByEmail: currentUser?.email ?? "",
       updatedBy: currentUser?.id ?? "",
@@ -65,7 +65,7 @@ class RegisterDeviceController extends ChangeNotifier {
     final currentUser = userController?.currentUser;
     device.description = descriptionController.text;
     device.locale = localeController.text;
-    device.groupId = _groupId!;
+    device.groupId = _groupId ?? "";
     device.updatedAt = DateTime.now();
     device.updatedBy = currentUser?.id ?? "";
     return device;

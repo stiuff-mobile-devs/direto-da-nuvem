@@ -21,13 +21,14 @@ class ImageAdapter extends TypeAdapter<Image> {
       createdAt: fields[2] as DateTime?,
       createdBy: fields[3] as String?,
       data: fields[1] as Uint8List?,
+      uploaded: fields[4] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Image obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.path)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class ImageAdapter extends TypeAdapter<Image> {
       ..writeByte(2)
       ..write(obj.createdAt)
       ..writeByte(3)
-      ..write(obj.createdBy);
+      ..write(obj.createdBy)
+      ..writeByte(4)
+      ..write(obj.uploaded);
   }
 
   @override

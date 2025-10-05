@@ -6,7 +6,6 @@ import 'package:ddnuvem/utils/custom_dialog.dart';
 import 'package:ddnuvem/utils/custom_snackbar.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/devices/register_device_controller.dart';
-import 'package:ddnuvem/views/devices/widgets/dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
@@ -93,7 +92,7 @@ class RegisterDevicePage extends StatelessWidget {
                           onKeyEvent: (node, event) {
                             if (event is KeyDownEvent &&
                                 event.logicalKey == LogicalKeyboardKey.arrowDown) {
-                              FocusScope.of(node.context!).requestFocus(controller.groupFocus);
+                              FocusScope.of(node.context!).requestFocus(controller.buttonFocus);
                               return KeyEventResult.handled;
                             }
                             if (event is KeyDownEvent &&
@@ -139,7 +138,7 @@ class RegisterDevicePage extends StatelessWidget {
                           onKeyEvent: (node, event) {
                             if (event is KeyDownEvent &&
                                 event.logicalKey == LogicalKeyboardKey.arrowUp) {
-                              FocusScope.of(node.context!).requestFocus(controller.groupFocus);
+                              FocusScope.of(node.context!).requestFocus(controller.localeFocus);
                               return KeyEventResult.handled;
                             }
                             if (event is KeyDownEvent &&
@@ -231,16 +230,28 @@ class RegisterDevicePage extends StatelessWidget {
   Widget choseGroup(RegisterDeviceController controller) {
     return Consumer<GroupController>(
       builder: (context, groupController, _) {
-        return TvDropdown(
-          selected: controller.device?.groupId,
-          options: groupController.groups.map((e) => e.name).toList(),
-          onSelected: (value) {
-            controller.selectGroup(value);
+        List<DropdownMenuEntry<String>> entries = groupController.groups.map(
+              (e) {
+            return DropdownMenuEntry<String>(value: e.id, label: e.name);
           },
+        ).toList();
+
+        return DropdownMenu<String>(
+          initialSelection: controller.device?.groupId,
           focusNode: controller.groupFocus,
-          label: "Selecionar Grupo",
+          width: MediaQuery.of(context).size.width - 16,
+          dropdownMenuEntries: entries,
+          onSelected: controller.selectGroup,
+          label: const Text("Selecionar Grupo"),
+          inputDecorationTheme: const InputDecorationTheme(
+            floatingLabelStyle: TextStyle(color: Colors.blueGrey),
+            border: OutlineInputBorder(),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey, width: 2),
+            ),
+          ),
         );
-      }
+      },
     );
   }
 
