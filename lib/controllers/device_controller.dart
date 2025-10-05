@@ -155,18 +155,17 @@ class DeviceController extends ChangeNotifier {
   }
 
   _fetchGroup() async {
-    if (device != null) {
+    if (device != null && device!.groupId.isNotEmpty) {
       group = await _diretoDaNuvemAPI.groupResource.get(device!.groupId);
-      Stream<Group?>? deviceGroupStream = _diretoDaNuvemAPI.groupResource
-          .getStream(device!.groupId);
+      Stream<Group?>? deviceGroupStream =
+          _diretoDaNuvemAPI.groupResource.getStream(device!.groupId);
 
       _currentGroupSubscription?.cancel();
       _currentGroupSubscription = deviceGroupStream.listen((group) {
         this.group = group;
         _fetchCurrentQueue();
         notifyListeners();
-      },
-      onError: (e) {
+      }, onError: (e) {
         debugPrint("Erro ao escutar stream do grupo do dispositivo: $e");
       });
     }
@@ -255,8 +254,8 @@ class DeviceController extends ChangeNotifier {
     return count;
   }
 
-  List<Device> listDevicesInGroups(Set<String> groupIds) {
-    if (groupIds.isEmpty) {
+  List<Device> listDevicesInGroups(Set<String> groupIds, bool superAdmin) {
+    if (superAdmin || groupIds.isEmpty) {
       return devices;
     }
     List<Device> devicesInGroups = [];

@@ -58,11 +58,10 @@ class DevicesPage extends StatelessWidget {
                     DevicesFilterController, ConnectionService>(
                   builder: (context, deviceController, groupController,
                       filterController, connectionService, _) {
-                    UserController userController =
-                    context.read<UserController>();
+                    final superAdmin = context.read<UserController>()
+                        .isCurrentUserSuperAdmin();
                     final adminGroups = groupController
-                        .getAdminGroups(userController
-                        .isCurrentUserSuperAdmin());
+                        .getAdminGroups(superAdmin);
                     final adminGroupIds = adminGroups.map((g) => g.id).toSet();
 
                     final filterGroupIds = filterController.filters.isNotEmpty
@@ -70,7 +69,7 @@ class DevicesPage extends StatelessWidget {
                         : adminGroupIds;
 
                     final devices =
-                        deviceController.listDevicesInGroups(filterGroupIds);
+                        deviceController.listDevicesInGroups(filterGroupIds,superAdmin);
 
                     if (index >= devices.length) {
                       return const SizedBox.shrink();
@@ -97,7 +96,7 @@ class DevicesPage extends StatelessWidget {
                     : adminGroupIds;
 
                 return deviceController
-                    .listDevicesInGroups(filterGroupIds)
+                    .listDevicesInGroups(filterGroupIds,userController.isCurrentUserSuperAdmin())
                     .length;
               }(),
             ),

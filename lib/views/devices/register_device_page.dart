@@ -8,6 +8,7 @@ import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/devices/register_device_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 
 class RegisterDevicePage extends StatelessWidget {
   final Device? device;
@@ -43,70 +44,133 @@ class RegisterDevicePage extends StatelessWidget {
                     key: controller.formKey,
                     child: Column(
                       children: [
-                        TextFormField(
-                          focusNode: controller.descriptionFocus,
-                          controller: controller.descriptionController,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Campo obrigatório';
+                        Focus(
+                          onKeyEvent: (node, event) {
+                            if (event is KeyDownEvent &&
+                                event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                              FocusScope.of(node.context!).requestFocus(controller.localeFocus);
+                              return KeyEventResult.handled;
                             }
-                            return null;
+                            if (event is KeyDownEvent &&
+                                event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                              FocusScope.of(node.context!).requestFocus(controller.redButtonFocus);
+                              return KeyEventResult.handled;
+                            }
+                            if (event.logicalKey == LogicalKeyboardKey.select ||
+                                event.logicalKey == LogicalKeyboardKey.enter) {
+                              controller.descriptionFocus.requestFocus();
+                              return KeyEventResult.handled;
+                            }
+                            return KeyEventResult.ignored;
                           },
-                          decoration: const InputDecoration(
-                            floatingLabelStyle: TextStyle(color: Colors.blueGrey),
-                            labelText: "Descrição",
-                            border: OutlineInputBorder(),
-                            hintText: "Descrição do dispositivo",
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey, width: 2),
+                          child: TextFormField(
+                            autofocus: false,
+                            focusNode: controller.descriptionFocus,
+                            controller: controller.descriptionController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Campo obrigatório';
+                              }
+                              return null;
+                            },
+                            decoration: const InputDecoration(
+                              floatingLabelStyle: TextStyle(color: Colors.blueGrey),
+                              labelText: "Descrição",
+                              border: OutlineInputBorder(),
+                              hintText: "Descrição do dispositivo",
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey, width: 2),
+                              ),
                             ),
-                          ),
+                            onTap: () {
+                              controller.descriptionFocus.requestFocus();
+                            },
+                          )
                         ),
                         const SizedBox(height: 12),
-                        TextFormField(
-                          focusNode: controller.localeFocus,
-                          controller: controller.localeController,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Campo obrigatório';
+                        Focus(
+                          onKeyEvent: (node, event) {
+                            if (event is KeyDownEvent &&
+                                event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                              FocusScope.of(node.context!).requestFocus(controller.buttonFocus);
+                              return KeyEventResult.handled;
                             }
-                            return null;
+                            if (event is KeyDownEvent &&
+                                event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                              FocusScope.of(node.context!).requestFocus(controller.descriptionFocus);
+                              return KeyEventResult.handled;
+                            }
+                            if (event.logicalKey == LogicalKeyboardKey.select ||
+                                event.logicalKey == LogicalKeyboardKey.enter) {
+                              controller.descriptionFocus.requestFocus();
+                              return KeyEventResult.handled;
+                            }
+                            return KeyEventResult.ignored;
                           },
-                          decoration: const InputDecoration(
-                            floatingLabelStyle: TextStyle(color: Colors.blueGrey),
-                            hintText: "Local do dispositivo",
-                            labelText: 'Localização',
-                            border: OutlineInputBorder(),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey, width: 2),
+                          child: TextFormField(
+                            autofocus: false,
+                            focusNode: controller.localeFocus,
+                            controller: controller.localeController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Campo obrigatório';
+                              }
+                              return null;
+                            },
+                            decoration: const InputDecoration(
+                              floatingLabelStyle: TextStyle(color: Colors.blueGrey),
+                              hintText: "Local do dispositivo",
+                              labelText: 'Localização',
+                              border: OutlineInputBorder(),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey, width: 2),
+                              ),
                             ),
-                          ),
+                            onTap: () {
+                              controller.descriptionFocus.requestFocus();
+                            },
+                          )
                         ),
                         const SizedBox(height: 12),
                         choseGroup(controller),
                         const SizedBox(height: 12),
-                        ElevatedButton(
-                          focusNode: controller.buttonFocus,
-                          onPressed: () async {
-                            if (!controller.validate()) {
-                              return;
+                        Focus(
+                          onKeyEvent: (node, event) {
+                            if (event is KeyDownEvent &&
+                                event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                              FocusScope.of(node.context!).requestFocus(controller.localeFocus);
+                              return KeyEventResult.handled;
                             }
-                            if (device == null) {
-                              final newDevice = controller.newDevice();
-                              await deviceController.register(newDevice, context);
-                            } else {
-                              final newDevice = controller.updatedDevice(device!);
-                              await _onUpdateDevice(newDevice, context);
+                            if (event is KeyDownEvent &&
+                                event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                              FocusScope.of(node.context!).requestFocus(controller.redButtonFocus);
+                              return KeyEventResult.handled;
                             }
+                            return KeyEventResult.ignored;
                           },
-                          style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 50),
-                              backgroundColor: AppTheme.primaryBlue
-                          ),
-                          child: Text(device != null
-                              ? "Atualizar"
-                              : "Cadastrar",
-                          style: const TextStyle(color: Colors.white)),
+                          child: ElevatedButton(
+                            focusNode: controller.buttonFocus,
+                            onPressed: () async {
+                              if (!controller.validate()) {
+                                return;
+                              }
+                              if (device == null) {
+                                final newDevice = controller.newDevice();
+                                await deviceController.register(newDevice, context);
+                              } else {
+                                final newDevice = controller.updatedDevice(device!);
+                                await _onUpdateDevice(newDevice, context);
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 50),
+                                backgroundColor: AppTheme.primaryBlue
+                            ),
+                            child: Text(device != null
+                                ? "Atualizar"
+                                : "Cadastrar",
+                            style: const TextStyle(color: Colors.white)),
+                          )
                         ),
                         if (device != null) ...[
                           const SizedBox(height: 5),
@@ -123,17 +187,33 @@ class RegisterDevicePage extends StatelessWidget {
                           )
                         ] else ...[
                           const SizedBox(height: 5),
-                          ElevatedButton(
-                            onPressed: () => _logout(context),  
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.primaryRed,
-                              minimumSize: const Size(double.infinity, 50),
-                            ),
-                            child: const Text(
-                              "Sair",
-                              style: TextStyle(color: Colors.white),
+                          Focus(
+                            onKeyEvent: (node, event) {
+                              if (event is KeyDownEvent &&
+                                  event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                                FocusScope.of(node.context!).requestFocus(controller.buttonFocus);
+                                return KeyEventResult.handled;
+                              }
+                              if (event is KeyDownEvent &&
+                                  event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                                FocusScope.of(node.context!).requestFocus(controller.descriptionFocus);
+                                return KeyEventResult.handled;
+                              }
+                              return KeyEventResult.ignored;
+                            },
+                            child: ElevatedButton(
+                              focusNode: controller.redButtonFocus,
+                              onPressed: () => _logout(context),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.primaryRed,
+                                minimumSize: const Size(double.infinity, 50),
+                              ),
+                              child: const Text(
+                                "Sair",
+                                style: TextStyle(color: Colors.white),
+                              )
                             )
-                          )
+                          ),
                         ]
                       ],
                     )
@@ -151,7 +231,7 @@ class RegisterDevicePage extends StatelessWidget {
     return Consumer<GroupController>(
       builder: (context, groupController, _) {
         List<DropdownMenuEntry<String>> entries = groupController.groups.map(
-          (e) {
+              (e) {
             return DropdownMenuEntry<String>(value: e.id, label: e.name);
           },
         ).toList();

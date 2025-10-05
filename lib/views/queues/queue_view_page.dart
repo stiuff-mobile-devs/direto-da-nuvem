@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/utils/loading_widget.dart';
+import 'package:flutter/services.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/queues/queue_view_controller.dart';
 import 'package:flutter_svg/svg.dart';
@@ -38,38 +39,55 @@ class _QueueViewPageState extends State<QueueViewPage> {
     }
 
     if (showView) {
-      return GestureDetector (
-        onTap: () {
-          if (!registered) {
-            _unregisteredDeviceDialog();
-          } else {
-            setState(() {
-              showView = false;
-            });
+      return Focus(
+        onKeyEvent: (node, event) {
+          if (event is KeyDownEvent &&
+              (event.logicalKey == LogicalKeyboardKey.select ||
+                  event.logicalKey == LogicalKeyboardKey.enter)) {
+            if (!registered) {
+              _unregisteredDeviceDialog();
+            } else {
+              setState(() {
+                showView = false;
+              });
+            }
+            return KeyEventResult.handled;
           }
+          return KeyEventResult.ignored;
         },
-        child: CarouselSlider(
-          options: CarouselOptions(
-            height: MediaQuery.of(context).size.height,
-            viewportFraction: 1.0,
-            autoPlay: true,
-            autoPlayInterval: const Duration(milliseconds: 10000),
-            enlargeCenterPage: true,
-          ),
-          items: widget.queue!.images.map((image) {
-            return Container(
-              width: MediaQuery.of(context).size.width,
-              margin: const EdgeInsets.symmetric(horizontal: 5.0),
-              child: image.data != null
-                  ? Image.memory(
-                image.data!,
-                fit: BoxFit.cover,
-              )
-                  : Container(
-                color: Colors.grey,
-              ),
-            );
-          }).toList(),
+        child: GestureDetector (
+          onTap: () {
+            if (!registered) {
+              _unregisteredDeviceDialog();
+            } else {
+              setState(() {
+                showView = false;
+              });
+            }
+          },
+          child: CarouselSlider(
+            options: CarouselOptions(
+              height: MediaQuery.of(context).size.height,
+              viewportFraction: 1.0,
+              autoPlay: true,
+              autoPlayInterval: const Duration(milliseconds: 10000),
+              enlargeCenterPage: true,
+            ),
+            items: widget.queue!.images.map((image) {
+              return Container(
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: image.data != null
+                    ? Image.memory(
+                  image.data!,
+                  fit: BoxFit.cover,
+                )
+                    : Container(
+                  color: Colors.grey,
+                ),
+              );
+            }).toList(),
+          )
         )
       );
     } else {

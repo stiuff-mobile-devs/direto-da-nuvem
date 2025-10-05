@@ -1,8 +1,6 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
-import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/services/local_storage_service.dart';
 import 'package:ddnuvem/utils/loading_widget.dart';
-import 'package:ddnuvem/utils/no_connection_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -20,7 +18,6 @@ class IntroPage extends StatefulWidget {
 class _IntroPageState extends State<IntroPage> {
   late UserController userController;
   late LocalStorageService localStorageService;
-  late ConnectionService connectionService;
   bool isFirstTime = false;
   bool loading = true;
 
@@ -74,7 +71,6 @@ class _IntroPageState extends State<IntroPage> {
       return loadingWidget(context);
     }
 
-    connectionService = Provider.of<ConnectionService>(context, listen: true);
     return OrientationBuilder(
       builder: (context, orientation) {
         if (orientation == Orientation.portrait){
@@ -103,9 +99,7 @@ class _IntroPageState extends State<IntroPage> {
                           buttonType: ButtonType.googleDark,
                           btnText: "Entrar com o Google",
                           onPressed: () {
-                            connectionService.connectionStatus
-                              ? userController.login(context)
-                              : noConnectionDialog(context).show();
+                            userController.login(context);
                           },
                         ),
                         const SizedBox(height: 15),
@@ -149,9 +143,7 @@ class _IntroPageState extends State<IntroPage> {
                               buttonType: ButtonType.googleDark,
                               btnText: "Entrar com o Google",
                               onPressed: () {
-                                connectionService.connectionStatus
-                                    ? userController.login(context)
-                                    : noConnectionDialog(context).show();
+                                userController.login(context);
                               },
                             ),
                             const SizedBox(height: 5),
