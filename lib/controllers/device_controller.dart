@@ -39,10 +39,8 @@ class DeviceController extends ChangeNotifier {
   _initialize() async {
     await _getDeviceInfo();
     if (_signInService.isLoggedIn()) {
-      if (isTelevision) {
-        await _checkIsRegistered();
-        await _fetchGroupAndQueue();
-      }
+      await _checkIsRegistered();
+      await _fetchGroupAndQueue();
       await loadDevices();
     }
     loadingInitialState = false;
@@ -62,10 +60,8 @@ class DeviceController extends ChangeNotifier {
     if (_signInService.isLoggedIn()) {
       loadingInitialState = true;
       notifyListeners();
-      if (isTelevision) {
-        await _checkIsRegistered();
-        await _fetchGroupAndQueue();
-      }
+      await _checkIsRegistered();
+      await _fetchGroupAndQueue();
       await loadDevices();
       loadingInitialState = false;
       notifyListeners();
@@ -89,20 +85,18 @@ class DeviceController extends ChangeNotifier {
       try {
         androidInfo = await _deviceInfoPlugin.androidInfo;
         if (androidInfo != null) {
-          isTelevision = androidInfo!.systemFeatures
-              .contains("android.software.leanback");
+          // isTelevision = androidInfo!.systemFeatures
+          //     .contains("android.software.leanback");
 
-          if (isTelevision) {
-            // Impede o bloqueio automático de tela
-            await WakelockPlus.enable();
-            // Solicita permissão de execução em segundo plano se necessário
-            if (await Permission.ignoreBatteryOptimizations.isDenied) {
-              await Permission.ignoreBatteryOptimizations.request();
-            }
-            // Solicita permissão para sobrepor outros aplicativos
-            if (await Permission.systemAlertWindow.isDenied) {
-              await Permission.systemAlertWindow.request();
-            }
+          // Impede o bloqueio automático de tela
+          await WakelockPlus.enable();
+          // Solicita permissão de execução em segundo plano se necessário
+          if (await Permission.ignoreBatteryOptimizations.isDenied) {
+            await Permission.ignoreBatteryOptimizations.request();
+          }
+          // Solicita permissão para sobrepor outros aplicativos
+          if (await Permission.systemAlertWindow.isDenied) {
+            await Permission.systemAlertWindow.request();
           }
         }
       } catch (e) {

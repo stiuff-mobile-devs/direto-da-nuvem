@@ -9,7 +9,6 @@ import 'package:ddnuvem/views/intro_page.dart';
 import 'package:ddnuvem/views/queues/queue_view_controller.dart';
 import 'package:ddnuvem/views/queues/queue_view_page.dart';
 import 'package:ddnuvem/views/splash_screen.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -78,9 +77,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
 
         redirectionData.showSplash = !deviceController.showedSplash;
         redirectionData.isTelevision = deviceController.isTelevision;
-        if (redirectionData.isTelevision) {
-          redirectionData.isDeviceRegistered = deviceController.isRegistered;
-        }
+        redirectionData.isDeviceRegistered = deviceController.isRegistered;
 
         redirectionData.isLoading = deviceController.loadingInitialState ||
             userController.loadingInitialState;
@@ -103,15 +100,13 @@ class _RedirectionPageState extends State<RedirectionPage> {
     if (!redirectionData.loggedIn) {
       return IntroPage(packageVersion: packageVersion);
     }
-    if ((redirectionData.isTelevision || kDebugMode)
-        && !redirectionData.isDeviceRegistered
-        && redirectionData.isInstaller) {
+    if (!redirectionData.isDeviceRegistered && redirectionData.isInstaller) {
       return const RegisterDevicePage();
     }
     if (redirectionData.showSplash) {
       return SplashScreen(packageVersion: packageVersion);
     }
-    if (redirectionData.isAdmin && !redirectionData.isTelevision) {
+    if (redirectionData.isAdmin) {
       return const AdminPage();
     }
 
