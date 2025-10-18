@@ -52,6 +52,10 @@ class QueueCreateUpdatePage extends StatelessWidget {
                 var controller = context.read<QueueEditController>();
                 if (!controller.formKey.currentState!.validate()) return;
                 controller.queue.name = controller.nameController.text;
+                controller.queue.duration = controller.durationController.text
+                    .isNotEmpty
+                    ? int.parse(controller.durationController.text)
+                    : 10;
                 controller.queue.status = isSuperAdmin
                     ? QueueStatus.approved
                     : QueueStatus.pending;
@@ -94,22 +98,75 @@ class QueueCreateUpdatePage extends StatelessWidget {
                   key: controller.formKey,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: TextFormField(
-                      validator: (String? value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Campo obrigatório';
-                        }
-                        return null;
-                      },
-                      controller: controller.nameController,
-                      decoration: const InputDecoration(
-                        floatingLabelStyle: TextStyle(color: Colors.blueGrey),
-                        labelText: 'Nome da Fila',
-                        border: OutlineInputBorder(),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey, width: 2),
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          validator: (String? value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Campo obrigatório';
+                            }
+                            return null;
+                          },
+                          controller: controller.nameController,
+                          decoration: const InputDecoration(
+                            floatingLabelStyle: TextStyle(color: Colors.blueGrey),
+                            labelText: 'Nome da Fila',
+                            border: OutlineInputBorder(),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey, width: 2),
+                            ),
+                          ),
                         ),
-                      ),
+                        // DropdownMenu<String>(
+                        //   initialSelection: controller.device?.groupId,
+                        //   focusNode: controller.groupFocus,
+                        //   width: MediaQuery.of(context).size.width - 16,
+                        //   dropdownMenuEntries: entries,
+                        //   onSelected: controller.selectGroup,
+                        //   label: const Text("Selecionar Grupo"),
+                        //   inputDecorationTheme: const InputDecorationTheme(
+                        //     floatingLabelStyle: TextStyle(color: Colors.blueGrey),
+                        //     border: OutlineInputBorder(),
+                        //     focusedBorder: OutlineInputBorder(
+                        //       borderSide: BorderSide(color: Colors.grey, width: 2),
+                        //     ),
+                        //   ),
+                        // ),
+                        const SizedBox(height: 10),
+                        Row (
+                          children: [
+                            SizedBox(
+                              width: 150,
+                              child: TextFormField(
+                                validator: (String? value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Campo obrigatório';
+                                  }
+                                  if (int.tryParse(value) == null) {
+                                    return 'Digite apenas números';
+                                  }
+                                  return null;
+                                },
+                                keyboardType: TextInputType.number,
+                                controller: controller.durationController,
+                                decoration: const InputDecoration(
+                                  floatingLabelStyle: TextStyle(color: Colors.blueGrey),
+                                  labelText: 'Duração',
+                                  border: OutlineInputBorder(),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.grey, width: 2),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            const Text(
+                              'segundo(s)',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),

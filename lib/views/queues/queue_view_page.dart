@@ -70,8 +70,11 @@ class _QueueViewPageState extends State<QueueViewPage> {
               height: MediaQuery.of(context).size.height,
               viewportFraction: 1.0,
               autoPlay: true,
-              autoPlayInterval: const Duration(milliseconds: 10000),
+              autoPlayInterval: Duration(seconds: widget.queue!.duration),
               enlargeCenterPage: true,
+              autoPlayCurve: Curves.bounceOut,
+              autoPlayAnimationDuration: Duration(milliseconds: 2000),
+              scrollDirection: Axis.vertical,
             ),
             items: widget.queue!.images.map((image) {
               return Container(

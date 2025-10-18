@@ -21,6 +21,7 @@ class QueueEditController extends ChangeNotifier {
   bool disposed = false;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
+  TextEditingController durationController = TextEditingController();
   bool imagesLoaded = false;
 
   QueueEditController({required this.context, required this.queue}) {
@@ -28,6 +29,7 @@ class QueueEditController extends ChangeNotifier {
     queueController = context.read<QueueController>();
 
     nameController.text = queue.name;
+    durationController.text = queue.duration.toString();
     queue.updatedBy = currentUserId;
     queue.id.isEmpty ? queue.createdBy = currentUserId
         : queue.updatedAt = DateTime.now();
