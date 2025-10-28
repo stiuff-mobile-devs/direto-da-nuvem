@@ -117,21 +117,8 @@ class QueueCreateUpdatePage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        // DropdownMenu<String>(
-                        //   initialSelection: controller.device?.groupId,
-                        //   focusNode: controller.groupFocus,
-                        //   width: MediaQuery.of(context).size.width - 16,
-                        //   dropdownMenuEntries: entries,
-                        //   onSelected: controller.selectGroup,
-                        //   label: const Text("Selecionar Grupo"),
-                        //   inputDecorationTheme: const InputDecorationTheme(
-                        //     floatingLabelStyle: TextStyle(color: Colors.blueGrey),
-                        //     border: OutlineInputBorder(),
-                        //     focusedBorder: OutlineInputBorder(
-                        //       borderSide: BorderSide(color: Colors.grey, width: 2),
-                        //     ),
-                        //   ),
-                        // ),
+                        const SizedBox(height: 10),
+                        _buildDropDownMenu(context,controller),
                         const SizedBox(height: 10),
                         Row (
                           children: [
@@ -190,6 +177,29 @@ class QueueCreateUpdatePage extends StatelessWidget {
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+
+  _buildDropDownMenu(BuildContext context, QueueEditController c) {
+    List<String> options = ["Horizontal", "Vertical"];
+    List<DropdownMenuEntry<String>> entries = options.map((e) {
+        return DropdownMenuEntry<String>(value: e, label: e);
+      },
+    ).toList();
+
+    return DropdownMenu<String>(
+      initialSelection: c.queue.orientation,
+      width: MediaQuery.of(context).size.width - 16,
+      dropdownMenuEntries: entries,
+      onSelected: c.selectOrientation,
+      label: const Text("Orientação"),
+      inputDecorationTheme: const InputDecorationTheme(
+        floatingLabelStyle: TextStyle(color: Colors.blueGrey),
+        border: OutlineInputBorder(),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey, width: 2),
         ),
       ),
     );

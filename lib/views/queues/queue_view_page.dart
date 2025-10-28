@@ -72,9 +72,9 @@ class _QueueViewPageState extends State<QueueViewPage> {
               autoPlay: true,
               autoPlayInterval: Duration(seconds: widget.queue!.duration),
               enlargeCenterPage: true,
-              autoPlayCurve: Curves.bounceOut,
-              autoPlayAnimationDuration: Duration(milliseconds: 2000),
-              scrollDirection: Axis.vertical,
+              autoPlayCurve: Curves.linear,
+              scrollDirection: widget.queue!.orientation == "Horizontal"
+                  ? Axis.horizontal : Axis.vertical
             ),
             items: widget.queue!.images.map((image) {
               return Container(
