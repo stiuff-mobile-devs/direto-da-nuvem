@@ -167,7 +167,7 @@ class UserController extends ChangeNotifier {
 
     return users.where((user) {
       final userPrivs = <String>{
-        if (user.privileges.isSuperAdmin) 'Super Admin',
+        if (user.privileges.isSuperAdmin) 'Superadmin',
         if (user.privileges.isAdmin) 'Admin',
         if (user.privileges.isInstaller) 'Instalador',
       };
