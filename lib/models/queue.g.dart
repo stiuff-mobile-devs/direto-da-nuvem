@@ -28,14 +28,13 @@ class QueueAdapter extends TypeAdapter<Queue> {
       images: (fields[7] as List).cast<Image>(),
       updatedBy: fields[9] as String,
       updatedAt: fields[10] as DateTime,
-      orientation: fields[12] as String,
     )..updated = fields[8] as bool;
   }
 
   @override
   void write(BinaryWriter writer, Queue obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -59,9 +58,7 @@ class QueueAdapter extends TypeAdapter<Queue> {
       ..writeByte(10)
       ..write(obj.updatedAt)
       ..writeByte(11)
-      ..write(obj.status)
-      ..writeByte(12)
-      ..write(obj.orientation);
+      ..write(obj.status);
   }
 
   @override

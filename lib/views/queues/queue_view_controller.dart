@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
+import 'package:ddnuvem/models/animation.dart' as model;
 import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ class QueueViewController extends ChangeNotifier {
   DiretoDaNuvemAPI diretoDaNuvemAPI;
   DeviceController deviceController;
   Queue? queue;
+  late model.Animation animation;
   bool loadingImages = false;
   bool registeredDevice = false;
   bool disposed = false;
@@ -36,6 +38,7 @@ class QueueViewController extends ChangeNotifier {
     } else {
       queue = await deviceController.getDefaultQueue();
     }
+    animation = model.Animation.getAnimation(queue!.animation);
     await _fetchImages();
     loadingImages = false;
     notifyListeners();

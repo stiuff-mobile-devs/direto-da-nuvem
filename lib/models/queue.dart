@@ -31,8 +31,6 @@ class Queue extends HiveObject {
   DateTime updatedAt;
   @HiveField(11)
   QueueStatus status;
-  @HiveField(12)
-  String orientation;
 
   Queue({
     required this.id,
@@ -46,7 +44,6 @@ class Queue extends HiveObject {
     required this.images,
     required this.updatedBy,
     required this.updatedAt,
-    required this.orientation,
   });
 
   factory Queue.fromMap(String id, Map<String, dynamic> data) {
@@ -55,8 +52,7 @@ class Queue extends HiveObject {
       name: data["name"],
       groupId: data["group_id"],
       duration: data["duration"],
-      orientation: data["orientation"] ?? "Horizontal",
-      animation: data["animation"],
+      animation: data["animation"] ?? "Padrão",
       status: queueStatusFromMap(data["status"]),
       createdAt: (data["created_at"] as Timestamp).toDate(),
       createdBy: data["created_by"],
@@ -72,7 +68,6 @@ class Queue extends HiveObject {
       id: other.id,
       name: other.name,
       groupId: other.groupId,
-      orientation: other.orientation,
       duration: other.duration,
       animation: other.animation,
       status: other.status,
@@ -90,9 +85,8 @@ class Queue extends HiveObject {
       groupId: "",
       status: QueueStatus.pending,
       duration: 10,
-      animation: "",
+      animation: "Padrão",
       createdAt: DateTime.now(),
-      orientation: "Horizontal",
       updatedAt: DateTime.now(),
       updatedBy: "",
       createdBy: "",
@@ -107,7 +101,6 @@ class Queue extends HiveObject {
       "created_by": createdBy,
       "created_at": createdAt,
       "updated_by": updatedBy,
-      "orientation": orientation,
       "updated_at": updatedAt,
       "status": queueStatusToMap(status),
       "animation": animation,

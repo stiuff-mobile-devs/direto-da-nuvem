@@ -45,8 +45,8 @@ class QueueEditController extends ChangeNotifier {
     queue.images.insert(newIndex, item);
     notifyListeners();
   }
-  selectOrientation(String? direction) {
-    queue.orientation = direction ?? "Horizontal";
+  selectAnimation(String? animation) {
+    queue.animation = animation ?? "Padrão";
     notifyListeners();
   }
 

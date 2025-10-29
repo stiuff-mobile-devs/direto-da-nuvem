@@ -1,5 +1,6 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
+import 'package:ddnuvem/models/animation.dart' as model;
 import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/utils/custom_dialog.dart';
 import 'package:ddnuvem/utils/loading_widget.dart';
@@ -183,18 +184,18 @@ class QueueCreateUpdatePage extends StatelessWidget {
   }
 
   _buildDropDownMenu(BuildContext context, QueueEditController c) {
-    List<String> options = ["Horizontal", "Vertical"];
+    List<String> options = model.Animation.getAnimationOptionsList();
     List<DropdownMenuEntry<String>> entries = options.map((e) {
         return DropdownMenuEntry<String>(value: e, label: e);
       },
     ).toList();
 
     return DropdownMenu<String>(
-      initialSelection: c.queue.orientation,
+      initialSelection: c.queue.animation,
       width: MediaQuery.of(context).size.width - 16,
       dropdownMenuEntries: entries,
-      onSelected: c.selectOrientation,
-      label: const Text("Orientação"),
+      onSelected: c.selectAnimation,
+      label: const Text("Animação"),
       inputDecorationTheme: const InputDecorationTheme(
         floatingLabelStyle: TextStyle(color: Colors.blueGrey),
         border: OutlineInputBorder(),
