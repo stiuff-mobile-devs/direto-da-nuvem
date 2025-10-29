@@ -26,9 +26,6 @@ class _IntroPageState extends State<IntroPage> {
     super.initState();
     _getDependencies();
     _loadData();
-    setState(() {
-      loading = false;
-    });
   }
 
   _getDependencies() {
@@ -40,6 +37,9 @@ class _IntroPageState extends State<IntroPage> {
     if (kIsWeb) return;
     await _getIsFirstTime();
     _saveIsFirstTime();
+    setState(() {
+      loading = false;
+    });
   }
 
   _getIsFirstTime() async {
