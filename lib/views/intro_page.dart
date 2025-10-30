@@ -1,6 +1,6 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/local_storage_service.dart';
-import 'package:ddnuvem/utils/loading_widget.dart';
+import 'package:ddnuvem/utils/widgets/loading_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -99,7 +99,7 @@ class _IntroPageState extends State<IntroPage> {
                           buttonType: ButtonType.googleDark,
                           btnText: "Entrar com o Google",
                           onPressed: () {
-                            userController.login(context);
+                            userController.login();
                           },
                         ),
                         const SizedBox(height: 15),
@@ -143,7 +143,7 @@ class _IntroPageState extends State<IntroPage> {
                               buttonType: ButtonType.googleDark,
                               btnText: "Entrar com o Google",
                               onPressed: () {
-                                userController.login(context);
+                                userController.login();
                               },
                             ),
                             const SizedBox(height: 5),

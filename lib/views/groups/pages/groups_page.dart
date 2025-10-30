@@ -3,11 +3,11 @@ import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/services/connection_service.dart';
-import 'package:ddnuvem/utils/custom_snackbar.dart';
-import 'package:ddnuvem/utils/no_connection_dialog.dart';
+import 'package:ddnuvem/utils/widgets/custom_snackbar.dart';
+import 'package:ddnuvem/utils/widgets/no_connection_dialog.dart';
 import 'package:ddnuvem/utils/theme.dart';
-import 'package:ddnuvem/views/groups/group_card.dart';
-import 'package:ddnuvem/views/groups/group_create_page.dart';
+import 'package:ddnuvem/views/groups/widgets/group_card.dart';
+import 'package:ddnuvem/views/groups/pages/group_create_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

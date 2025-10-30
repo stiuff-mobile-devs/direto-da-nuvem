@@ -1,6 +1,6 @@
 import 'package:ddnuvem/models/image.dart' as image_model;
 import 'package:ddnuvem/utils/theme.dart';
-import 'package:ddnuvem/views/queues/queue_edit_controller.dart';
+import 'package:ddnuvem/views/queues/controllers/queue_edit_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

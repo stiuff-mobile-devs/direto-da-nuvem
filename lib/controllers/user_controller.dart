@@ -3,7 +3,6 @@ import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 
 class UserController extends ChangeNotifier {
   final SignInService _signInService;
@@ -38,17 +37,13 @@ class UserController extends ChangeNotifier {
     super.dispose();
   }
 
-  login(BuildContext context) async {
+  login() async {
     loadingInitialState = true;
     notifyListeners();
 
     if (await _signInService.signInWithGoogle()) {
       isLoggedIn = true;
-      await _getCurrentUserInfo();
-      if (isCurrentUserAuthorized() && !currentUser!.authenticated) {
-        await updateAuthenticatedUser();
-      }
-      await _loadAllUsers();
+      await _loadUserData();
     }
 
     loadingInitialState = false;
@@ -67,6 +62,9 @@ class UserController extends ChangeNotifier {
 
   _loadUserData() async {
     await _getCurrentUserInfo();
+    if (isCurrentUserAuthorized() && !currentUser!.authenticated) {
+      await updateAuthenticatedUser();
+    }
     await _loadAllUsers();
   }
 

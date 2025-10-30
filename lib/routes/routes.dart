@@ -1,5 +1,5 @@
 import 'package:ddnuvem/routes/route_paths.dart';
-import 'package:ddnuvem/views/groups/group_page.dart';
+import 'package:ddnuvem/views/groups/pages/group_page.dart';
 import 'package:flutter/material.dart';
 
 class Routes {

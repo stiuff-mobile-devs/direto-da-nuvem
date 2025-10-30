@@ -1,10 +1,10 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
-import 'package:ddnuvem/utils/custom_dialog.dart';
-import 'package:ddnuvem/utils/custom_snackbar.dart';
+import 'package:ddnuvem/utils/widgets/custom_dialog.dart';
+import 'package:ddnuvem/utils/widgets/custom_snackbar.dart';
 import 'package:ddnuvem/utils/email_regex.dart';
 import 'package:ddnuvem/utils/theme.dart';
-import 'package:ddnuvem/views/people/user_create_controller.dart';
+import 'package:ddnuvem/views/people/controllers/user_create_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

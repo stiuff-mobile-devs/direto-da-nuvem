@@ -1,8 +1,8 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/utils/theme.dart';
-import 'package:ddnuvem/views/devices/devices_page.dart';
-import 'package:ddnuvem/views/groups/groups_page.dart';
-import 'package:ddnuvem/views/people/people_page.dart';
+import 'package:ddnuvem/views/devices/pages/devices_page.dart';
+import 'package:ddnuvem/views/groups/pages/groups_page.dart';
+import 'package:ddnuvem/views/people/pages/people_page.dart';
 import 'package:ddnuvem/views/profile/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

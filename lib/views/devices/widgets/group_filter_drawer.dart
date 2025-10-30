@@ -1,6 +1,6 @@
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
-import 'package:ddnuvem/views/devices/devices_filter_controller.dart';
+import 'package:ddnuvem/views/devices/controllers/devices_filter_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

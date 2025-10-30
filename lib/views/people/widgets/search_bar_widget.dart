@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../people_filter_controller.dart';
+import '../controllers/people_filter_controller.dart';
 
 class PeopleSearchBar extends StatefulWidget {
   const PeopleSearchBar({super.key});

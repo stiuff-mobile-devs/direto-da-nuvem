@@ -2,11 +2,11 @@ import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/animation.dart' as model;
 import 'package:ddnuvem/models/queue_status.dart';
-import 'package:ddnuvem/utils/custom_dialog.dart';
-import 'package:ddnuvem/utils/loading_widget.dart';
+import 'package:ddnuvem/utils/widgets/custom_dialog.dart';
+import 'package:ddnuvem/utils/widgets/loading_widget.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/queues/widgets/image_list_tile.dart';
-import 'package:ddnuvem/views/queues/queue_edit_controller.dart';
+import 'package:ddnuvem/views/queues/controllers/queue_edit_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

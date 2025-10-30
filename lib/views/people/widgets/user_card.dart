@@ -2,9 +2,9 @@ import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/connection_service.dart';
-import 'package:ddnuvem/utils/custom_snackbar.dart';
-import 'package:ddnuvem/utils/no_connection_dialog.dart';
-import 'package:ddnuvem/views/people/user_create_page.dart';
+import 'package:ddnuvem/utils/widgets/custom_snackbar.dart';
+import 'package:ddnuvem/utils/widgets/no_connection_dialog.dart';
+import 'package:ddnuvem/views/people/pages/user_create_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
