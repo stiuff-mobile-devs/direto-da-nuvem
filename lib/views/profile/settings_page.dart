@@ -24,6 +24,7 @@ class SettingsPage extends StatelessWidget {
             builder: (context, controller, connection, _) {
           final email = controller.currentUser!.email;
           final photoUrl = controller.profileImageUrl;
+          final privs = (controller.currentUser!.privileges).toString();
 
           return Column(
             children: [
@@ -38,7 +39,7 @@ class SettingsPage extends StatelessWidget {
                     : const Icon(Icons.person)
                 ),
                 title: const Text("Perfil"),
-                subtitle: Text("Logado como $email"),
+                subtitle: Text("$privs\nLogado como $email"),
                 onTap: () {
                   // Navigator.pushNamed(context, "/profile");
                 },
