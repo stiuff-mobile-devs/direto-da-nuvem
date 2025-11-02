@@ -34,9 +34,10 @@ class _IntroPageState extends State<IntroPage> {
   }
 
   _loadData() async {
-    if (kIsWeb) return;
-    await _getIsFirstTime();
-    _saveIsFirstTime();
+    if (!kIsWeb) {
+      await _getIsFirstTime();
+      _saveIsFirstTime();
+    }
     setState(() {
       loading = false;
     });
