@@ -2,6 +2,10 @@
 
 Aplicativo Flutter de sinalização digital para Android TV, voltado à comunicação institucional da Universidade Federal Fluminense. Transmissão de imagens e vídeos em múltiplos dispositivos, organizados em grupos e gerenciados via interface administrativa mobile/web pela Superintendência de Comunicação Social.
 
+🌐 [Acesse o site](https://direto-da-nuvem.web.app)  
+📱 [Baixe na Play Store](https://play.google.com/store/apps/details?id=br.uff.diretoDaUff)  
+🧪 [Participe do Beta](https://play.google.com/apps/testing/br.uff.diretoDaUff)  
+
 ## Funcionalidades
 
 - **Autenticação**: Autenticação com Google usando conta institucional.
