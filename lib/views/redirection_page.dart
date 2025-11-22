@@ -17,7 +17,6 @@ class RedirectionData {
   bool loggedIn;
   bool isInstaller;
   bool isDeviceRegistered;
-  bool isTelevision;
   bool isAdmin;
   bool isLoading;
   bool showSplash;
@@ -26,7 +25,6 @@ class RedirectionData {
     this.loggedIn = false,
     this.isInstaller = false,
     this.isDeviceRegistered = false,
-    this.isTelevision = false,
     this.isAdmin = false,
     this.isLoading = true,
     this.showSplash = false,
@@ -76,7 +74,6 @@ class _RedirectionPageState extends State<RedirectionPage> {
         }
 
         redirectionData.showSplash = !deviceController.showedSplash;
-        redirectionData.isTelevision = deviceController.isTelevision;
         redirectionData.isDeviceRegistered = deviceController.isRegistered;
 
         redirectionData.isLoading = deviceController.loadingInitialState ||
@@ -110,6 +107,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
       return const AdminPage();
     }
 
+    _requestPermissions();
     return ChangeNotifierProvider(
       create: (context) => QueueViewController(
         diretoDaNuvemAPI,
@@ -121,5 +119,9 @@ class _RedirectionPageState extends State<RedirectionPage> {
         },
       )
     );
+  }
+
+  _requestPermissions() async {
+    await context.read<DeviceController>().requestPermissions();
   }
 }

@@ -20,7 +20,6 @@ class DeviceController extends ChangeNotifier {
   Group? group;
   Device? device;
   bool isRegistered = false;
-  bool isTelevision = false;
   Queue? currentQueue;
   Queue? defaultQueue;
   List<Device> devices = [];
@@ -84,23 +83,23 @@ class DeviceController extends ChangeNotifier {
     if (Platform.isAndroid) {
       try {
         androidInfo = await _deviceInfoPlugin.androidInfo;
-        if (androidInfo != null) {
-          // isTelevision = androidInfo!.systemFeatures
-          //     .contains("android.software.leanback");
-
-          // Impede o bloqueio automático de tela
-          await WakelockPlus.enable();
-          // Solicita permissão de execução em segundo plano se necessário
-          if (await Permission.ignoreBatteryOptimizations.isDenied) {
-            await Permission.ignoreBatteryOptimizations.request();
-          }
-          // Solicita permissão para sobrepor outros aplicativos
-          if (await Permission.systemAlertWindow.isDenied) {
-            await Permission.systemAlertWindow.request();
-          }
-        }
       } catch (e) {
         debugPrint("Erro ao obter dados do android: $e");
+      }
+    }
+  }
+
+  requestPermissions() async {
+    if (androidInfo != null) {
+      // Impede o bloqueio automático de tela
+      await WakelockPlus.enable();
+      // Solicita permissão de execução em segundo plano se necessário
+      if (await Permission.ignoreBatteryOptimizations.isDenied) {
+        await Permission.ignoreBatteryOptimizations.request();
+      }
+      // Solicita permissão para sobrepor outros aplicativos
+      if (await Permission.systemAlertWindow.isDenied) {
+        await Permission.systemAlertWindow.request();
       }
     }
   }
