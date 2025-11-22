@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ImageListTile extends StatelessWidget {
-  const ImageListTile({super.key, required this.image});
+  const ImageListTile({super.key, required this.image, this.deleteIcon = true});
 
   final image_model.Image image;
+  final bool deleteIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -25,17 +26,21 @@ class ImageListTile extends StatelessWidget {
               )
           ),
         ),
-        Positioned(
-          top: -8,
-          right: -8,
-          child: IconButton.filled(
-            style: IconButton.styleFrom(
-              backgroundColor: AppTheme.primaryRed,
-            ),
-            onPressed: () {
-              context.read<QueueEditController>().removeQueueImage(image);
-            },
-            icon: const Icon(Icons.close)))
+        if (deleteIcon) ...[
+          Positioned(
+            top: -8,
+            right: -8,
+            child: IconButton.filled(
+              style: IconButton.styleFrom(
+                backgroundColor: AppTheme.primaryRed,
+              ),
+              onPressed: () {
+                context.read<QueueEditController>().removeQueueImage(image);
+              },
+              icon: const Icon(Icons.close)
+            )
+          )
+        ]
       ],
     );
   }

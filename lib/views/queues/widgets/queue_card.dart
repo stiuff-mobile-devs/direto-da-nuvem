@@ -1,6 +1,7 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
+import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/group.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/queue_status.dart';
@@ -13,9 +14,15 @@ import 'package:ddnuvem/views/queues/pages/queue_create_update_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../pages/moderate_queue_page.dart';
+
 class QueueCard extends StatelessWidget {
-  const QueueCard({super.key,
-    required this.group, required this.queue, this.isActive = false});
+  const QueueCard({
+    super.key,
+    required this.group,
+    required this.queue,
+    this.isActive = false
+  });
 
   final Queue queue;
   final Group group;
@@ -23,6 +30,9 @@ class QueueCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userController = context.read<UserController>();
+    final superAdmin = userController.isCurrentUserSuperAdmin();
+    final isAdmin = group.admins.contains(userController.currentUser!.email);
     final connection = context.read<ConnectionService>();
     String numberOfPhotos = queue.images.length == 1
         ? "${queue.images.length} foto"
@@ -73,8 +83,17 @@ class QueueCard extends StatelessWidget {
               ),
               Row(
                 children: [
-                  _queueStatusIcon(queue.status),
-                  if (!isActive) ...[
+                  IconButton(
+                    onPressed: () {
+                      if (superAdmin) {
+                        !connection.connectionStatus
+                            ? noConnectionDialog(context).show()
+                            : _pushModerateQueuePage(context);
+                      }
+                    },
+                    icon: _queueStatusIcon(queue.status),
+                  ),
+                  if (!isActive && isAdmin) ...[
                     IconButton(
                       onPressed: () {
                         !connection.connectionStatus
@@ -120,6 +139,30 @@ class QueueCard extends StatelessWidget {
             try {
               await controller.deleteQueue(queue.id);
               text = "Fila excluída com sucesso!";
+            } catch (e) {
+              text = e.toString();
+            }
+            snackBar.buildMessage(text);
+          },
+        ),
+      ),
+    );
+  }
+
+  _pushModerateQueuePage(BuildContext context) {
+    final controller = context.read<QueueController>();
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ModerateQueuePage(
+          queue: Queue.copy(queue),
+          onSave: (queue) async {
+            Navigator.pop(context);
+            final snackBar = CustomSnackbar(context);
+            String text;
+            try {
+              await controller.updateQueue(queue);
+              text = "Fila atualizada com sucesso!";
             } catch (e) {
               text = e.toString();
             }

@@ -32,26 +32,30 @@ class GroupPage extends StatelessWidget {
           appBar: AppBar(
             title: Text(group!.name),
             actions: [
-              IconButton(
-                onPressed: () {
-                  connection.connectionStatus
-                    ? _pushEditGroupPage(context, group!)
-                    : noConnectionDialog(context).show();
-                },
-                icon: const Icon(Icons.edit),
-              ),
+              if (group.admins.contains(userController.currentUser!.email)) ...[
+                IconButton(
+                  onPressed: () {
+                    connection.connectionStatus
+                      ? _pushEditGroupPage(context, group!)
+                      : noConnectionDialog(context).show();
+                  },
+                  icon: const Icon(Icons.edit),
+                ),
+              ]
             ],
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              connection.connectionStatus
-                  ? _pushCreateQueuePage(context, group!)
-                  : noConnectionDialog(context).show();
-            },
-            backgroundColor: AppTheme.primaryBlue,
-            foregroundColor: Colors.white,
-            child: const Icon(Icons.add),
-          ),
+          floatingActionButton: group.admins.contains(userController.currentUser!.email)
+              ? FloatingActionButton(
+                onPressed: () {
+                  connection.connectionStatus
+                      ? _pushCreateQueuePage(context, group!)
+                      : noConnectionDialog(context).show();
+                },
+                backgroundColor: AppTheme.primaryBlue,
+                foregroundColor: Colors.white,
+                child: const Icon(Icons.add),
+              )
+              : const SizedBox.shrink(),
           body: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Consumer<QueueController>(

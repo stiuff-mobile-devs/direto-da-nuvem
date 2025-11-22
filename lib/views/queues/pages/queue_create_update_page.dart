@@ -71,18 +71,6 @@ class QueueCreateUpdatePage extends StatelessWidget {
         floatingActionButton: Column (
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            isSuperAdmin && queue.id.isNotEmpty ?
-            FloatingActionButton(
-              heroTag: "moderate",
-              onPressed: () {
-                _showModerationDialog(context,queue.status);
-              },
-              backgroundColor: _queueStatusIcon(queue.status),
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              tooltip: "Moderar fila",
-              child: const Icon(Icons.local_police_outlined),
-            ) : const SizedBox.shrink(),
-            const SizedBox(height: 5),
             FloatingActionButton(
               heroTag: "addImage",
               onPressed: context.read<QueueEditController>().pickImage,
@@ -240,80 +228,5 @@ class QueueCreateUpdatePage extends StatelessWidget {
         ],
       )
     );
-  }
-
-  _showModerationDialog(BuildContext context, QueueStatus status) {
-    var controller = context.read<QueueEditController>();
-    customDialog(
-      context,
-      "Moderar fila",
-      "Esta fila está ${_queueStatusString(status)}.",
-      Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              controller.queue.status = QueueStatus.approved;
-              onSave(controller.queue);
-            },
-            style: ElevatedButton.styleFrom(
-                minimumSize: const Size(200, 50),
-                maximumSize: const Size(200, 50),
-                backgroundColor: Colors.green,
-                visualDensity: VisualDensity.compact
-            ),
-            child: const Text("Aprovar", style: TextStyle(
-                color: Colors.white)),
-          ),
-          const SizedBox(height: 5),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              controller.queue.status = QueueStatus.rejected;
-              onSave(controller.queue);
-            },
-            style: ElevatedButton.styleFrom(
-                minimumSize: const Size(200, 50),
-                maximumSize: const Size(200, 50),
-                backgroundColor: AppTheme.primaryRed,
-                visualDensity: VisualDensity.compact
-            ),
-            child: const Text("Rejeitar", style: TextStyle(
-                color: Colors.white)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-            ),
-            child: const Text("Fechar", style: TextStyle(
-                color: AppTheme.primaryBlue)),
-          ),
-        ],
-      )
-    );
-  }
-
-  _queueStatusIcon(QueueStatus status) {
-    switch (status) {
-      case QueueStatus.approved:
-        return Colors.green;
-      case QueueStatus.rejected:
-        return AppTheme.primaryRed;
-      case QueueStatus.pending:
-        return Colors.orange;
-    }
-  }
-
-  _queueStatusString(QueueStatus status) {
-    switch (status) {
-      case QueueStatus.approved:
-        return "aprovada";
-      case QueueStatus.rejected:
-        return "rejeitada";
-      case QueueStatus.pending:
-        return "pendente";
-    }
   }
 }
