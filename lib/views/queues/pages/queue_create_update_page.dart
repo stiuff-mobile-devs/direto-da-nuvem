@@ -15,11 +15,13 @@ class QueueCreateUpdatePage extends StatelessWidget {
       {super.key, required this.queue,
         required this.onSave,
         this.onDelete,
-        this.isActive = false
+        this.isActive = false,
+        this.isLastOne = false
       });
 
   final Queue queue;
   final bool isActive;
+  final bool isLastOne;
   final void Function(Queue) onSave;
   final void Function(Queue)? onDelete;
 
@@ -38,7 +40,7 @@ class QueueCreateUpdatePage extends StatelessWidget {
         appBar: AppBar(
           title: Text("$titleAction fila"),
           actions: [
-            queue.id.isNotEmpty && !isActive ?
+            queue.id.isNotEmpty && !isLastOne ?
             IconButton(
               color: AppTheme.primaryRed,
               onPressed: () {

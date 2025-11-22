@@ -165,4 +165,11 @@ class QueueController extends ChangeNotifier {
 
     return false;
   }
+
+  int totalQueuesOnGroup(String groupId) {
+    final filteredQueues = queues.where(
+            (queue) => queue.groupId == groupId).toList();
+
+    return filteredQueues.length;
+  }
 }

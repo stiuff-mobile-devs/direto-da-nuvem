@@ -74,14 +74,15 @@ class QueueCard extends StatelessWidget {
               Row(
                 children: [
                   _queueStatusIcon(queue.status),
-                  IconButton(
-                    onPressed: () {
-                      !connection.connectionStatus
-                        ? noConnectionDialog(context).show()
-                        : _pushUpdateQueuePage(context);
-                    },
-                    icon: const Icon(Icons.edit),
-                  ),
+                  if (!isActive) ...[
+                    IconButton(
+                      onPressed: () {
+                        !connection.connectionStatus
+                            ? noConnectionDialog(context).show()
+                            : _pushUpdateQueuePage(context);
+                      },
+                      icon: const Icon(Icons.edit))
+                  ],
                 ],
               )
             ],
@@ -99,6 +100,7 @@ class QueueCard extends StatelessWidget {
         builder: (_) => QueueCreateUpdatePage(
           queue: Queue.copy(queue),
           isActive: isActive,
+          isLastOne: controller.totalQueuesOnGroup(queue.groupId) == 1,
           onSave: (queue) async {
             Navigator.pop(context);
             final snackBar = CustomSnackbar(context);
