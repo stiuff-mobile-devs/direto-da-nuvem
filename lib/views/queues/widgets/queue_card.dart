@@ -93,21 +93,55 @@ class QueueCard extends StatelessWidget {
                     },
                     icon: _queueStatusIcon(queue.status),
                   ),
-                  if (!isActive && isAdmin) ...[
-                    IconButton(
-                      onPressed: () {
-                        !connection.connectionStatus
-                            ? noConnectionDialog(context).show()
-                            : _pushUpdateQueuePage(context);
-                      },
-                      icon: const Icon(Icons.edit))
-                  ],
+                  if (isAdmin) ...[
+                    _popUpMenuButton(context, connection.connectionStatus)
+                  ]
                 ],
               )
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _popUpMenuButton(BuildContext context, bool connectionStatus) {
+    return PopupMenuButton<String>(
+      onSelected: (value) {
+        if (!connectionStatus) {
+          noConnectionDialog(context).show();
+        } else {
+          if (value == "edit") {
+            _pushUpdateQueuePage(context);
+          } else {
+            _createCopyDialog(context);
+          }
+        }
+      },
+      itemBuilder: (context) => [
+        if (!isActive) ...[
+          const PopupMenuItem(
+            value: "edit",
+            child: Row (
+              children: [
+                Icon(Icons.edit),
+                SizedBox(width: 10),
+                Text("Editar"),
+              ],
+            ),
+          ),
+        ],
+        const PopupMenuItem(
+          value: "copy",
+          child: Row (
+            children: [
+              Icon(Icons.copy),
+              SizedBox(width: 10),
+              Text("Copiar"),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -213,6 +247,97 @@ class QueueCard extends StatelessWidget {
         ],
       )
     );
+  }
+
+  _createCopyDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        GlobalKey<FormState> formKey = GlobalKey<FormState>();
+        final TextEditingController controller = TextEditingController();
+
+        return AlertDialog(
+          title: const Text("Criar cópia da fila", textAlign: TextAlign.center),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              validator: (String? value) {
+                if (value == null || value.isEmpty) {
+                  return 'Campo obrigatório';
+                }
+                if (value == queue.name) {
+                  return 'O nome precisa ser diferente';
+                }
+                return null;
+              },
+              controller: controller,
+              decoration: const InputDecoration(
+                floatingLabelStyle: TextStyle(color: Colors.blueGrey),
+                labelText: 'Nome da Fila',
+                border: OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey, width: 2),
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            Center (
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (!formKey.currentState!.validate()) return;
+                      Navigator.pop(context);
+                      await _createCopy(queue, controller.text, context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(200, 50),
+                        backgroundColor: AppTheme.primaryBlue,
+                        visualDensity: VisualDensity.compact
+                    ),
+                    child: const Text("Criar fila", style: TextStyle(
+                        color: Colors.white)),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    child: const Text("Fechar", style: TextStyle(
+                        color: AppTheme.primaryBlue)),
+                  ),
+                ]
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  _createCopy(Queue queue, String newName, BuildContext context) async {
+    final userController = context.read<UserController>();
+    final queueController = context.read<QueueController>();
+    final snackBar = CustomSnackbar(context);
+    String snackBarText;
+
+    Queue newQueue = Queue.copy(queue);
+    newQueue.name = newName;
+    newQueue.createdBy = userController.currentUser!.id;
+    newQueue.updatedBy = userController.currentUser!.id;
+    newQueue.createdAt = DateTime.now();
+    newQueue.updatedAt = DateTime.now();
+
+    try {
+      await queueController.createQueue(newQueue);
+      snackBarText = "Cópia criada com sucesso!";
+    } catch (e) {
+      snackBarText = e.toString();
+    }
+    snackBar.buildMessage(snackBarText);
   }
 
   _showPendingQueueDialog(BuildContext context, QueueStatus status) {
