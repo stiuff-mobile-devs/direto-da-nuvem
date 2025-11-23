@@ -247,10 +247,7 @@ class DeviceController extends ChangeNotifier {
     return count;
   }
 
-  List<Device> listDevicesInGroups(Set<String> groupIds, bool superAdmin) {
-    if (superAdmin || groupIds.isEmpty) {
-      return devices;
-    }
+  List<Device> listDevicesInGroups(Set<String> groupIds) {
     List<Device> devicesInGroups = [];
     for (var device in devices) {
       if (groupIds.contains(device.groupId)) {

@@ -69,7 +69,7 @@ class DevicesPage extends StatelessWidget {
                         : adminGroupIds;
 
                     final devices =
-                        deviceController.listDevicesInGroups(filterGroupIds,superAdmin);
+                        deviceController.listDevicesInGroups(filterGroupIds);
 
                     if (index >= devices.length) {
                       return const SizedBox.shrink();
@@ -96,7 +96,7 @@ class DevicesPage extends StatelessWidget {
                     : adminGroupIds;
 
                 return deviceController
-                    .listDevicesInGroups(filterGroupIds,userController.isCurrentUserSuperAdmin())
+                    .listDevicesInGroups(filterGroupIds)
                     .length;
               }(),
             ),

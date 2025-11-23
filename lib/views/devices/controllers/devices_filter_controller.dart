@@ -2,16 +2,15 @@ import 'package:ddnuvem/models/group.dart';
 import 'package:flutter/material.dart';
 
 class DevicesFilterController extends ChangeNotifier {
-  Set<Group> filters = {
-  };
+  Set<Group> filters = {};
 
-  addFilter(Group groupName) {
-    filters.add(groupName);
+  addFilter(Group group) {
+    filters.add(group);
     notifyListeners();
   }
 
-  removeFilter(Group filterName) {
-    filters.remove(filterName);
+  removeFilter(Group filterGroup) {
+    filters.remove(filterGroup);
     notifyListeners();
   }
 }
