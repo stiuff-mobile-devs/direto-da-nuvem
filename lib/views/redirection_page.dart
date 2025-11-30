@@ -107,7 +107,6 @@ class _RedirectionPageState extends State<RedirectionPage> {
       return const AdminPage();
     }
 
-    _requestPermissions();
     return ChangeNotifierProvider(
       create: (context) => QueueViewController(
         diretoDaNuvemAPI,
@@ -119,9 +118,5 @@ class _RedirectionPageState extends State<RedirectionPage> {
         },
       )
     );
-  }
-
-  _requestPermissions() async {
-    await context.read<DeviceController>().requestPermissions();
   }
 }

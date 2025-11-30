@@ -40,7 +40,7 @@ class QueueCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        if (!isActive) {
+        if (!isActive && isAdmin) {
           if (!connection.connectionStatus) {
             noConnectionDialog(context).show();
           } else {

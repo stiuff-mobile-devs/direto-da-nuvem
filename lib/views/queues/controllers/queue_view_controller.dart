@@ -17,6 +17,7 @@ class QueueViewController extends ChangeNotifier {
 
   QueueViewController(this.diretoDaNuvemAPI, this.deviceController) {
     _getQueue();
+    _requestPermission();
     registeredDevice = deviceController.isRegistered;
     deviceController.addListener(_updateQueue);
   }
@@ -42,6 +43,10 @@ class QueueViewController extends ChangeNotifier {
     await _fetchImages();
     loadingImages = false;
     notifyListeners();
+  }
+
+  _requestPermission() async {
+    await deviceController.requestPermissions();
   }
 
   _updateQueue() async {
