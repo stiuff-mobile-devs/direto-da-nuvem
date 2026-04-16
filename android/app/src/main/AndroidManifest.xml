@@ -27,6 +27,7 @@
         android:label="Direto da Nuvem"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
+        android:banner="@drawable/banner"
         tools:ignore="MissingTvBanner">
         <activity
             android:name=".MainActivity"
