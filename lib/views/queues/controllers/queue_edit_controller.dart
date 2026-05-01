@@ -9,6 +9,7 @@ import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/widgets.dart' hide Image;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 class QueueEditController extends ChangeNotifier {
   late String currentUserId;
@@ -23,6 +24,7 @@ class QueueEditController extends ChangeNotifier {
   TextEditingController nameController = TextEditingController();
   TextEditingController durationController = TextEditingController();
   bool imagesLoaded = false;
+  static const uuid = Uuid();
 
   QueueEditController({required this.context, required this.queue}) {
     currentUserId = context.read<UserController>().currentUser!.id;
@@ -81,7 +83,7 @@ class QueueEditController extends ChangeNotifier {
 
     imageBytes = await pickedFile.readAsBytes();
     queue.images.add(Image(
-        path: pickedFile.name,
+        path: uuid.v1(),
         data: imageBytes,
         createdAt: DateTime.now(),
         createdBy: currentUserId)
@@ -96,7 +98,7 @@ class QueueEditController extends ChangeNotifier {
 
     if (pickedFile != null) {
       queue.images.add(Image(
-          path: pickedFile.files.first.name,
+          path: uuid.v1(),
           data: pickedFile.files.first.bytes,
           createdAt: DateTime.now(),
           createdBy: currentUserId)

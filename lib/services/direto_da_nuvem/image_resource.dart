@@ -59,7 +59,7 @@ class ImageResource {
   uploadImage(model.Image image) async {
     try {
       await _storage.ref().child(image.path).putData(image.data!);
-      await _firestore.collection(collection).doc(image.path).set(image.toMap());
+      //await _firestore.collection(collection).doc(image.path).set(image.toMap());
       _saveToLocalDB(image);
     } catch (e) {
       debugPrint("Error on upload image ${image.path} to storage: $e.");
