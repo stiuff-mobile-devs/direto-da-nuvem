@@ -4,7 +4,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInService extends ChangeNotifier {
   final auth = FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = GoogleSignIn();
+  final GoogleSignIn googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+      'https://www.googleapis.com/auth/drive.appdata',
+    ],
+  );
+
+  String? accessToken;
 
   SignInService();
 
@@ -37,8 +44,10 @@ class SignInService extends ChangeNotifier {
       final GoogleSignInAuthentication googleAuth = await googleUser
           .authentication;
 
+      accessToken = googleAuth.accessToken;
+
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
+        accessToken: accessToken,
         idToken: googleAuth.idToken,
       );
 

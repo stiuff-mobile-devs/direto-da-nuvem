@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:ddnuvem/models/user.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
+import 'package:ddnuvem/utils/email_regex.dart';
 import 'package:flutter/foundation.dart';
 
 class UserController extends ChangeNotifier {
@@ -11,6 +12,8 @@ class UserController extends ChangeNotifier {
   List<User> users = [];
   User? currentUser;
   String? profileImageUrl;
+  String? _googleAccessToken;
+  bool isExternalUser = false;
 
   StreamSubscription<List<User>>? _usersSubscription;
   bool isLoggedIn = false;
@@ -22,7 +25,7 @@ class UserController extends ChangeNotifier {
 
   _initialize() async {
     if (_signInService.isLoggedIn()
-        || (kIsWeb && await _signInService.signInSilently())) {
+        || (await _signInService.signInSilently())) {
       await _loadUserData();
       isLoggedIn = true;
     }
@@ -71,6 +74,14 @@ class UserController extends ChangeNotifier {
   _getCurrentUserInfo() async {
     final fbAuthUser = _signInService.getFirebaseAuthUser();
     profileImageUrl = fbAuthUser?.photoURL;
+
+    if (!iduffEmailHasMatch(fbAuthUser!.email!)) {
+      return _getExternalUserInfo(
+          fbAuthUser.displayName ?? "",
+          fbAuthUser.email!
+      );
+    }
+
     User? user = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.email!);
     if (user == null) {
       currentUser = User.empty();
@@ -78,6 +89,14 @@ class UserController extends ChangeNotifier {
       return;
     }
     currentUser = user;
+  }
+
+  _getExternalUserInfo(String name, String email) {
+    currentUser = User.empty();
+    currentUser?.name = name;
+    currentUser?.email = email;
+    isExternalUser = true;
+    _googleAccessToken = _signInService.accessToken;
   }
 
   _loadAllUsers() async {
