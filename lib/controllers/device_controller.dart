@@ -20,6 +20,7 @@ class DeviceController extends ChangeNotifier {
   Group? group;
   Device? device;
   bool isRegistered = false;
+  bool isAndroidTv = false;
   Queue? currentQueue;
   Queue? defaultQueue;
   List<Device> devices = [];
@@ -37,7 +38,7 @@ class DeviceController extends ChangeNotifier {
 
   _initialize() async {
     await _getDeviceInfo();
-    if (_signInService.isLoggedIn()) {
+    if (_signInService.isLoggedIn() && !_signInService.isExternalUser()) {
       await _checkIsRegistered();
       await _fetchGroupAndQueue();
       await loadDevices();
@@ -56,7 +57,7 @@ class DeviceController extends ChangeNotifier {
   }
 
   _signInListener() async {
-    if (_signInService.isLoggedIn()) {
+    if (_signInService.isLoggedIn() && !_signInService.isExternalUser()) {
       loadingInitialState = true;
       notifyListeners();
       await _checkIsRegistered();
@@ -83,6 +84,9 @@ class DeviceController extends ChangeNotifier {
     if (Platform.isAndroid) {
       try {
         androidInfo = await _deviceInfoPlugin.androidInfo;
+        final isLeanback = androidInfo?.systemFeatures.contains('android.software.leanback');
+        final isTelevision = androidInfo?.systemFeatures.contains('android.hardware.type.television');
+        isAndroidTv = isLeanback! || isTelevision!;
       } catch (e) {
         debugPrint("Erro ao obter dados do android: $e");
       }

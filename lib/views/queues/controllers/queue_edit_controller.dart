@@ -1,3 +1,4 @@
+import 'package:ddnuvem/controllers/external_queue_controller.dart';
 import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/image.dart';
@@ -14,6 +15,7 @@ import 'package:uuid/uuid.dart';
 class QueueEditController extends ChangeNotifier {
   late String currentUserId;
   late QueueController queueController;
+  late ExternalQueueController externalQueueController;
   BuildContext context;
   Queue queue;
   Uint8List? imageBytes;
@@ -29,6 +31,7 @@ class QueueEditController extends ChangeNotifier {
   QueueEditController({required this.context, required this.queue}) {
     currentUserId = context.read<UserController>().currentUser!.id;
     queueController = context.read<QueueController>();
+    externalQueueController = context.read<ExternalQueueController>();
 
     nameController.text = queue.name;
     durationController.text = queue.duration.toString();
@@ -63,7 +66,11 @@ class QueueEditController extends ChangeNotifier {
   void fetchImages() async {
     imagesLoaded = false;
     notifyListeners();
-    queue = await queueController.fetchQueueImages(queue);
+    if (queue.groupId.isEmpty) {
+      queue = await externalQueueController.fetchQueueImages(queue);
+    } else {
+      queue = await queueController.fetchQueueImages(queue);
+    }
     if (disposed) return;
     imagesLoaded = true;
     notifyListeners();

@@ -1,4 +1,5 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
+import 'package:ddnuvem/controllers/external_queue_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
@@ -6,7 +7,9 @@ import 'package:ddnuvem/utils/widgets/loading_widget.dart';
 import 'package:ddnuvem/views/admin/admin_page.dart';
 import 'package:ddnuvem/views/devices/pages/register_device_page.dart';
 import 'package:ddnuvem/views/intro_page.dart';
+import 'package:ddnuvem/views/queues/controllers/external_queue_view_controller.dart';
 import 'package:ddnuvem/views/queues/controllers/queue_view_controller.dart';
+import 'package:ddnuvem/views/queues/pages/external_queue_view_page.dart';
 import 'package:ddnuvem/views/queues/pages/queue_view_page.dart';
 import 'package:ddnuvem/views/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -18,16 +21,20 @@ class RedirectionData {
   bool isInstaller;
   bool isDeviceRegistered;
   bool isAdmin;
+  bool isExternal;
   bool isLoading;
   bool showSplash;
+  bool isTv;
 
   RedirectionData({
     this.loggedIn = false,
     this.isInstaller = false,
     this.isDeviceRegistered = false,
     this.isAdmin = false,
+    this.isExternal = false,
     this.isLoading = true,
     this.showSplash = false,
+    this.isTv = false
   });
 }
 
@@ -62,22 +69,32 @@ class _RedirectionPageState extends State<RedirectionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer3<UserController, DeviceController, GroupController>(
+    return Consumer4<UserController, DeviceController, GroupController, ExternalQueueController>(
       builder:
-          (context, userController, deviceController, groupController, child) {
+          (context, userController, deviceController, groupController, queueController, child) {
         RedirectionData redirectionData = RedirectionData();
 
         redirectionData.loggedIn = userController.isLoggedIn;
-        if (redirectionData.loggedIn) {
-          redirectionData.isAdmin = userController.isCurrentUserAdmin();
-          redirectionData.isInstaller = userController.isCurrentUserInstaller();
-        }
+        redirectionData.isExternal = userController.isCurrentUserExternal();
 
-        redirectionData.showSplash = !deviceController.showedSplash;
-        redirectionData.isDeviceRegistered = deviceController.isRegistered;
+         if (!redirectionData.isExternal) {
+            if (redirectionData.loggedIn) {
+              redirectionData.isAdmin = userController.isCurrentUserAdmin();
+              redirectionData.isInstaller =
+                  userController.isCurrentUserInstaller();
+            }
 
-        redirectionData.isLoading = deviceController.loadingInitialState ||
-            userController.loadingInitialState;
+            redirectionData.showSplash = !deviceController.showedSplash;
+            redirectionData.isDeviceRegistered = deviceController.isRegistered;
+
+            redirectionData.isLoading = deviceController.loadingInitialState ||
+                userController.loadingInitialState;
+         } else {
+           redirectionData.isTv = deviceController.isAndroidTv;
+           redirectionData.isLoading = userController.loadingInitialState
+               || queueController.loadingInitialState
+               || deviceController.loadingInitialState;
+         }
         return Builder(
           builder: (c) => redirectionBuilder(redirectionData),
         );
@@ -97,6 +114,25 @@ class _RedirectionPageState extends State<RedirectionPage> {
     if (!redirectionData.loggedIn) {
       return IntroPage(packageVersion: packageVersion);
     }
+
+    if (redirectionData.isExternal) {
+      if (redirectionData.isTv) {
+        return ChangeNotifierProvider(
+          create: (context) => ExternalQueueViewController(
+            context.read<ExternalQueueController>(),
+            context.read<DeviceController>(),
+          ),
+          child: Consumer<ExternalQueueViewController>(
+            builder: (context, controller, _) {
+              return ExternalQueueViewPage(queue: controller.queue);
+            },
+          )
+        );
+      }
+
+      return const AdminPage();
+    }
+
     if (!redirectionData.isDeviceRegistered && redirectionData.isInstaller) {
       return const RegisterDevicePage();
     }

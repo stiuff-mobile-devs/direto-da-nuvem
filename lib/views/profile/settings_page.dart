@@ -1,12 +1,16 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
+import 'package:ddnuvem/controllers/external_queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
+import 'package:ddnuvem/views/queues/controllers/external_queue_view_controller.dart';
 import 'package:ddnuvem/views/queues/controllers/queue_view_controller.dart';
 import 'package:ddnuvem/views/queues/pages/queue_view_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
+
+import '../queues/pages/external_queue_view_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -25,6 +29,7 @@ class SettingsPage extends StatelessWidget {
           final email = controller.currentUser!.email;
           final photoUrl = controller.profileImageUrl;
           final privs = (controller.currentUser!.privileges).toString();
+          final external = controller.isCurrentUserExternal();
 
           return Column(
             children: [
@@ -49,23 +54,23 @@ class SettingsPage extends StatelessWidget {
                 title: const Text("Logout"),
                 onTap: () => controller.logout(),
               ),
-              kDebugMode
+              (kDebugMode || external)
               ? ListTile(
                   leading: const Icon(Icons.play_arrow),
                   title: const Text("Tocar fila"),
-                  enabled: isRegistered,
+                  enabled: external || isRegistered,
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) {
-                          return ChangeNotifierProvider<QueueViewController>(
-                            create: (_) => QueueViewController(
-                              context.read<DiretoDaNuvemAPI>(),
-                              context.read<DeviceController>(),
+                          return ChangeNotifierProvider<ExternalQueueViewController>(
+                            create: (_) => ExternalQueueViewController(
+                              context.read<ExternalQueueController>(),
+                              context.read<DeviceController>()
                             ),
-                            child: Consumer<QueueViewController>(
+                            child: Consumer<ExternalQueueViewController>(
                               builder: (context, controller, _) {
-                                return QueueViewPage(queue: controller.queue!);
+                                return ExternalQueueViewPage(queue: controller.queue!);
                               },
                             ),
                           );

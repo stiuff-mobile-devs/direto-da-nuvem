@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ddnuvem/models/external_queue.dart';
 import 'package:ddnuvem/models/image.dart';
 import 'package:ddnuvem/models/queue_status.dart';
 import 'package:hive/hive.dart';
@@ -92,6 +93,21 @@ class Queue extends HiveObject {
       createdBy: "",
       images: [],
     );
+  }
+
+  factory Queue.fromExternalQueue(ExternalQueue other) {
+    return Queue(
+        id: other.id,
+        name: other.name,
+        groupId: "",
+        duration: other.duration,
+        animation: other.animation,
+        status: QueueStatus.approved,
+        createdAt: other.createdAt,
+        createdBy: "",
+        updatedAt: DateTime.now(),
+        updatedBy: "",
+        images: [...other.images]);
   }
 
   Map<String, dynamic> toMap() {

@@ -5,6 +5,7 @@ import 'package:ddnuvem/controllers/queue_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
+import 'package:ddnuvem/services/google_drive/drive_service.dart';
 import 'package:ddnuvem/services/hive_service.dart';
 import 'package:ddnuvem/services/local_storage_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
@@ -15,6 +16,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'controllers/external_queue_controller.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -33,6 +35,7 @@ Future<void> main() async {
 
   runApp(MultiProvider(providers: [
     Provider<DiretoDaNuvemAPI>(create: (context) => DiretoDaNuvemAPI()),
+    Provider<GoogleDriveAPI>(create: (context) => GoogleDriveAPI()),
     Provider<LocalStorageService>(create: (context) => LocalStorageService()),
     ChangeNotifierProvider<SignInService>(create: (context) => SignInService()),
     ChangeNotifierProvider<ConnectionService>(
@@ -43,6 +46,8 @@ Future<void> main() async {
         create: (context) => DevicesFilterController()),
     ChangeNotifierProvider<QueueController>(
         create: (context) => QueueController(context.read(), context.read())),
+    ChangeNotifierProvider<ExternalQueueController>(
+        create: (context) => ExternalQueueController(context.read(), context.read())),
     ChangeNotifierProvider<GroupController>(
         create: (context) => GroupController(context.read(), context.read())),
     ChangeNotifierProvider<DeviceController>(

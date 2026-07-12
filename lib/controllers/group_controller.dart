@@ -18,7 +18,7 @@ class GroupController extends ChangeNotifier {
   }
 
   _initialize() async {
-    if (_signInService.isLoggedIn()) {
+    if (_signInService.isLoggedIn() && !_signInService.isExternalUser()) {
       await _fetchAllGroups();
     }
   }
@@ -31,7 +31,7 @@ class GroupController extends ChangeNotifier {
   }
 
   _signInListener() async {
-    if (_signInService.isLoggedIn()) {
+    if (_signInService.isLoggedIn() && !_signInService.isExternalUser()) {
       await _fetchAllGroups();
     } else {
       _signOutClear();

@@ -1,26 +1,34 @@
+import 'package:ddnuvem/utils/email_regex.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInService extends ChangeNotifier {
   final auth = FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = GoogleSignIn(
-    scopes: [
-      'email',
-      'https://www.googleapis.com/auth/drive.appdata',
-    ],
-  );
-
+  final GoogleSignIn googleSignIn = GoogleSignIn();
   String? accessToken;
 
   SignInService();
 
   Future<bool> signInWithGoogle() async {
     try {
-      final googleUser = await googleSignIn.signIn();
-      return googleUser != null
-          ? await _signIn(googleUser)
-          : false;
+      GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        return false;
+      }
+
+      if (!iduffEmailHasMatch(googleUser.email)) {
+        final bool isAuthorized = await googleSignIn.requestScopes([
+          'https://www.googleapis.com/auth/drive.appdata',
+        ]);
+
+        if (!isAuthorized) {
+          debugPrint("Google Drive permission denied");
+          return false;
+        }
+      }
+
+      return await _signIn(googleUser);
     } catch (e) {
       debugPrint("Error on sign in with google: $e");
       return false;
@@ -30,9 +38,22 @@ class SignInService extends ChangeNotifier {
   Future<bool> signInSilently() async {
     try {
       final googleUser = await googleSignIn.signInSilently();
-      return googleUser != null
-          ? await _signIn(googleUser)
-          : false;
+      if (googleUser == null) {
+        return false;
+      }
+
+      // if (!iduffEmailHasMatch(googleUser.email)) {
+      //   final bool isAuthorized = await googleSignIn.requestScopes([
+      //     'https://www.googleapis.com/auth/drive.appdata',
+      //   ]);
+      //
+      //   if (!isAuthorized) {
+      //     debugPrint("Google Drive permission denied");
+      //     return false;
+      //   }
+      // }
+
+      return await _signIn(googleUser);
     } catch (e) {
       debugPrint("Error on sign in silently with google: $e");
       return false;
@@ -78,5 +99,16 @@ class SignInService extends ChangeNotifier {
 
   bool isLoggedIn() {
     return getFirebaseAuthUser() != null;
+  }
+
+  Future<String?> getAccessToken() async {
+    if (accessToken == null) {
+      await signInSilently();
+    }
+    return accessToken!;
+  }
+
+  bool isExternalUser() {
+    return !iduffEmailHasMatch(getFirebaseAuthUser()!.email!);
   }
 }

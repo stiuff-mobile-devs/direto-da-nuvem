@@ -12,7 +12,6 @@ class UserController extends ChangeNotifier {
   List<User> users = [];
   User? currentUser;
   String? profileImageUrl;
-  String? _googleAccessToken;
   bool isExternalUser = false;
 
   StreamSubscription<List<User>>? _usersSubscription;
@@ -58,6 +57,7 @@ class UserController extends ChangeNotifier {
     currentUser = null;
     profileImageUrl = null;
     users = [];
+    isExternalUser = false;
     _usersSubscription?.cancel();
     isLoggedIn = false;
     notifyListeners();
@@ -65,10 +65,12 @@ class UserController extends ChangeNotifier {
 
   _loadUserData() async {
     await _getCurrentUserInfo();
-    if (isCurrentUserAuthorized() && !currentUser!.authenticated) {
-      await updateAuthenticatedUser();
+    if (!isExternalUser) {
+      if (isCurrentUserAuthorized() && !currentUser!.authenticated) {
+        await updateAuthenticatedUser();
+      }
+      await _loadAllUsers();
     }
-    await _loadAllUsers();
   }
 
   _getCurrentUserInfo() async {
@@ -76,19 +78,19 @@ class UserController extends ChangeNotifier {
     profileImageUrl = fbAuthUser?.photoURL;
 
     if (!iduffEmailHasMatch(fbAuthUser!.email!)) {
-      return _getExternalUserInfo(
+      _getExternalUserInfo(
           fbAuthUser.displayName ?? "",
           fbAuthUser.email!
       );
+    } else {
+      User? user = await _diretoDaNuvemAPI.userResource.get(fbAuthUser.email!);
+      if (user == null) {
+        currentUser = User.empty();
+        debugPrint("Usuario nao autorizado");
+        return;
+      }
+      currentUser = user;
     }
-
-    User? user = await _diretoDaNuvemAPI.userResource.get(fbAuthUser!.email!);
-    if (user == null) {
-      currentUser = User.empty();
-      debugPrint("Usuario nao autorizado");
-      return;
-    }
-    currentUser = user;
   }
 
   _getExternalUserInfo(String name, String email) {
@@ -96,7 +98,6 @@ class UserController extends ChangeNotifier {
     currentUser?.name = name;
     currentUser?.email = email;
     isExternalUser = true;
-    _googleAccessToken = _signInService.accessToken;
   }
 
   _loadAllUsers() async {
@@ -226,5 +227,9 @@ class UserController extends ChangeNotifier {
     return privileges.isSuperAdmin
         || privileges.isAdmin
         || privileges.isInstaller;
+  }
+
+  bool isCurrentUserExternal() {
+    return isExternalUser;
   }
 }

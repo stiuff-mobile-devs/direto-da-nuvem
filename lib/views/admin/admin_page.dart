@@ -1,9 +1,11 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
+import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/devices/pages/devices_page.dart';
 import 'package:ddnuvem/views/groups/pages/groups_page.dart';
 import 'package:ddnuvem/views/people/pages/people_page.dart';
 import 'package:ddnuvem/views/profile/settings_page.dart';
+import 'package:ddnuvem/views/queues/pages/queues_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,6 +14,7 @@ class AdminPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool externalUser = context.read<UserController>().isCurrentUserExternal();
     int startIndex = 0;
 
     try {
@@ -28,18 +31,20 @@ class AdminPage extends StatelessWidget {
         .isCurrentUserSuperAdmin();
 
     final pages = [
-      const DevicesPage(),
-      const GroupsPage(),
+      if (externalUser) const QueuesPage(),
+      if (!externalUser) const DevicesPage(),
+      if (!externalUser) const GroupsPage(),
       //const ImagesPage(),
-      if (isSuperAdmin) const PeoplePage(),
+      if (isSuperAdmin && !externalUser) const PeoplePage(),
       const SettingsPage(),
     ].whereType<Widget>().toList();
 
     final tabs = [
-      const Tab(icon: Icon(Icons.tv)),
-      const Tab(icon: Icon(Icons.group_work)),
+      if (externalUser) const Tab(icon: Icon(Icons.tv)),
+      if (!externalUser) const Tab(icon: Icon(Icons.tv)),
+      if (!externalUser) const Tab(icon: Icon(Icons.group_work)),
       //const Tab(icon: Icon(Icons.image)),
-      if (isSuperAdmin) const Tab(icon: Icon(Icons.group)),
+      if (!externalUser && isSuperAdmin) const Tab(icon: Icon(Icons.group)),
       const Tab(icon: Icon(Icons.settings)),
     ].whereType<Tab>().toList();
 
