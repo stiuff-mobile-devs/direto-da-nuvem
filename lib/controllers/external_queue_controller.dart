@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:ddnuvem/models/external_queue.dart';
 import 'package:ddnuvem/models/queue.dart';
-import 'package:ddnuvem/models/queue_status.dart';
-import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/services/google_drive/drive_service.dart';
 import 'package:ddnuvem/services/sign_in_service.dart';
 import 'package:flutter/material.dart';

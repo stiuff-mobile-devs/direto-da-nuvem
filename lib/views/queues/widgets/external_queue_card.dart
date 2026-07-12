@@ -1,6 +1,4 @@
 import 'package:ddnuvem/controllers/external_queue_controller.dart';
-import 'package:ddnuvem/controllers/queue_controller.dart';
-import 'package:ddnuvem/controllers/user_controller.dart';
 import 'package:ddnuvem/models/external_queue.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/services/connection_service.dart';
@@ -24,7 +22,6 @@ class ExternalQueueCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userController = context.read<UserController>();
     final connection = context.read<ConnectionService>();
     String numberOfPhotos = queue.images.length == 1
         ? "${queue.images.length} foto"

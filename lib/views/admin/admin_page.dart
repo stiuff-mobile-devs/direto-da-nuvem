@@ -1,5 +1,4 @@
 import 'package:ddnuvem/controllers/user_controller.dart';
-import 'package:ddnuvem/models/queue_status.dart';
 import 'package:ddnuvem/utils/theme.dart';
 import 'package:ddnuvem/views/devices/pages/devices_page.dart';
 import 'package:ddnuvem/views/groups/pages/groups_page.dart';

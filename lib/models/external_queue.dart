@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddnuvem/models/image.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:hive/hive.dart';
