@@ -122,6 +122,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
           create: (context) => ExternalQueueViewController(
             context.read<ExternalQueueController>(),
             context.read<DeviceController>(),
+            context.read<ConnectionService>()
           ),
           child: Consumer<ExternalQueueViewController>(
             builder: (context, controller, _) {

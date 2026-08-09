@@ -17,7 +17,7 @@ class SignInService extends ChangeNotifier {
         return false;
       }
 
-      if (!iduffEmailHasMatch(googleUser.email)) {
+      if (!kIsWeb && !iduffEmailHasMatch(googleUser.email)) {
         final bool isAuthorized = await googleSignIn.requestScopes([
           'https://www.googleapis.com/auth/drive.appdata',
         ]);

@@ -6,8 +6,10 @@ import 'package:ddnuvem/views/queues/controllers/external_queue_view_controller.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
-
+import '../../services/direto_da_nuvem/direto_da_nuvem_service.dart';
+import '../queues/controllers/queue_view_controller.dart';
 import '../queues/pages/external_queue_view_page.dart';
+import '../queues/pages/queue_view_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -53,29 +55,52 @@ class SettingsPage extends StatelessWidget {
               ),
               (kDebugMode || external)
               ? ListTile(
-                  leading: const Icon(Icons.play_arrow),
-                  title: const Text("Tocar fila"),
-                  enabled: external || isRegistered,
-                  onTap: () {
+                leading: const Icon(Icons.play_arrow),
+                title: const Text("Tocar fila"),
+                enabled: external || isRegistered,
+                onTap: () {
+                  if (external) {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) {
-                          return ChangeNotifierProvider<ExternalQueueViewController>(
+                          return ChangeNotifierProvider<
+                              ExternalQueueViewController>(
                             create: (_) => ExternalQueueViewController(
-                              context.read<ExternalQueueController>(),
-                              context.read<DeviceController>()
-                            ),
+                                context.read<ExternalQueueController>(),
+                                context.read<DeviceController>(),
+                                context.read<ConnectionService>()),
                             child: Consumer<ExternalQueueViewController>(
                               builder: (context, controller, _) {
-                                return ExternalQueueViewPage(queue: controller.queue!);
+                                return ExternalQueueViewPage(
+                                    queue: controller.queue!);
                               },
                             ),
                           );
                         },
                       ),
                     );
-                  },
-                )
+                  } else {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return ChangeNotifierProvider<QueueViewController>(
+                            create: (_) => QueueViewController(
+                                context.read<DiretoDaNuvemAPI>(),
+                                context.read<DeviceController>(),
+                                context.read<ConnectionService>()
+                            ),
+                            child: Consumer<QueueViewController>(
+                              builder: (context, controller, _) {
+                                return QueueViewPage(queue: controller.queue!);
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  }
+                },
+              )
               : const SizedBox.shrink(),
             ],
           );

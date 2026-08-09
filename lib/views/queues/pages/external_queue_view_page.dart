@@ -17,16 +17,19 @@ class ExternalQueueViewPage extends StatefulWidget {
 
 class _QueueViewPageState extends State<ExternalQueueViewPage> {
   bool loading = false;
+  bool isConnected = true;
   late model.Animation animation;
 
   @override
   Widget build(BuildContext context) {
     try {
-      final queueViewController = context.read<ExternalQueueViewController>();
+      final queueViewController = context.watch<ExternalQueueViewController>();
       loading = queueViewController.loadingImages;
       animation = queueViewController.animation;
+      isConnected = queueViewController.isConnected;
     } catch (e) {
       loading = false;
+      isConnected = true;
     }
 
     if (loading || widget.queue == null) {
@@ -34,35 +37,57 @@ class _QueueViewPageState extends State<ExternalQueueViewPage> {
     }
 
     return Focus(
-        child: CarouselSlider(
-            options: CarouselOptions(
-              height: MediaQuery.of(context).size.height,
-              viewportFraction: 1.0,
-              autoPlay: true,
-              autoPlayInterval: Duration(seconds: widget.queue!.duration),
-              enlargeCenterPage: animation.enlargeCenter,
-              reverse: animation.reverse,
-              enlargeStrategy: animation.enlargeStrategy,
-              enlargeFactor: animation.enlargeFactor,
-              autoPlayCurve:  animation.animationCurve,
-              scrollDirection: animation.scrollDirection,
-              autoPlayAnimationDuration: Duration(milliseconds: animation.durationMilliseconds),
+        child: Stack(
+          children: [
+            CarouselSlider(
+              options: CarouselOptions(
+                height: MediaQuery.of(context).size.height,
+                viewportFraction: 1.0,
+                autoPlay: true,
+                autoPlayInterval: Duration(seconds: widget.queue!.duration),
+                enlargeCenterPage: animation.enlargeCenter,
+                reverse: animation.reverse,
+                enlargeStrategy: animation.enlargeStrategy,
+                enlargeFactor: animation.enlargeFactor,
+                autoPlayCurve:  animation.animationCurve,
+                scrollDirection: animation.scrollDirection,
+                autoPlayAnimationDuration: Duration(milliseconds: animation.durationMilliseconds),
+              ),
+              items: widget.queue!.images.map((image) {
+                return Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                  child: image.data != null
+                      ? Image.memory(
+                    image.data!,
+                    fit: BoxFit.cover,
+                  )
+                      : Container(
+                    color: Colors.grey,
+                  ),
+                );
+              }).toList(),
             ),
-            items: widget.queue!.images.map((image) {
-              return Container(
-                width: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                child: image.data != null
-                    ? Image.memory(
-                  image.data!,
-                  fit: BoxFit.cover,
-                )
-                    : Container(
-                  color: Colors.grey,
+            if (!isConnected)
+              Positioned(
+                bottom: 16.0,
+                right: 16.0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.wifi_off, color: Colors.white, size: 20.0),
+                    ],
+                  ),
                 ),
-              );
-            }).toList(),
-          )
+              ),
+          ],
+        )
       );
     }
 }

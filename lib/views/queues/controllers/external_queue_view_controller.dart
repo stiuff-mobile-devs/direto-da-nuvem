@@ -3,19 +3,24 @@ import 'package:ddnuvem/controllers/external_queue_controller.dart';
 import 'package:ddnuvem/models/external_queue.dart';
 import 'package:ddnuvem/models/animation.dart' as model;
 import 'package:flutter/material.dart';
+import '../../../services/connection_service.dart';
 
 class ExternalQueueViewController extends ChangeNotifier {
   ExternalQueueController externalQueueController;
   DeviceController deviceController;
+  ConnectionService connectionService;
   ExternalQueue? queue;
   late model.Animation animation;
   bool loadingImages = false;
+  bool isConnected = false;
   bool disposed = false;
 
-  ExternalQueueViewController(this.externalQueueController, this.deviceController) {
+  ExternalQueueViewController(this.externalQueueController, this.deviceController, this.connectionService) {
     _getQueue();
     _requestPermission();
+    isConnected = connectionService.connectionStatus;
     externalQueueController.addListener(_updateQueue);
+    connectionService.addListener(_updateConnectionStatus);
   }
 
   @override
@@ -24,6 +29,13 @@ class ExternalQueueViewController extends ChangeNotifier {
     disposed = true;
     debugPrint("ExternalQueueViewController disposed");
     super.dispose();
+  }
+
+  void _updateConnectionStatus() {
+    if (isConnected != connectionService.connectionStatus) {
+      isConnected = connectionService.connectionStatus;
+      notifyListeners();
+    }
   }
 
   _getQueue() async {
