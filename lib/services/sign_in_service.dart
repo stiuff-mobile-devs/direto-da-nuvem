@@ -42,17 +42,6 @@ class SignInService extends ChangeNotifier {
         return false;
       }
 
-      // if (!iduffEmailHasMatch(googleUser.email)) {
-      //   final bool isAuthorized = await googleSignIn.requestScopes([
-      //     'https://www.googleapis.com/auth/drive.appdata',
-      //   ]);
-      //
-      //   if (!isAuthorized) {
-      //     debugPrint("Google Drive permission denied");
-      //     return false;
-      //   }
-      // }
-
       return await _signIn(googleUser);
     } catch (e) {
       debugPrint("Error on sign in silently with google: $e");
@@ -82,6 +71,23 @@ class SignInService extends ChangeNotifier {
     }
   }
 
+  Future<String?> _refreshToken() async {
+    try {
+      final googleUser = await googleSignIn.signInSilently();
+
+      if (googleUser != null) {
+        final auth = await googleUser.authentication;
+        accessToken = auth.accessToken;
+        return accessToken;
+      }
+    } catch (e) {
+      debugPrint("Erro ao renovar token: $e");
+    }
+
+    accessToken = null;
+    return null;
+  }
+
   signOut() async {
     try {
       await auth.signOut();
@@ -102,10 +108,11 @@ class SignInService extends ChangeNotifier {
   }
 
   Future<String?> getAccessToken() async {
-    if (accessToken == null) {
-      await signInSilently();
-    }
-    return accessToken!;
+    return await _refreshToken();
+    // if (accessToken == null) {
+    //   await signInSilently();
+    // }
+    // return accessToken!;
   }
 
   bool isExternalUser() {
