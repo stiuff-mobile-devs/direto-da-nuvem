@@ -1,6 +1,7 @@
 import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/controllers/group_controller.dart';
 import 'package:ddnuvem/controllers/user_controller.dart';
+import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:ddnuvem/utils/widgets/loading_widget.dart';
 import 'package:ddnuvem/views/admin/admin_page.dart';
@@ -111,6 +112,7 @@ class _RedirectionPageState extends State<RedirectionPage> {
       create: (context) => QueueViewController(
         diretoDaNuvemAPI,
         context.read<DeviceController>(),
+        context.read<ConnectionService>(),
       ),
       child: Consumer<QueueViewController>(
         builder: (context, controller, _) {

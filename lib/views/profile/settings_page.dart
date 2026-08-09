@@ -62,6 +62,7 @@ class SettingsPage extends StatelessWidget {
                             create: (_) => QueueViewController(
                               context.read<DiretoDaNuvemAPI>(),
                               context.read<DeviceController>(),
+                              context.read<ConnectionService>()
                             ),
                             child: Consumer<QueueViewController>(
                               builder: (context, controller, _) {

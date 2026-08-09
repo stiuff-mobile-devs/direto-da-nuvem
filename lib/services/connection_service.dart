@@ -1,19 +1,20 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:http/http.dart' as http;
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 class ConnectionService extends ChangeNotifier {
-  final Connectivity _connectivity = Connectivity();
-
   bool connectionStatus = false;
-  StreamSubscription? _subscription;
+  StreamSubscription<InternetStatus>? _subscription;
 
   ConnectionService() {
-    _checkConnection();
+    _checkInitialConnection();
 
-    _subscription = _connectivity.onConnectivityChanged.listen((_) {
-      _checkConnection();
+    _subscription = InternetConnection().onStatusChange.listen((InternetStatus status) {
+      bool newStatus = status == InternetStatus.connected;
+      if (newStatus != connectionStatus) {
+        connectionStatus = newStatus;
+        notifyListeners();
+      }
     },
     onError: (e) {
       debugPrint("Error on listen to connectivity: $e");
@@ -26,9 +27,10 @@ class ConnectionService extends ChangeNotifier {
     super.dispose();
   }
 
-  _checkConnection() async {
+  _checkInitialConnection() async {
     if (kIsWeb) {
       connectionStatus = true;
+      notifyListeners();
       return;
     }
     bool newStatus = await isConnected();
@@ -39,22 +41,7 @@ class ConnectionService extends ChangeNotifier {
   }
 
   static Future<bool> isConnected() async {
-    try {
-      var connectivity = await Connectivity().checkConnectivity();
-      if (connectivity == ConnectivityResult.none) {
-        return false;
-      }
-
-      final result = await http
-          .get(Uri.parse('https://www.google.com'))
-          .timeout(const Duration(seconds: 5));
-      if (result.statusCode == 200) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (e) {
-      return false;
-    }
+    if (kIsWeb) return true;
+    return await InternetConnection().hasInternetAccess;
   }
 }
