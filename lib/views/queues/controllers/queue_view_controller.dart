@@ -3,31 +3,44 @@ import 'package:ddnuvem/controllers/device_controller.dart';
 import 'package:ddnuvem/models/queue.dart';
 import 'package:ddnuvem/models/animation.dart' as model;
 import 'package:ddnuvem/models/queue_status.dart';
+import 'package:ddnuvem/services/connection_service.dart';
 import 'package:ddnuvem/services/direto_da_nuvem/direto_da_nuvem_service.dart';
 import 'package:flutter/material.dart';
 
 class QueueViewController extends ChangeNotifier {
   DiretoDaNuvemAPI diretoDaNuvemAPI;
   DeviceController deviceController;
+  ConnectionService connectionService;
   Queue? queue;
   late model.Animation animation;
   bool loadingImages = false;
   bool registeredDevice = false;
+  bool isConnected = false;
   bool disposed = false;
 
-  QueueViewController(this.diretoDaNuvemAPI, this.deviceController) {
+  QueueViewController(this.diretoDaNuvemAPI, this.deviceController, this.connectionService) {
     _getQueue();
     _requestPermission();
     registeredDevice = deviceController.isRegistered;
+    isConnected = connectionService.connectionStatus;
     deviceController.addListener(_updateQueue);
+    connectionService.addListener(_updateConnectionStatus);
   }
 
   @override
   void dispose() {
     deviceController.removeListener(_updateQueue);
+    connectionService.removeListener(_updateConnectionStatus);
     disposed = true;
     debugPrint("QueueViewController disposed");
     super.dispose();
+  }
+
+  void _updateConnectionStatus() {
+    if (isConnected != connectionService.connectionStatus) {
+      isConnected = connectionService.connectionStatus;
+      notifyListeners();
+    }
   }
 
   _getQueue() async {

@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 class ImageResource {
   static const collection = "images";
   final FirebaseStorage _storage = FirebaseStorage.instance;
+  //final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final Box<model.Image> _hiveBox = Hive.box<model.Image>(collection);
 
   Future<Uint8List?> fetchImageData(String path) async {
